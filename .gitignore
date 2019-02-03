@@ -1,0 +1,16 @@
+*.pyc
+.DS_Store
+
+# exclude everything
+dnn_reco.egg-info/*
+data/*
+logs/*
+checkpoints/*
+configs/user/*
+
+# exception to the rule
+!data/.gitkeep
+!logs/.gitkeep
+!checkpoints/.gitkeep
+!configs/user/.gitkeep
+

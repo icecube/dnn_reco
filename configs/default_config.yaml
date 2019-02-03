@@ -1,0 +1,129 @@
+---
+##############
+# Test config
+#
+# Detailed information on the parameters are given in the SetupManager
+# class located in dnn_reco/setup_manager.py.
+##############
+
+#---------------------------
+# General settings
+#---------------------------
+'training_data_file' : [
+    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+  ]
+'trafo_data_file' : [
+    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+  ]
+'validation_data_file' : [
+    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+  ]
+'test_data_file' : [
+    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+  ]
+
+
+'num_jobs' : 3
+'file_capacity' : 10
+'batch_capacity' : 200
+'num_add_files' : 10
+'num_repetitions' : 1
+#'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
+'batch_size' : 32
+
+'log_path' : "../logs/\
+                {config_name}/\
+                {model_file}__\
+                {model_name}/\
+                {model_loss_file}__\
+                {model_loss_name}"
+
+#----------------------
+# Data Handler settings
+#----------------------
+'data_handler_num_bins': 9
+
+'data_handler_label_file': 'default_labels'
+'data_handler_label_name': 'simple_label_loader'
+'data_handler_misc_file': 'default_misc'
+'data_handler_misc_name': 'dummy_misc_loader'
+'data_handler_filter_file': 'default_filter'
+'data_handler_filter_name': 'dummy_filter'
+
+
+'data_handler_label_key': 'LabelsDeepLearning'
+
+
+# must be a list of keys or empty list
+'data_handler_relative_time_keys': []
+# lower case pattern
+'data_handler_relative_time_key_pattern': 'time'
+
+
+#---------------------------
+# General Training settings
+#---------------------------
+'num_training_iterations' : 100000000
+'validation_frequency' : 100
+'save_frequency' : 500
+'keep_global_count' : True
+'keep_probability_list' : [0.9, 1.0]
+
+#---------------------------
+# Trafo settings
+#---------------------------
+'trafo_num_jobs' : 3
+'trafo_num_batches' : 10
+'trafo_model_path' : '../data/trafo_models/test_trafo_model.npy'
+'trafo_normalize_dom_data' : True
+'trafo_normalize_label_data' : True
+'trafo_normalize_misc_data' : True
+'trafo_log_dom_bins' : False
+'trafo_log_label_bins' : {
+                            'cascade_energy': True,
+                         }
+'trafo_log_misc_bins' : False
+'trafo_treat_doms_equally' : True
+'trafo_norm_constant' : 0.0001
+
+#----------------------
+# NN Model Architecture
+#----------------------
+'model_file' : 'autoencoder_models'
+'model_name' : 'IC79_translational_model'
+# time bin width in ns
+'model_filter_sizes' : [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
+                            [1, 1, 1], [1, 1, 1],
+                            ]
+'model_num_filters' : [20, 500, 500, 500, 7]
+'model_method_list' : ['locally_connected',
+                           'convolution', 'convolution', 'convolution',
+                           'convolution',
+                          ]
+'model_use_dropout' : False
+'model_activations' : ['elu', 'elu',
+                           'elu', 'elu', '']
+'model_keep_prob_index' : 0
+'model_use_batch_norm' : False
+'model_use_residual' : True
+'model_is_training' : True
+
+
+#------------------
+# NN Model Training
+#------------------
+'model_checkpoint_path' : "../checkpoints/nn_model/\
+                              {model_file}__\
+                              {model_name}/\
+                              {config_name}/model"
+'model_restore_model' : False
+'model_save_model' : True
+'model_perform_training' : True
+'model_loss_file' : 'losses_autoencoder'
+'model_loss_name' : 'weighted_mse_loss_autoencoder' #'likelihood'
+'model_optimizer_name' : 'AdamOptimizer'
+'model_optimizer_settings' : {
+                                'learning_rate' : 0.001,
+                            }
+
+...
