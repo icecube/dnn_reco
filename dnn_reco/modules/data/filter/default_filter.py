@@ -8,10 +8,10 @@ All filter functions must have the following parameters and return values:
             Path to input data file.
     config : dict
         Dictionary containing all settings as read in from config file.
-    X_IC79 : numpy.ndarray
+    x_IC79 : numpy.ndarray
         DOM input data of main IceCube array.
         shape: [batch_size, 10, 10, 60, num_bins]
-    X_DeepCore : numpy.ndarray
+    x_deepcore : numpy.ndarray
         DOM input data of DeepCore array.
         shape: [batch_size, 8, 60, num_bins]
     labels : numpy.ndarray
@@ -36,7 +36,7 @@ All filter functions must have the following parameters and return values:
 """
 
 
-def dummy_filter(input_data, config,  X_IC79, X_DeepCore, labels, misc,
+def dummy_filter(input_data, config,  x_ic70, x_deepcore, labels, misc,
                  time_range_start, *args, **kwargs):
     """Dummy filter that accepts all events.
 
@@ -46,10 +46,10 @@ def dummy_filter(input_data, config,  X_IC79, X_DeepCore, labels, misc,
             Path to input data file.
     config : dict
         Dictionary containing all settings as read in from config file.
-    X_IC79 : numpy.ndarray
+    x_ic70 : numpy.ndarray
         DOM input data of main IceCube array.
         shape: [batch_size, 10, 10, 60, num_bins]
-    X_DeepCore : numpy.ndarray
+    x_deepcore : numpy.ndarray
         DOM input data of DeepCore array.
         shape: [batch_size, 8, 60, num_bins]
     labels : numpy.ndarray

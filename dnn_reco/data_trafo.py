@@ -18,7 +18,7 @@ class DataTransformer:
                  treat_doms_equally=True, normalize_dom_data=True,
                  normalize_label_data=True, normalize_misc_data=True,
                  log_dom_bins=False, log_label_bins=False, log_misc_bins=False,
-                 norm_constant=1e-6):
+                 norm_constant=1e-6, float_precision='float64'):
         """Initializes a DataTransformer object and saves the trafo settings.
 
         Parameters
@@ -57,14 +57,17 @@ class DataTransformer:
             The natural logarithm is applied to the misc data bins prior
             to normalization.
             If a list is given, the length of the list must match the number of
-            labels misc_shape[-1]. The logarithm is applied to bin i if the
-            ith entry of the log_misc_bins list is True.
+            misc variabels misc_shape[-1]. The logarithm is applied to bin i
+            if the ith entry of the log_misc_bins list is True.
             If a dictionary is provided, a list of length label_shape[-1] will
             be initialized with False and only the values of the labels as
             specified by the keys in the dictionary will be  updated.
         norm_constant : float
             A small constant that is added to the denominator during
             normalization to ensure finite values.
+        float_precision : str, optional
+            Float precision to use for trafo methods.
+            Examples: 'float32', 'float64'
 
         Raises
         ------
@@ -72,6 +75,8 @@ class DataTransformer:
             Description
         """
         self._setup_complete = False
+        self._np_float_dtype = getattr(np, float_precision)
+        self._tf_float_dtype = getattr(tf, float_precision)
 
         # If log_bins is a bool, logarithm is to be applied to all bins.
         # In this case, create a list of bool for each data bin.
@@ -131,8 +136,8 @@ class DataTransformer:
             'norm_constant': norm_constant,
         }
 
-        self.IC79_shape = [10, 10, 60, self.trafo_model['num_bins']]
-        self.DeepCore_shape = [8, 60, self.trafo_model['num_bins']]
+        self._ic79_shape = [10, 10, 60, self.trafo_model['num_bins']]
+        self._deepcore_shape = [8, 60, self.trafo_model['num_bins']]
 
     def _update_online_variance_vars(self, data_batch, n, mean, M2):
         """Update online variance variables.
@@ -193,6 +198,8 @@ class DataTransformer:
             n, mean, M2
             Returns the updated online variance variables
         """
+        data_batch = np.array(data_batch, dtype=self._np_float_dtype)
+
         # perform logarithm on bins
         for bin_i, log_bin in enumerate(log_bins):
             if log_bin:
@@ -215,17 +222,17 @@ class DataTransformer:
         """
 
         # create empty onlince variance variables
-        IC79_n = 0.
-        IC79_mean = np.zeros(self.IC79_shape)
-        IC79_M2 = np.zeros(self.IC79_shape)
+        ic79_n = 0.
+        ic79_mean = np.zeros(self._ic79_shape)
+        ic79_M2 = np.zeros(self._ic79_shape)
 
-        DeepCore_n = 0.
-        DeepCore_mean = np.zeros(self.DeepCore_shape)
-        DeepCore_M2 = np.zeros(self.DeepCore_shape)
+        deepcore_n = 0.
+        deepcore_mean = np.zeros(self._deepcore_shape)
+        deepcore_M2 = np.zeros(self._deepcore_shape)
 
-        labels_n = 0.
-        labels_mean = np.zeros(self.trafo_model['label_shape'])
-        labels_M2 = np.zeros(self.trafo_model['label_shape'])
+        label_n = 0.
+        label_mean = np.zeros(self.trafo_model['label_shape'])
+        label_M2 = np.zeros(self.trafo_model['label_shape'])
 
         if self.trafo_model['misc_shape'] is not None:
             misc_n = 0.
@@ -237,41 +244,41 @@ class DataTransformer:
             if i % 100 == 0:
                 print('At batch {} of {}'.format(i, num_batches))
 
-            X_IC79, X_DeepCore, labels, misc_data = next(data_iterator)
+            x_ic79, x_deepcore, label, misc_data = next(data_iterator)
 
-            IC79_n, IC79_mean, IC79_M2 = self._perform_update_step(
+            ic79_n, ic79_mean, ic79_M2 = self._perform_update_step(
                                     log_bins=self.trafo_model['log_dom_bins'],
-                                    data_batch=X_IC79,
-                                    n=IC79_n,
-                                    mean=IC79_mean,
-                                    M2=IC79_M2)
+                                    data_batch=x_ic79,
+                                    n=ic79_n,
+                                    mean=ic79_mean,
+                                    M2=ic79_M2)
 
-            DeepCore_n, DeepCore_mean, DeepCore_M2 = self._perform_update_step(
+            deepcore_n, deepcore_mean, deepcore_M2 = self._perform_update_step(
                                     log_bins=self.trafo_model['log_dom_bins'],
-                                    data_batch=X_DeepCore,
-                                    n=DeepCore_n,
-                                    mean=DeepCore_mean,
-                                    M2=DeepCore_M2)
+                                    data_batch=x_deepcore,
+                                    n=deepcore_n,
+                                    mean=deepcore_mean,
+                                    M2=deepcore_M2)
 
-            labels_n, labels_mean, labels_M2 = self._perform_update_step(
+            label_n, label_mean, label_M2 = self._perform_update_step(
                                 log_bins=self.trafo_model['log_label_bins'],
-                                data_batch=labels,
-                                n=labels_n,
-                                mean=labels_mean,
-                                M2=labels_M2)
+                                data_batch=label,
+                                n=label_n,
+                                mean=label_mean,
+                                M2=label_M2)
 
             if self.trafo_model['misc_shape'] is not None:
-                labels_n, labels_mean, labels_M2 = self._perform_update_step(
+                label_n, label_mean, label_M2 = self._perform_update_step(
                                 log_bins=self.trafo_model['log_label_bins'],
                                 data_batch=misc_data,
-                                n=labels_n,
-                                mean=labels_mean,
-                                M2=labels_M2)
+                                n=label_n,
+                                mean=label_mean,
+                                M2=label_M2)
 
         # Calculate standard deviation
-        IC79_std = np.sqrt(IC79_M2 / IC79_n)
-        DeepCore_std = np.sqrt(DeepCore_M2 / DeepCore_n)
-        labels_std = np.sqrt(labels_M2 / labels_n)
+        ic79_std = np.sqrt(ic79_M2 / ic79_n)
+        deepcore_std = np.sqrt(deepcore_M2 / deepcore_n)
+        label_std = np.sqrt(label_M2 / label_n)
 
         if self.trafo_model['misc_shape'] is not None:
             misc_std = np.sqrt(misc_M2 / misc_n)
@@ -280,33 +287,33 @@ class DataTransformer:
         if self.trafo_model['treat_doms_equally']:
             # ToDo: make sure this is actually doing the right thing!
             # ToDo: Handle empty DOMs differenty (perform masking)
-            self.trafo_model['IC79_mean'] = np.mean(IC79_mean,
+            self.trafo_model['ic79_mean'] = np.mean(ic79_mean,
                                                     axis=(0, 1, 2),
                                                     keepdims=True)
-            self.trafo_model['IC79_std'] = np.mean(IC79_std,
+            self.trafo_model['ic79_std'] = np.mean(ic79_std,
                                                    axis=(0, 1, 2),
                                                    keepdims=True)
-            self.trafo_model['DeepCore_mean'] = np.mean(DeepCore_mean,
+            self.trafo_model['deepcore_mean'] = np.mean(deepcore_mean,
                                                         axis=(0, 1),
                                                         keepdims=True)
-            self.trafo_model['DeepCore_std'] = np.mean(DeepCore_std,
+            self.trafo_model['deepcore_std'] = np.mean(deepcore_std,
                                                        axis=(0, 1),
                                                        keepdims=True)
         else:
-            self.trafo_model['IC79_mean'] = IC79_mean
-            self.trafo_model['IC79_std'] = IC79_std
-            self.trafo_model['DeepCore_mean'] = DeepCore_mean
-            self.trafo_model['DeepCore_std'] = DeepCore_std
+            self.trafo_model['ic79_mean'] = ic79_mean
+            self.trafo_model['ic79_std'] = ic79_std
+            self.trafo_model['deepcore_mean'] = deepcore_mean
+            self.trafo_model['deepcore_std'] = deepcore_std
 
-        self.trafo_model['labels_mean'] = labels_mean
-        self.trafo_model['labels_std'] = labels_std
+        self.trafo_model['label_mean'] = label_mean
+        self.trafo_model['label_std'] = label_std
 
         if self.trafo_model['misc_shape'] is not None:
             self.trafo_model['misc_mean'] = misc_mean
             self.trafo_model['misc_std'] = misc_std
 
         # set constant parameters to have a std dev of 1 instead of zero
-        std_names = ['IC79_std', 'DeepCore_std', 'labels_std']
+        std_names = ['ic79_std', 'deepcore_std', 'label_std']
         if self.trafo_model['misc_shape'] is not None:
             std_names.append('misc_std')
         for key in std_names:
@@ -366,132 +373,149 @@ class DataTransformer:
             pickle.dump(self.trafo_model, handle,
                         protocol=pickle.HIGHEST_PROTOCOL)
 
-    def transform(self, dom_responses=None, cascade_parameters=None,
-                  is_tf=True):
-        """Applies transformation to the DOM responses and cascade parameters.
+    def _check_settings(self, data, data_type):
+        """Check settings and return necessary parameters for trafo and inverse
+        trafo method.
 
         Parameters
         ----------
-        dom_responses : np.ndarray or tf.Tensor, None, optional
-            A tensorflow tensor or numpy ndarray defining the input
-            DOM response.
-            shape: [batch_size, x_dim, y_dim, z_dim, num_bins]
-            Optionally this can also be None.
-            In this case no trafo is perfomed and a None is returned.
-        cascade_parameters : np.ndarray or tf.Tensor, None, optional
-            A tensorflow tensor or numpy ndarray defining the cascades.
-            shape: [batch_size, num_cascade_params]
-            Optionally this can also be None.
-            In this case no trafo is perfomed and a None is returned.
-        is_tf : bool, optional
-            Specifies if the given data are tensorflow objects.
-            If true, tensorflow operations will be used instead of numpy.
+        data :  numpy.ndarray or tf.Tensor
+            The data that will be transformed.
+        data_type : str
+            Specifies what kind of data this is. This must be one of:
+                'ic79', 'deepcore', 'label', 'misc'
 
         Returns
         -------
-        type(dom_responses), type(cascade_parameters)
-            Returns the transformed DOM respones and cascade_parameters.
+        type(data)
+            The transformed data
 
         Raises
         ------
         ValueError
             If DataTransformer object has not created or loaded a trafo model.
+            If provided data_type is unkown.
         """
+        dtype = data.dtype
+        data_type = data_type.lower()
+
         if not self._setup_complete:
             raise ValueError('DataTransformer needs to create or load a trafo'
                              'model prior to transform call.')
-        if not is_tf:
-            if dom_responses is not None:
-                dom_responses = np.array(dom_responses)
-            if cascade_parameters is not None:
-                cascade_parameters = np.array(cascade_parameters)
+
+        if data_type not in ['ic79', 'deepcore', 'label', 'misc']:
+            raise ValueError('data_type {!r} is unknown!'.format(data_type))
+
+        # check if shape of data matches expected shape
+        if data_type == 'ic79':
+            shape = [10, 10, 60, self.trafo_model['num_bins']]
+        elif data_type == 'deepcore':
+            shape = [8, 60, self.trafo_model['num_bins']]
+        else:
+            shape = self.trafo_model['{}_shape'.format(data_type)]
+
+        if list(data.shape[1:]) != shape:
+            raise ValueError('Shape of data {!r} does'.format(data.shape[1:]) +
+                             ' not match expected shape {!r}'.format(shape))
+
+        if data_type in ['ic79', 'deepcore']:
+            log_name = 'log_dom_bins'
+            normalize_name = 'normalize_dom_data'
+
+        else:
+            log_name = 'log_{}_bins'.format(data_type)
+            normalize_name = 'normalize_{}_data'.format(data_type)
+
+        is_tf = tf.contrib.framework.is_tensor(data)
+
+        if is_tf:
+            if dtype != self._tf_float_dtype:
+                data = tf.cast(data, dtype=self._tf_float_dtype)
+        else:
+            data = np.array(data, dtype=self._np_float_dtype)
 
         # choose numpy or tensorflow log function
         if is_tf:
             log_func = tf.log
+            exp_func = tf.exp
         else:
             log_func = np.log
+            exp_func = np.exp
 
-        # perform log on energy
-        if self.trafo_model['log_energy']:
-            if (cascade_parameters is not None and
-                    self.trafo_model['num_cascade_params'] >= 6):
+        return data, log_name, normalize_name, log_func, exp_func, is_tf, dtype
 
-                if is_tf:
-                    cascade_parameters_list = tf.unstack(cascade_parameters,
-                                                         axis=-1)
-                    cascade_parameters_list[5] = log_func(
-                                             1.0 + cascade_parameters_list[5])
-                    cascade_parameters = tf.stack(cascade_parameters_list,
-                                                  axis=-1)
-                else:
-                    cascade_parameters[:, 5] = log_func(
-                                                1.0 + cascade_parameters[:, 5])
-
-        # perform logarithm on bins
-        if dom_responses is not None:
-
-            if np.all(self.trafo_model['log_bins']):
-                # logarithm is applied to all bins: one operation
-                dom_responses = log_func(1.0 + dom_responses)
-
-            else:
-                # logarithm is only applied to some bins
-                if is_tf:
-                    dom_responses_list = tf.unstack(dom_responses, axis=-1)
-                    for bin_i, log_bin in enumerate(
-                                                self.trafo_model['log_bins']):
-                        if log_bin:
-                            dom_responses_list[bin_i] = log_func(
-                                            1.0 + dom_responses_list[bin_i])
-                    dom_responses = tf.stack(dom_responses_list, axis=-1)
-                else:
-                    for bin_i, log_bin in enumerate(
-                                                self.trafo_model['log_bins']):
-                        if log_bin:
-                            dom_responses[..., bin_i] = log_func(
-                                            1.0 + dom_responses[..., bin_i])
-
-        # normalize data
-        if self.trafo_model['normalize']:
-            if cascade_parameters is not None:
-                cascade_parameters -= self.trafo_model[
-                                                    'cascade_parameters_mean']
-                cascade_parameters /= (self.trafo_model['norm_constant'] +
-                                       self.trafo_model[
-                                                    'cascade_parameters_std'])
-            if dom_responses is not None:
-                dom_responses -= self.trafo_model['dom_responses_mean']
-                dom_responses /= (self.trafo_model['norm_constant'] +
-                                  self.trafo_model['dom_responses_std'])
-
-        return dom_responses, cascade_parameters
-
-    def inverse_transform(self, dom_responses=None, cascade_parameters=None,
-                          is_tf=True):
-        """Applies ivnerse transformation to the DOM responses and
-           cascade parameters.
+    def transform(self, data, data_type):
+        """Applies transformation to the specified data.
 
         Parameters
         ----------
-        dom_responses : np.ndarray or tf.Tensor, None, optional
-            A tensorflow tensor or numpy ndarray defining the input
-            DOM response.
-            shape: [batch_size, x_dim, y_dim, z_dim, num_bins]
-            Optionally this can also be None.
-            In this case no trafo is perfomed and a None is returned.
-        cascade_parameters : np.ndarray or tf.Tensor, None, optional
-            A tensorflow tensor or numpy ndarray defining the cascades.
-            shape: [batch_size, num_cascade_params]
-            Optionally this can also be None.
-            In this case no trafo is perfomed and a None is returned.
-        is_tf : bool, optional
-            Specifies if the given data are tensorflow objects.
-            If true, tensorflow operations will be used instead of numpy.
+        data :  numpy.ndarray or tf.Tensor
+            The data that will be transformed.
+        data_type : str
+            Specifies what kind of data this is. This must be one of:
+                'ic79', 'deepcore', 'label', 'misc'
 
         Returns
         -------
-        type(dom_responses), type(cascade_parameters)
+        type(data)
+            The transformed data.
+
+        Raises
+        ------
+        ValueError
+            If DataTransformer object has not created or loaded a trafo model.
+            If provided data_type is unkown.
+        """
+        data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
+            self._check_settings(data, data_type)
+
+        # perform logarithm on bins
+        if np.all(self.trafo_model[log_name]):
+            # logarithm is applied to all bins: one operation
+            data = log_func(1.0 + data)
+
+        else:
+            # logarithm is only applied to some bins
+            if is_tf:
+                data_list = tf.unstack(data, axis=-1)
+                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
+                    if log_bin:
+                        data_list[bin_i] = log_func(1.0 + data_list[bin_i])
+                data = tf.stack(data_list, axis=-1)
+            else:
+                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
+                    if log_bin:
+                        data[..., bin_i] = log_func(1.0 + data[..., bin_i])
+
+        # normalize data
+        if self.trafo_model[normalize_name]:
+            data -= self.trafo_model['{}_mean'.format(data_type.lower())]
+            data /= (self.trafo_model['norm_constant'] +
+                     self.trafo_model['{}_std'.format(data_type.lower())])
+
+        # cast back to original dtype
+        if is_tf:
+            if dtype != self._tf_float_dtype:
+                data = tf.cast(data, dtype=dtype)
+        else:
+            data = data.astype(dtype)
+
+        return data
+
+    def inverse_transform(self, data, data_type):
+        """Applies inverse transformation to the specified data.
+
+        Parameters
+        ----------
+        data :  numpy.ndarray or tf.Tensor
+            The data that will be transformed.
+        data_type : str
+            Specifies what kind of data this is. This must be one of:
+                'ic79', 'deepcore', 'label', 'misc'
+
+        Returns
+        -------
+        type(data)
             Returns the inverse transformed DOM respones and
             cascade_parameters.
 
@@ -499,72 +523,40 @@ class DataTransformer:
         ------
         ValueError
             If DataTransformer object has not created or loaded a trafo model.
+            If provided data_type is unkown.
         """
-        if not self._setup_complete:
-            raise ValueError('DataTransformer needs to create or load a trafo'
-                             'model prior to inverse transform call.')
-        if not is_tf:
-            if dom_responses is not None:
-                dom_responses = np.array(dom_responses)
-            if cascade_parameters is not None:
-                cascade_parameters = np.array(cascade_parameters)
+        data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
+            self._check_settings(data, data_type)
 
-        if self.trafo_model['normalize']:
-            if cascade_parameters is not None:
-                cascade_parameters *= (self.trafo_model['norm_constant'] +
-                                       self.trafo_model[
-                                                    'cascade_parameters_std'])
-                cascade_parameters += self.trafo_model[
-                                                    'cascade_parameters_mean']
-            if dom_responses is not None:
-                dom_responses *= (self.trafo_model['norm_constant'] +
-                                  self.trafo_model['dom_responses_std'])
-                dom_responses += self.trafo_model['dom_responses_mean']
-
-        # choose numpy or tensorflow exp function
-        if is_tf:
-            exp_func = tf.exp
-        else:
-            exp_func = np.exp
-
-        # undo natural logarithm on cascade energy
-        if self.trafo_model['log_energy']:
-            if (cascade_parameters is not None and
-                    self.trafo_model['num_cascade_params'] >= 6):
-
-                if is_tf:
-                    cascade_parameters_list = tf.unstack(cascade_parameters,
-                                                         axis=-1)
-                    cascade_parameters_list[5] = exp_func(
-                                              cascade_parameters_list[5]) - 1.0
-                    cascade_parameters = tf.stack(cascade_parameters_list,
-                                                  axis=-1)
-                else:
-                    cascade_parameters[:, 5] = exp_func(
-                                                cascade_parameters[:, 5]) - 1.0
+        # de-normalize data
+        if self.trafo_model[normalize_name]:
+            data *= (self.trafo_model['norm_constant'] +
+                     self.trafo_model['{}_std'.format(data_type.lower())])
+            data += self.trafo_model['{}_mean'.format(data_type.lower())]
 
         # undo logarithm on bins
-        if dom_responses is not None:
+        if np.all(self.trafo_model[log_name]):
+            # logarithm is applied to all bins: one operation
+            data = exp_func(data) - 1.0
 
-            if np.all(self.trafo_model['log_bins']):
-                # logarithm is applied to all bins: one operation
-                dom_responses = exp_func(dom_responses) - 1.0
-
+        else:
+            # logarithm is only applied to some bins
+            if is_tf:
+                data_list = tf.unstack(data, axis=-1)
+                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
+                    if log_bin:
+                        data_list[bin_i] = exp_func(data_list[bin_i]) - 1.0
+                data = tf.stack(data_list, axis=-1)
             else:
-                # logarithm is only applied to some bins
-                if is_tf:
-                    dom_responses_list = tf.unstack(dom_responses, axis=-1)
-                    for bin_i, log_bin in enumerate(
-                                                self.trafo_model['log_bins']):
-                        if log_bin:
-                            dom_responses_list[bin_i] = exp_func(
-                                            dom_responses_list[bin_i]) - 1.0
-                    dom_responses = tf.stack(dom_responses_list, axis=-1)
-                else:
-                    for bin_i, log_bin in enumerate(
-                                                self.trafo_model['log_bins']):
-                        if log_bin:
-                            dom_responses[..., bin_i] = exp_func(
-                                            dom_responses[..., bin_i]) - 1.0
+                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
+                    if log_bin:
+                        data[..., bin_i] = exp_func(data[..., bin_i]) - 1.0
 
-        return dom_responses, cascade_parameters
+        # cast back to original dtype
+        if is_tf:
+            if dtype != self._tf_float_dtype:
+                data = tf.cast(data, dtype=dtype)
+        else:
+            data = data.astype(dtype)
+
+        return data

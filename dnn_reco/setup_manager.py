@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import os
+import numpy as np
 import tensorflow as tf
 import yaml
 
@@ -51,9 +52,9 @@ class SetupManager:
             The shape of the DOM response tensor excluding the batch dimension.
             E.g.: [x_dim, y_dim, z_dim, num_bins]
         DOM_init_values: float or array-like
-            The X_IC79 and DeepCore array will be initalized with these
+            The x_ic79 and deepcore array will be initalized with these
             values via:
-            np.zeros_like(X_IC79) * np.array(init_values)
+            np.zeros_like(x_ic79) * np.array(init_values)
         batch_size : int
             The batch size which will be used by the data generators.
         log_path : str
@@ -174,7 +175,7 @@ class SetupManager:
 
     # define default config
     _default_config = {
-                        'float_precision': tf.float32,
+                        'float_precision': 'float32',
                         'DOM_init_values': 0.0,
                         'trafo_norm_constant': 1e-6,
                      }
@@ -241,6 +242,12 @@ class SetupManager:
             new_config.update(config_update)
         config = dict(self._default_config)
         config.update(new_config)
+
+        # define numpy and tensorflow float precision
+        config['tf_float_precision'] = getattr(tf, config['float_precision'])
+        config['np_float_precision'] = getattr(np, config['float_precision'])
+        import tfscripts as tfs
+        tfs.FLOAT_PRECISION = config['tf_float_precision']
 
         # ----------------------------------
         # expand all strings with variables

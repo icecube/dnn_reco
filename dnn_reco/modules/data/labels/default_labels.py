@@ -72,6 +72,6 @@ def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):
                        if n not in ignore_columns]
 
     labels = [_labels[name] for name in label_names]
-    labels = np.array(labels, dtype=np.float32).T
+    labels = np.array(labels, dtype=config['np_float_precision']).T
 
     return labels, label_names
