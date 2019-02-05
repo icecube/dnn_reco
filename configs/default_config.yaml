@@ -24,9 +24,9 @@
 
 'float_precision': float32
 'num_jobs' : 3
-'file_capacity' : 10
-'batch_capacity' : 200
-'num_add_files' : 10
+'file_capacity' : 2
+'batch_capacity' : 5
+'num_add_files' : 1
 'num_repetitions' : 1
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
@@ -67,7 +67,7 @@
 'validation_frequency' : 100
 'save_frequency' : 500
 'keep_global_count' : True
-'keep_probability_list' : [0.9, 1.0]
+'keep_probability_list' : [0.9, 1.0, 1.0, 1.0]
 
 #---------------------------
 # Trafo settings
@@ -86,29 +86,6 @@
 'trafo_treat_doms_equally' : True
 'trafo_norm_constant' : 0.0001
 
-#----------------------
-# NN Model Architecture
-#----------------------
-'model_file' : 'autoencoder_models'
-'model_name' : 'IC79_translational_model'
-# time bin width in ns
-'model_filter_sizes' : [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1],
-                            [1, 1, 1], [1, 1, 1],
-                            ]
-'model_num_filters' : [20, 500, 500, 500, 7]
-'model_method_list' : ['locally_connected',
-                           'convolution', 'convolution', 'convolution',
-                           'convolution',
-                          ]
-'model_use_dropout' : False
-'model_activations' : ['elu', 'elu',
-                           'elu', 'elu', '']
-'model_keep_prob_index' : 0
-'model_use_batch_norm' : False
-'model_use_residual' : True
-'model_is_training' : True
-
-
 #------------------
 # NN Model Training
 #------------------
@@ -125,5 +102,105 @@
 'model_optimizer_settings' : {
                                 'learning_rate' : 0.001,
                             }
+
+#----------------------
+# NN Model Architecture
+#----------------------
+'model_file' : 'general_IC86_models'
+'model_name' : 'general_model_IC86_opt4'
+'model_is_training' : True
+
+# 2D convolutional layer of upper DeepCore
+'conv_upper_DeepCore_settings': {
+    'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 7], [1, 7], [1, 7], [1, 5],
+                         [1, 5], [1, 5], [1, 1], [1, 1]],
+    'num_filters_list': [80, 80, 100, 100, 100, 100, 100, 100],
+    'pooling_type_list': [False, False, 'max', False, False, 'max', False, False],
+    'pooling_strides_list': [1, 1, 2, 1],
+    'pooling_ksize_list': [1, 1, 2, 1],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+}
+
+# 2D convolutional layer of lower DeepCore
+'conv_lower_DeepCore_settings': {
+    'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9],
+                         [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 1], [1, 1]],
+    'num_filters_list': [80, 80, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                         100, 100, 100],
+    'pooling_type_list': [False, False, 'max',
+                          False, False, 'max',
+                          False, False, 'max',
+                          False, False, 'max',
+                          False, False],
+    'pooling_strides_list': [1, 1, 2, 1],
+    'pooling_ksize_list': [1, 1, 2, 1],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+}
+
+# 3D hexagonal convolution over main IceCube array (IC78)
+'conv_IC78_settings' : {
+    'filter_size_list': [[3, 0, 7], [3, 0, 7], [3, 0, 7], [3, 0, 7], [2, 0, 17],
+                         [3, 0, 7], [3, 0, 7], [2, 0, 17], [3, 0, 7], [2, 0, 5],
+                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5],
+                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [1, 0, 3], [1, 0, 1]],
+    'num_filters_list': [10, 10, 20, 20, 20, 20, 20, 20, 80, 80, 80, 80, 80,
+                         80, 100, 100, 100, 100, 100, 100],
+    'pooling_type_list': [False, False, 'max', False, False, False, False,
+                          False,'max', False, False, False, False, False, 'max',
+                          False, False, 'max', False, False],
+    'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+    'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+    'hex_zero_out_list': False,
+    'dilation_rate_list': ,
+    'hex_num_rotations_list': 1,
+}
+
+# Fully connected layer settings (Combine results from convolutions)
+'fc_settings': {
+    'fc_sizes': [300, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', ''],
+    'use_batch_normalisation_list': False,
+    'use_residual_list': [False, True],
+    'max_out_size_list': ,
+}
+
+# Fully connected layer settings for uncertainty subnetwork
+'fc_unc_settings': {
+    'fc_sizes': [300, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', ''],
+    'use_batch_normalisation_list': False,
+    'use_residual_list': False,
+    'max_out_size_list': ,
+}
 
 ...

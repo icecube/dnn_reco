@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import numpy as np
 """
 All filter functions must have the following parameters and return values:
@@ -8,7 +9,7 @@ All filter functions must have the following parameters and return values:
             Path to input data file.
     config : dict
         Dictionary containing all settings as read in from config file.
-    x_IC79 : numpy.ndarray
+    x_IC78 : numpy.ndarray
         DOM input data of main IceCube array.
         shape: [batch_size, 10, 10, 60, num_bins]
     x_deepcore : numpy.ndarray

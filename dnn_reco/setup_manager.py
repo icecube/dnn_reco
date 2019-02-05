@@ -52,9 +52,9 @@ class SetupManager:
             The shape of the DOM response tensor excluding the batch dimension.
             E.g.: [x_dim, y_dim, z_dim, num_bins]
         DOM_init_values: float or array-like
-            The x_ic79 and deepcore array will be initalized with these
+            The x_ic78 and deepcore array will be initalized with these
             values via:
-            np.zeros_like(x_ic79) * np.array(init_values)
+            np.zeros_like(x_ic78) * np.array(init_values)
         batch_size : int
             The batch size which will be used by the data generators.
         log_path : str

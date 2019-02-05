@@ -136,7 +136,7 @@ class DataTransformer:
             'norm_constant': norm_constant,
         }
 
-        self._ic79_shape = [10, 10, 60, self.trafo_model['num_bins']]
+        self._ic78_shape = [10, 10, 60, self.trafo_model['num_bins']]
         self._deepcore_shape = [8, 60, self.trafo_model['num_bins']]
 
     def _update_online_variance_vars(self, data_batch, n, mean, M2):
@@ -222,9 +222,9 @@ class DataTransformer:
         """
 
         # create empty onlince variance variables
-        ic79_n = 0.
-        ic79_mean = np.zeros(self._ic79_shape)
-        ic79_M2 = np.zeros(self._ic79_shape)
+        ic78_n = 0.
+        ic78_mean = np.zeros(self._ic78_shape)
+        ic78_M2 = np.zeros(self._ic78_shape)
 
         deepcore_n = 0.
         deepcore_mean = np.zeros(self._deepcore_shape)
@@ -244,14 +244,14 @@ class DataTransformer:
             if i % 100 == 0:
                 print('At batch {} of {}'.format(i, num_batches))
 
-            x_ic79, x_deepcore, label, misc_data = next(data_iterator)
+            x_ic78, x_deepcore, label, misc_data = next(data_iterator)
 
-            ic79_n, ic79_mean, ic79_M2 = self._perform_update_step(
+            ic78_n, ic78_mean, ic78_M2 = self._perform_update_step(
                                     log_bins=self.trafo_model['log_dom_bins'],
-                                    data_batch=x_ic79,
-                                    n=ic79_n,
-                                    mean=ic79_mean,
-                                    M2=ic79_M2)
+                                    data_batch=x_ic78,
+                                    n=ic78_n,
+                                    mean=ic78_mean,
+                                    M2=ic78_M2)
 
             deepcore_n, deepcore_mean, deepcore_M2 = self._perform_update_step(
                                     log_bins=self.trafo_model['log_dom_bins'],
@@ -276,7 +276,7 @@ class DataTransformer:
                                 M2=label_M2)
 
         # Calculate standard deviation
-        ic79_std = np.sqrt(ic79_M2 / ic79_n)
+        ic78_std = np.sqrt(ic78_M2 / ic78_n)
         deepcore_std = np.sqrt(deepcore_M2 / deepcore_n)
         label_std = np.sqrt(label_M2 / label_n)
 
@@ -287,10 +287,10 @@ class DataTransformer:
         if self.trafo_model['treat_doms_equally']:
             # ToDo: make sure this is actually doing the right thing!
             # ToDo: Handle empty DOMs differenty (perform masking)
-            self.trafo_model['ic79_mean'] = np.mean(ic79_mean,
+            self.trafo_model['ic78_mean'] = np.mean(ic78_mean,
                                                     axis=(0, 1, 2),
                                                     keepdims=True)
-            self.trafo_model['ic79_std'] = np.mean(ic79_std,
+            self.trafo_model['ic78_std'] = np.mean(ic78_std,
                                                    axis=(0, 1, 2),
                                                    keepdims=True)
             self.trafo_model['deepcore_mean'] = np.mean(deepcore_mean,
@@ -300,8 +300,8 @@ class DataTransformer:
                                                        axis=(0, 1),
                                                        keepdims=True)
         else:
-            self.trafo_model['ic79_mean'] = ic79_mean
-            self.trafo_model['ic79_std'] = ic79_std
+            self.trafo_model['ic78_mean'] = ic78_mean
+            self.trafo_model['ic78_std'] = ic78_std
             self.trafo_model['deepcore_mean'] = deepcore_mean
             self.trafo_model['deepcore_std'] = deepcore_std
 
@@ -313,7 +313,7 @@ class DataTransformer:
             self.trafo_model['misc_std'] = misc_std
 
         # set constant parameters to have a std dev of 1 instead of zero
-        std_names = ['ic79_std', 'deepcore_std', 'label_std']
+        std_names = ['ic78_std', 'deepcore_std', 'label_std']
         if self.trafo_model['misc_shape'] is not None:
             std_names.append('misc_std')
         for key in std_names:
@@ -383,7 +383,7 @@ class DataTransformer:
             The data that will be transformed.
         data_type : str
             Specifies what kind of data this is. This must be one of:
-                'ic79', 'deepcore', 'label', 'misc'
+                'ic78', 'deepcore', 'label', 'misc'
 
         Returns
         -------
@@ -403,11 +403,11 @@ class DataTransformer:
             raise ValueError('DataTransformer needs to create or load a trafo'
                              'model prior to transform call.')
 
-        if data_type not in ['ic79', 'deepcore', 'label', 'misc']:
+        if data_type not in ['ic78', 'deepcore', 'label', 'misc']:
             raise ValueError('data_type {!r} is unknown!'.format(data_type))
 
         # check if shape of data matches expected shape
-        if data_type == 'ic79':
+        if data_type == 'ic78':
             shape = [10, 10, 60, self.trafo_model['num_bins']]
         elif data_type == 'deepcore':
             shape = [8, 60, self.trafo_model['num_bins']]
@@ -418,7 +418,7 @@ class DataTransformer:
             raise ValueError('Shape of data {!r} does'.format(data.shape[1:]) +
                              ' not match expected shape {!r}'.format(shape))
 
-        if data_type in ['ic79', 'deepcore']:
+        if data_type in ['ic78', 'deepcore']:
             log_name = 'log_dom_bins'
             normalize_name = 'normalize_dom_data'
 
@@ -444,24 +444,29 @@ class DataTransformer:
 
         return data, log_name, normalize_name, log_func, exp_func, is_tf, dtype
 
-    def transform(self, data, data_type):
+    def transform(self, data, data_type, bias_correction=True):
         """Applies transformation to the specified data.
 
         Parameters
         ----------
-        data :  numpy.ndarray or tf.Tensor
+        data : numpy.ndarray or tf.Tensor
             The data that will be transformed.
         data_type : str
             Specifies what kind of data this is. This must be one of:
-                'ic79', 'deepcore', 'label', 'misc'
+                'ic78', 'deepcore', 'label', 'misc'
+        bias_correction : bool, optional
+            If true, the transformation will correct the bias, e.g. subtract
+            of the data mean to make sure that the transformed data is centered
+            around zero. Usually this behaviour is desired. However, when
+            transforming uncertainties, this might not be useful.
 
         Returns
         -------
         type(data)
             The transformed data.
 
-        Raises
-        ------
+        No Longer Raises
+        ----------------
         ValueError
             If DataTransformer object has not created or loaded a trafo model.
             If provided data_type is unkown.
@@ -489,7 +494,8 @@ class DataTransformer:
 
         # normalize data
         if self.trafo_model[normalize_name]:
-            data -= self.trafo_model['{}_mean'.format(data_type.lower())]
+            if bias_correction:
+                data -= self.trafo_model['{}_mean'.format(data_type.lower())]
             data /= (self.trafo_model['norm_constant'] +
                      self.trafo_model['{}_std'.format(data_type.lower())])
 
@@ -502,16 +508,21 @@ class DataTransformer:
 
         return data
 
-    def inverse_transform(self, data, data_type):
+    def inverse_transform(self, data, data_type, bias_correction=True):
         """Applies inverse transformation to the specified data.
 
         Parameters
         ----------
-        data :  numpy.ndarray or tf.Tensor
+        data : numpy.ndarray or tf.Tensor
             The data that will be transformed.
         data_type : str
             Specifies what kind of data this is. This must be one of:
-                'ic79', 'deepcore', 'label', 'misc'
+                'ic78', 'deepcore', 'label', 'misc'
+        bias_correction : bool, optional
+            If true, the transformation will correct the bias, e.g. subtract
+            of the data mean to make sure that the transformed data is centered
+            around zero. Usually this behaviour is desired. However, when
+            transforming uncertainties, this might not be useful.
 
         Returns
         -------
@@ -519,8 +530,8 @@ class DataTransformer:
             Returns the inverse transformed DOM respones and
             cascade_parameters.
 
-        Raises
-        ------
+        No Longer Raises
+        ----------------
         ValueError
             If DataTransformer object has not created or loaded a trafo model.
             If provided data_type is unkown.
@@ -532,7 +543,8 @@ class DataTransformer:
         if self.trafo_model[normalize_name]:
             data *= (self.trafo_model['norm_constant'] +
                      self.trafo_model['{}_std'.format(data_type.lower())])
-            data += self.trafo_model['{}_mean'.format(data_type.lower())]
+            if bias_correction:
+                data += self.trafo_model['{}_mean'.format(data_type.lower())]
 
         # undo logarithm on bins
         if np.all(self.trafo_model[log_name]):

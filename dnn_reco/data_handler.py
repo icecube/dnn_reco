@@ -186,15 +186,15 @@ class DataHandler(object):
             Entries with nan values will be replaced by this value.
             If None, no replacement will be performed.
         init_values : float, optional
-            The x_ic79 array will be initalized with these values via:
-            np.zeros_like(x_ic79) * np.array(init_values)
+            The x_ic78 array will be initalized with these values via:
+            np.zeros_like(x_ic78) * np.array(init_values)
         verbose : bool, optional
             Print out additional information on runtimes for loading and
             processing of files.
 
         Returns
         -------
-        x_ic79 : numpy.ndarray
+        x_ic78 : numpy.ndarray
             DOM input data of main IceCube array.
             shape: [batch_size, 10, 10, 60, num_bins]
         x_deepcore : numpy.ndarray
@@ -234,7 +234,7 @@ class DataHandler(object):
             eventIDDict[(row[1][0], row[1][1], row[1][2], row[1][3])] = row[0]
 
         # Create arrays for input data
-        x_ic79 = np.ones([size, 10, 10, 60, self.num_bins],
+        x_ic78 = np.ones([size, 10, 10, 60, self.num_bins],
                          dtype=self._config['np_float_precision'],
                          ) * np.array(init_values)
         x_deepcore = np.ones([size, 8, 60, self.num_bins],
@@ -256,12 +256,12 @@ class DataHandler(object):
                 x_deepcore[index, string - 78 - 1, dom, index_row[10]] = \
                     value_row[10]
             else:
-                # IC79
+                # IC78
                 a, b = self._get_indices_from_string(string)
                 # Center of Detector is a,b = 0,0
                 # a goes from -4 to 5
                 # b goes from -5 to 4
-                x_ic79[index, a+4, b+5, dom, index_row[10]] = value_row[10]
+                x_ic78[index, a+4, b+5, dom, index_row[10]] = value_row[10]
 
         # --------------
         # read in labels
@@ -296,11 +296,11 @@ class DataHandler(object):
                             self._config['data_handler_filter_name'],
                         )
         filter_func = misc.load_class(class_string)
-        mask = filter_func(input_data, self._config, x_ic79, x_deepcore,
+        mask = filter_func(input_data, self._config, x_ic78, x_deepcore,
                            labels, misc_data, time_range_start)
 
         # mask out events not passing filter:
-        x_ic79 = x_ic79[mask]
+        x_ic78 = x_ic78[mask]
         x_deepcore = x_deepcore[mask]
         labels = labels[mask]
         if self.misc_data_exists:
@@ -326,7 +326,7 @@ class DataHandler(object):
         # fill nan values if desired
         # --------------------------
         if nan_fill_value is not None:
-            x_ic79[~np.isfinite(x_ic79)] = nan_fill_value
+            x_ic78[~np.isfinite(x_ic78)] = nan_fill_value
             x_deepcore[~np.isfinite(x_deepcore)] = nan_fill_value
             labels[~np.isfinite(labels)] = nan_fill_value
             misc_data[~np.isfinite(misc_data)] = nan_fill_value
@@ -337,7 +337,7 @@ class DataHandler(object):
             print("=== Time needed to process Data: {:5.3f} seconds ==".format(
                                                                 final_time))
 
-        return x_ic79, x_deepcore, labels, misc_data
+        return x_ic78, x_deepcore, labels, misc_data
 
     def get_batch_generator(self,
                             input_data,
@@ -414,8 +414,8 @@ class DataHandler(object):
             Number of times the events in a loaded file are to be used, before
             new files are loaded.
         init_values : float, optional
-            The x_ic79 array will be initalized with these values via:
-            np.zeros_like(x_ic79) * np.array(init_values)
+            The x_ic78 array will be initalized with these values via:
+            np.zeros_like(x_ic78) * np.array(init_values)
         num_splits : int, optional
             If num_splits is given, the loaded file will be divided into
             num_splits chunks of about equal size. This can be useful when
@@ -524,7 +524,7 @@ class DataHandler(object):
                                 # (Multiprocessing queue can only handle
                                 #  a certain size)
                                 split_indices_list = np.array_split(
-                                        np.arange(x_ic79.shape[0]), num_splits)
+                                        np.arange(x_ic78.shape[0]), num_splits)
 
                                 for split_indices in split_indices_list:
 
@@ -572,7 +572,7 @@ class DataHandler(object):
 
             # reset event batch
             size = 0
-            ic79_batch = []
+            ic78_batch = []
             deepcore_batch = []
             labels_batch = []
             if self.misc_data_exists:
@@ -582,7 +582,7 @@ class DataHandler(object):
                 # create lists and concatenate at end
                 # (faster than concatenating in each step)
                 data_batch = data_batch_queue.get()
-                x_ic79_list = [data_batch[0]]
+                x_ic78_list = [data_batch[0]]
                 x_deepcore_list = [data_batch[1]]
                 label_list = [data_batch[2]]
 
@@ -593,7 +593,7 @@ class DataHandler(object):
                     if (data_batch_queue.qsize() > 1 or
                             not data_batch_queue.empty()):
                         data_batch = data_batch_queue.get()
-                        x_ic79_list.append(data_batch[0])
+                        x_ic78_list.append(data_batch[0])
                         x_deepcore_list.append(data_batch[1])
                         label_list.append(data_batch[2])
 
@@ -601,15 +601,15 @@ class DataHandler(object):
                             misc_list.append(data_batch[3])
 
                 # concatenate into one numpy array:
-                x_ic79 = np.concatenate(x_ic79_list, axis=0)
+                x_ic78 = np.concatenate(x_ic78_list, axis=0)
                 x_deepcore = np.concatenate(x_deepcore_list, axis=0)
                 labels = np.concatenate(label_list, axis=0)
                 if self.misc_data_exists:
                     misc_data = np.concatenate(misc_list, axis=0)
 
-                queue_size = x_ic79.shape[0]
+                queue_size = x_ic78.shape[0]
                 if verbose:
-                    print('queue_size', queue_size, x_ic79.shape)
+                    print('queue_size', queue_size, x_ic78.shape)
 
                 # num_repetitions:
                 #   potentially dangerous for batch_size approx file_size
@@ -623,7 +623,7 @@ class DataHandler(object):
                     for index in shuffled_indices:
 
                         # add event to batch lists
-                        ic79_batch.append(x_ic79[index])
+                        ic78_batch.append(x_ic78[index])
                         deepcore_batch.append(x_deepcore[index])
                         labels_batch.append(labels[index])
                         if self.misc_data_exists:
@@ -631,7 +631,7 @@ class DataHandler(object):
 
                         size += 1
                         if size == batch_size:
-                            batch = [np.array(ic79_batch),
+                            batch = [np.array(ic78_batch),
                                      np.array(deepcore_batch),
                                      np.array(labels_batch)]
                             if self.misc_data_exists:
@@ -653,7 +653,7 @@ class DataHandler(object):
 
                             # reset event batch
                             size = 0
-                            ic79_batch = []
+                            ic78_batch = []
                             deepcore_batch = []
                             labels_batch = []
                             if self.misc_data_exists:
@@ -666,8 +666,8 @@ class DataHandler(object):
                             data_left_in_queue.value = False
 
             # collect leftovers and put them in an (incomplete) batch
-            if ic79_batch:
-                batch = [np.array(ic79_batch),
+            if ic78_batch:
+                batch = [np.array(ic78_batch),
                          np.array(deepcore_batch),
                          np.array(labels_batch)]
                 if self.misc_data_exists:
