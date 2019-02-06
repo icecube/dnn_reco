@@ -82,18 +82,6 @@ def general_model_IC86_opt4(is_training, config, data_handler,
     keep_prob_list = shared_objects['keep_prob_list']
     num_labels = data_handler.label_shape[-1]
 
-    use_batch_norm = False
-    use_residual = True
-
-    # uncertainty layers
-    fc_uncertainty_sizes = [300, num_labels]
-    fc_uncertainty_use_dropout_list = [True, False]
-    activation_list_uncertainty = ['elu','']
-    fc_uncertainty_max_out_size_list = None
-    fc_uncertainty_keep_prob = keep_prob_list[3]
-    fc_uncertainty_use_batch_normalisation_list=use_batch_norm
-    fc_uncertainty_use_residual_list=False
-
     with tf.variable_scope('model_pred'):
 
         # apply DOM dropout, split and reshape DeepCore input

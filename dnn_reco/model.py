@@ -62,14 +62,14 @@ class NNModel(object):
         # define placeholders for keep probability for dropout
         if 'keep_probability_list' in self.config:
             keep_prob_list = [tf.placeholder(
-                                        self.config['float_precision'],
+                                        self.config['tf_float_precision'],
                                         name='keep_prob_{:0.2f}'.format(i))
                               for i in self.config['keep_probability_list']]
             self.shared_objects['keep_prob_list'] = keep_prob_list
 
         # IC78: main IceCube array
         self.shared_objects['x_ic78'] = tf.placeholder(
-                        self.config['float_precision'],
+                        self.config['tf_float_precision'],
                         shape=[None, 10, 10, 60,  self.data_handler.num_bins],
                         name='x_ic78',
                         )
@@ -78,7 +78,7 @@ class NNModel(object):
 
         # DeepCore
         self.shared_objects['x_deepcore'] = tf.placeholder(
-                        self.config['float_precision'],
+                        self.config['tf_float_precision'],
                         shape=[None, 8, 60,  self.data_handler.num_bins],
                         name='x_deepcore',
                         )
@@ -88,7 +88,7 @@ class NNModel(object):
 
         # labels
         self.shared_objects['y_true'] = tf.placeholder(
-                        self.config['float_precision'],
+                        self.config['tf_float_precision'],
                         shape=[None] + self.data_handler.label_shape,
                         name='y_true',
                         )
@@ -98,7 +98,7 @@ class NNModel(object):
         # misc data
         if self.data_handler.misc_shape is not None:
             self.shared_objects['x_misc'] = tf.placeholder(
-                        self.config['float_precision'],
+                        self.config['tf_float_precision'],
                         shape=[None] + self.data_handler.misc_shape,
                         name='x_misc',
                         )
@@ -143,6 +143,138 @@ class NNModel(object):
 
         # create saver
         self.saver = tf.train.Saver(self.shared_objects['model_vars'])
+
+    def _create_label_weights(self):
+        """Create label weights and update operation
+        """
+        weights = np.ones(self.data_handler.label_shape)
+
+        if 'label_weight_dict' in self.config:
+            for key in self.config['label_weight_dict'].keys():
+                weights[self.data_handler.get_label_index(key)] = \
+                    self.config['label_weight_dict'][key]
+
+        if self.config['label_update_weights']:
+            label_weights = tf.Variable(
+                                    weights,
+                                    name='label_weights',
+                                    trainable=False,
+                                    dtype=self.config['tf_float_precision'])
+
+            new_label_weight_values = tf.placeholder(
+                                        self.config['tf_float_precision'],
+                                        shape=self.data_handler.label_shape,
+                                        name='new_label_weight_values')
+
+            label_weight_decay = 0.5
+            self.shared_objects['assign_new_label_weights'] = \
+                label_weights.assign(
+                                label_weights * (1. - label_weight_decay) +
+                                new_label_weight_values * label_weight_decay)
+
+        else:
+            label_weights = tf.constant(
+                                    weights,
+                                    shape=self.data_handler.label_shape,
+                                    dtype=self.config['tf_float_precision'])
+        self.shared_objects['label_weights'] = label_weights
+
+        tf.summary.histogram('label_weights', label_weights)
+        tf.summary.scalar('label_weights_benchmark',
+                          tf.reduce_sum(label_weights))
+
+        misc.print_warning('Total Benchmark should be: {:3.3f}'.format(
+                                                                sum(weights)))
+
+    def _get_optimizers_and_loss(self):
+        optimizer_dict = dict(self.config['model_optimizer_dict'])
+
+        # create each optimizer
+        for name, opt_config in optimizer_dict:
+
+            # sanity check: make sure loss file and name have same length
+            if isinstance(opt_config['loss_file'], str):
+                assert isinstance(opt_config['loss_name'], str)
+                opt_config['loss_file'] = [opt_config['loss_file']]
+                opt_config['loss_name'] = [opt_config['loss_name']]
+
+            assert len(opt_config['loss_file']) == len(opt_config['loss_name'])
+
+            # aggregate over all defined loss functions
+            label_loss = None
+            for file, name in zip(opt_config['loss_file'],
+                                  opt_config['loss_name']):
+
+                # get loss function
+                class_string = 'dnn_reco.modules.loss.{}.{}'.format(file, name)
+                loss_function = misc.load_class(class_string)
+
+                # compute loss
+                label_loss_i = loss_function(
+                                        config=self.config,
+                                        data_handler=self.data_handler,
+                                        data_transformer=self.data_transformer,
+                                        shared_objects=self.shared_objects)
+
+                loss_shape = label_loss_i.get_shape().as_list()
+                if loss_shape != self.data_handler.label_shape:
+                    error_msg = 'Shape of label loss {!r} does not match {!r}'
+                    raise ValueError(error_msg.format(
+                                                loss_shape,
+                                                self.data_handler.label_shape))
+
+                if label_loss is None:
+                    label_loss = label_loss_i
+                else:
+                    label_loss += label_loss_i
+
+            # weight label_losses
+            weighted_label_loss = label_losses*shared_objects['label_weights']
+            weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
+
+            self.shared_objects['label_loss_dict'] = {
+                'loss_label_' + name: weighted_label_loss,
+                'loss_sum_' + name: weighted_loss_sum,
+            }
+
+            tf.summary.histogram('loss_label_' + name, weighted_label_loss)
+            tf.summary.scalar('loss_sum_' + name, weighted_loss_sum)
+
+            # get optimizer
+            optimizer = getattr(tf.train,
+                                opt_config['optimizer'])(
+                                **opt_config['optimizer_settings']
+                                )
+
+            # get variable list
+            if isinstance(opt_config['vars'], str):
+                opt_config['vars'] = [opt_config['vars']]
+            var_list =
+            gvs = optimizer.compute_gradients(weighted_loss_sum,
+                                              var_list=generator.model_vars)
+            clip_gradients = False
+            if clip_gradients:
+                capped_gvs = [(tf.clip_by_value(grad, -1., 1.), var)
+                              for grad, var in gvs]
+            else:
+                capped_gvs = gvs
+            self.generator_optimizer = optimizer.apply_gradients(capped_gvs)
+            if self._config['generator_perform_training']:
+                self.optimizers.append(self.generator_optimizer)
+
+        print(optimizer_list)
+
+    def compile(self):
+
+        # create label_weights and assign op
+        self._create_label_weights()
+
+        self._get_optimizers_and_loss()
+
+        # tukey scaling
+        # non_zero_mask
+        # med_abs_dev
+        # update importance
 
     def count_parameters(self, var_list=None):
         """Count number of trainable parameters

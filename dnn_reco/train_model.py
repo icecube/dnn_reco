@@ -78,8 +78,8 @@ def main(config_files):
                     data_handler=data_handler,
                     data_transformer=data_transformer)
 
-    # # compile model: define loss function and optimizer
-    # model.compile(loss, afsdfa)
+    # compile model: define loss function and optimizer
+    model.compile()
 
     # # train model
     # model.fit(train_data_generator, val_data_generator,
