@@ -189,8 +189,11 @@ class NNModel(object):
     def _get_optimizers_and_loss(self):
         optimizer_dict = dict(self.config['model_optimizer_dict'])
 
+        # create empy list to hold tensorflow optimizer operations
+        optimizer_ops = []
+
         # create each optimizer
-        for name, opt_config in optimizer_dict:
+        for name, opt_config in optimizer_dict.items():
 
             # sanity check: make sure loss file and name have same length
             if isinstance(opt_config['loss_file'], str):
@@ -216,6 +219,7 @@ class NNModel(object):
                                         data_transformer=self.data_transformer,
                                         shared_objects=self.shared_objects)
 
+                # sanity check: make sure loss has expected shape
                 loss_shape = label_loss_i.get_shape().as_list()
                 if loss_shape != self.data_handler.label_shape:
                     error_msg = 'Shape of label loss {!r} does not match {!r}'
@@ -223,13 +227,15 @@ class NNModel(object):
                                                 loss_shape,
                                                 self.data_handler.label_shape))
 
+                # accumulate loss terms
                 if label_loss is None:
                     label_loss = label_loss_i
                 else:
                     label_loss += label_loss_i
 
             # weight label_losses
-            weighted_label_loss = label_losses*shared_objects['label_weights']
+            weighted_label_loss = label_loss * self.shared_objects[
+                                                            'label_weights']
             weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
 
             self.shared_objects['label_loss_dict'] = {
@@ -249,20 +255,22 @@ class NNModel(object):
             # get variable list
             if isinstance(opt_config['vars'], str):
                 opt_config['vars'] = [opt_config['vars']]
-            var_list =
+
+            var_list = []
+            for var_name in opt_config['vars']:
+                var_list.extend(self.shared_objects['model_vars_' + var_name])
+
             gvs = optimizer.compute_gradients(weighted_loss_sum,
-                                              var_list=generator.model_vars)
+                                              var_list=var_list)
             clip_gradients = False
             if clip_gradients:
                 capped_gvs = [(tf.clip_by_value(grad, -1., 1.), var)
                               for grad, var in gvs]
             else:
                 capped_gvs = gvs
-            self.generator_optimizer = optimizer.apply_gradients(capped_gvs)
-            if self._config['generator_perform_training']:
-                self.optimizers.append(self.generator_optimizer)
+            optimizer_ops.append(optimizer.apply_gradients(capped_gvs))
 
-        print(optimizer_list)
+        self.shared_objects['optimizer_ops'] = optimizer_ops
 
     def compile(self):
 

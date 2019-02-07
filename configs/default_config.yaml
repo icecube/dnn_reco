@@ -66,6 +66,12 @@
 }
 # Update label weights during training
 'label_update_weights': True
+# Name of zenith direction label if it exists
+'label_zenith_key':
+# Name of azimuth direction label if it exists
+'label_azimuth_key': cascade_azimuth
+# Add direction vector components as labels
+'label_add_dir_vec': False
 
 #---------------------------
 # General Training settings
@@ -124,8 +130,8 @@
                   'optimizer': 'AdamOptimizer',
                   'optimizer_settings': {'learning_rate': 0.001,},
                   'vars' : ['pred', 'unc'],
-                  'loss_file': '',
-                  'loss_name': '',
+                  'loss_file': 'default_loss',
+                  'loss_name': 'mse',
                 },
 }
 
@@ -223,7 +229,7 @@
 'fc_unc_settings': {
     'fc_sizes': [300, -1], # last one will be overwritten with num labels
     'use_dropout_list': [True, False],
-    'activation_list': ['elu', ''],
+    'activation_list': ['elu', 'abs'],
     'use_batch_normalisation_list': False,
     'use_residual_list': False,
     'max_out_size_list': ,
