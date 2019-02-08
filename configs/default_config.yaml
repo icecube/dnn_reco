@@ -29,7 +29,7 @@
 'num_add_files' : 1
 'num_repetitions' : 1
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
-'batch_size' : 32
+'batch_size' : 2
 
 'log_path' : "../logs/\
                 {config_name}/\
@@ -79,7 +79,6 @@
 'num_training_iterations' : 100000000
 'validation_frequency' : 100
 'save_frequency' : 500
-'keep_global_count' : True
 'keep_probability_list' : [0.9, 1.0, 1.0, 1.0]
 
 #---------------------------
@@ -106,7 +105,7 @@
                               {model_file}__\
                               {model_name}/\
                               {config_name}/model"
-'model_restore_model' : False
+'model_restore_model' : True
 'model_save_model' : True
 
 # Define a dictionary of dictionaries of optimizers here.

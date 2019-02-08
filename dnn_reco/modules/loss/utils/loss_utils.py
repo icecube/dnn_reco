@@ -2,6 +2,8 @@ from __future__ import division, print_function
 import numpy as np
 import tensorflow as tf
 
+from dnn_reco import misc
+
 """
 This file contains commonly used utility functions to compute loss.
 """
@@ -64,6 +66,8 @@ def correct_azimuth_residual(y_diff_trafo, config, data_handler,
         The residual tensor with corrected azimuth residual.
         Same shape and type as y_diff_trafo
     """
+    misc.print_warning('Correcting Azimuth for name pattern: {!r}'.format(
+                                                                name_pattern))
 
     # Assumes labels to be a vector, e.g. 1-dimensional
     assert len(data_handler.label_shape) == 1
@@ -89,3 +93,40 @@ def correct_azimuth_residual(y_diff_trafo, config, data_handler,
                                       two_pi_trafo[i] - abs_diff)
 
     return tf.stack(y_diff_list, axis=-1)
+
+
+def get_y_diff_trafo(config, data_handler, data_transformer, shared_objects):
+    """Get corrected transformed residuals.
+
+    Parameters
+    ----------
+    config : dict
+        Dictionary containing all settings as read in from config file.
+    data_handler : :obj: of class DataHandler
+        An instance of the DataHandler class. The object is used to obtain
+        meta data.
+    data_transformer : :obj: of class DataTransformer
+        An instance of the DataTransformer class. The object is used to
+        transform data.
+    shared_objects : dict
+        A dictionary containg settings and objects that are shared and passed
+        on to sub modules.
+
+    Returns
+    -------
+    tf.Tensor
+        A tensorflow tensor containing the loss for each label.
+        Shape: label_shape (same shape as labels)
+    """
+    y_diff_trafo = (shared_objects['y_pred_trafo']
+                    - shared_objects['y_true_trafo'])
+
+    # correct azimuth residual for 2pi periodicity
+    if config['label_azimuth_key']:
+        y_diff_trafo = correct_azimuth_residual(
+                                    config=config,
+                                    y_diff_trafo=y_diff_trafo,
+                                    data_handler=data_handler,
+                                    data_transformer=data_transformer,
+                                    name_pattern=config['label_azimuth_key'])
+    return y_diff_trafo

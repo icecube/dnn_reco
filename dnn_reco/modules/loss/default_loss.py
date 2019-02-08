@@ -64,17 +64,11 @@ def mse(config, data_handler, data_transformer, shared_objects,
 
     """
 
-    y_diff_trafo = (shared_objects['y_pred_trafo']
-                    - shared_objects['y_true_trafo'])
-
-    # correct azimuth residual for 2pi periodicity
-    if config['label_azimuth_key']:
-        loss_utils.correct_azimuth_residual(
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
                                     config=config,
-                                    y_diff_trafo=y_diff_trafo,
                                     data_handler=data_handler,
                                     data_transformer=data_transformer,
-                                    name_pattern=config['label_azimuth_key'])
+                                    shared_objects=shared_objects)
 
     mse_values_trafo = tf.reduce_mean(tf.square(y_diff_trafo), 0)
 
@@ -112,18 +106,11 @@ def abs(config, data_handler, data_transformer, shared_objects,
         Shape: label_shape (same shape as labels)
 
     """
-
-    y_diff_trafo = (shared_objects['y_pred_trafo']
-                    - shared_objects['y_true_trafo'])
-
-    # correct azimuth residual for 2pi periodicity
-    if config['label_azimuth_key']:
-        loss_utils.correct_azimuth_residual(
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
                                     config=config,
-                                    y_diff_trafo=y_diff_trafo,
                                     data_handler=data_handler,
                                     data_transformer=data_transformer,
-                                    name_pattern=config['label_azimuth_key'])
+                                    shared_objects=shared_objects)
 
     abs_values_trafo = tf.reduce_mean(tf.abs(y_diff_trafo), 0)
 
@@ -161,17 +148,11 @@ def gaussian_likelihood(config, data_handler, data_transformer, shared_objects,
         Shape: label_shape (same shape as labels)
 
     """
-    y_diff_trafo = (shared_objects['y_pred_trafo']
-                    - shared_objects['y_true_trafo'])
-
-    # correct azimuth residual for 2pi periodicity
-    if config['label_azimuth_key']:
-        loss_utils.correct_azimuth_residual(
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
                                     config=config,
-                                    y_diff_trafo=y_diff_trafo,
                                     data_handler=data_handler,
                                     data_transformer=data_transformer,
-                                    name_pattern=config['label_azimuth_key'])
+                                    shared_objects=shared_objects)
 
     # small float to prevent division by zero
     eps = 1e-6

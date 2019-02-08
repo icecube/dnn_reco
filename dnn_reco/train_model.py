@@ -81,10 +81,15 @@ def main(config_files):
     # compile model: define loss function and optimizer
     model.compile()
 
-    # # train model
-    # model.fit(train_data_generator, val_data_generator,
-    #           evaluation_methods=,
-    #           sess=None)
+    # restore model weights
+    if config['model_restore_model']:
+        model.restore()
+
+    # train model
+    model.fit(num_training_iterations=config['num_training_iterations'],
+              train_data_generator=train_data_generator,
+              val_data_generator=val_data_generator,
+              evaluation_methods=None,)
 
 
 if __name__ == '__main__':
