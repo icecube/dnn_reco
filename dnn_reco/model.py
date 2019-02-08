@@ -523,10 +523,11 @@ class NNModel(object):
             # save models
             # ----------------
             if i % self.config['save_frequency'] == 0:
-                self.saver.save(
-                        sess=self.sess,
-                        global_step=self._step_offset + i,
-                        save_path=self.config['model_checkpoint_path'])
+                if self.config['model_save_model']:
+                    self.saver.save(
+                            sess=self.sess,
+                            global_step=self._step_offset + i,
+                            save_path=self.config['model_checkpoint_path'])
             # ----------------
 
     def count_parameters(self, var_list=None):
