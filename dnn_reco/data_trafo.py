@@ -287,14 +287,18 @@ class DataTransformer:
 
         # combine DOM data over all DOMs if desired
         if self.trafo_model['treat_doms_equally']:
-            self.trafo_model['ic78_mean'] = np.reshape(np.mean(
-                                    ic78_mean[detector.IC78_real_DOMs_mask],
-                                    axis=0),
-                                    [1, 1, 1, self.trafo_model['num_bins']])
-            self.trafo_model['ic78_std'] = np.reshape(np.mean(
-                                    ic78_std[detector.IC78_real_DOMs_mask],
-                                    axis=0),
-                                    [1, 1, 1, self.trafo_model['num_bins']])
+
+            # initalize with zeros
+            self.trafo_model['ic78_mean'] = np.zeros(self._ic78_shape)
+            self.trafo_model['ic78_std'] = np.zeros(self._ic78_shape)
+
+            # now calculate normalization for real DOMs
+            self.trafo_model['ic78_mean'][detector.IC78_real_DOMs_mask] = \
+                np.mean(ic78_mean[detector.IC78_real_DOMs_mask], axis=0)
+            self.trafo_model['ic78_std'][detector.IC78_real_DOMs_mask] = \
+                np.mean(ic78_std[detector.IC78_real_DOMs_mask], axis=0)
+
+            # DeepCore
             self.trafo_model['deepcore_mean'] = np.mean(deepcore_mean,
                                                         axis=(0, 1),
                                                         keepdims=True)
