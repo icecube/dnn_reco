@@ -3,6 +3,8 @@ import numpy as np
 import pickle
 import tensorflow as tf
 
+from dnn_reco import detector
+
 
 class DataTransformer:
 
@@ -285,14 +287,14 @@ class DataTransformer:
 
         # combine DOM data over all DOMs if desired
         if self.trafo_model['treat_doms_equally']:
-            # ToDo: make sure this is actually doing the right thing!
-            # ToDo: Handle empty DOMs differenty (perform masking)
-            self.trafo_model['ic78_mean'] = np.mean(ic78_mean,
-                                                    axis=(0, 1, 2),
-                                                    keepdims=True)
-            self.trafo_model['ic78_std'] = np.mean(ic78_std,
-                                                   axis=(0, 1, 2),
-                                                   keepdims=True)
+            self.trafo_model['ic78_mean'] = np.reshape(np.mean(
+                                    ic78_mean[detector.IC78_real_DOMs_mask],
+                                    axis=0),
+                                    [1, 1, 1, self.trafo_model['num_bins']])
+            self.trafo_model['ic78_std'] = np.reshape(np.mean(
+                                    ic78_std[detector.IC78_real_DOMs_mask],
+                                    axis=0),
+                                    [1, 1, 1, self.trafo_model['num_bins']])
             self.trafo_model['deepcore_mean'] = np.mean(deepcore_mean,
                                                         axis=(0, 1),
                                                         keepdims=True)

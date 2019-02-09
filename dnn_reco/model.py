@@ -489,7 +489,7 @@ class NNModel(object):
                     'merged_summary': self._merged_summary,
                     'weights': self.shared_objects['label_weights_benchmark'],
                 }
-                result_msg = 'Benchmark: {weights:2.2f} '
+                result_msg = ''
                 for k, loss in self.shared_objects['label_loss_dict'].items():
                     if k[:9] == 'loss_sum_':
                         eval_dict[k] = loss
