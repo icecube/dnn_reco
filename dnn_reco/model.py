@@ -475,9 +475,7 @@ class NNModel(object):
                             feed_dict=feed_dict_assign)
                     updated_weights = self.sess.run(
                                         self.shared_objects['label_weights'])
-                    print('\t', updated_weights)
-                    print('\tNew Benchmark: {:3.3f}'.format(
-                                                     np.sum(updated_weights)))
+
                     # reset values
                     label_weight_n = 0.
                     label_weight_mean = np.zeros(self.data_handler.label_shape)
@@ -514,10 +512,12 @@ class NNModel(object):
                 self._train_writer.add_summary(
                                         results_train['merged_summary'], i)
                 self._val_writer.add_summary(results_val['merged_summary'], i)
-                print('Step: {:08d}, Runtime : {:2.2f}s'.format(
-                                    i, timeit.default_timer() - start_time))
+                msg = 'Step: {:08d}, Runtime: {:2.2f}s, Benchmark: {:3.3f}'
+                print(msg.format(i, timeit.default_timer() - start_time,
+                                 np.sum(updated_weights)))
                 print('\t[Train]      '+result_msg.format(**results_train))
                 print('\t[Validation] '+result_msg.format(**results_val))
+                print('\t', updated_weights)
 
             # ----------------
             # save models

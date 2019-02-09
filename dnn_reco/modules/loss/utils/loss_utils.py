@@ -74,9 +74,10 @@ def correct_azimuth_residual(y_diff_trafo, config, data_handler,
 
     pi = np.ones([1] + data_handler.label_shape,
                  dtype=config['np_float_precision']) * np.pi
-    pi_trafo = tf.squeeze(data_transformer.transform(pi, data_type='label'))
-    two_pi_trafo = tf.squeeze(data_transformer.transform(2*pi,
-                                                         data_type='label'))
+    pi_trafo = tf.squeeze(data_transformer.transform(
+                                pi, data_type='label', bias_correction=False))
+    two_pi_trafo = tf.squeeze(data_transformer.transform(
+                            2*pi, data_type='label', bias_correction=False))
 
     # Get correct y_diff_trafo that accounts for 2pi periodicity
     y_diff_list = tf.unstack(y_diff_trafo, axis=-1)
