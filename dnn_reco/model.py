@@ -517,7 +517,12 @@ class NNModel(object):
                                  np.sum(updated_weights)))
                 print('\t[Train]      '+result_msg.format(**results_train))
                 print('\t[Validation] '+result_msg.format(**results_val))
-                print('\t', updated_weights)
+
+                # print info for each label
+                for name, index in data_handler.label_name_dict.items():
+                    msg = '\t[{name}] weight: {weight:2.3f}'
+                    print(msg.format(name=name,
+                                     weight=updated_weights[index]))
 
             # ----------------
             # save models

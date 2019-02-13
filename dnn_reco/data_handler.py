@@ -100,7 +100,7 @@ class DataHandler(object):
                                            self._config)
 
         self.label_names = label_names
-        self._label_name_dict = {n: i for i, n in enumerate(label_names)}
+        self.label_name_dict = {n: i for i, n in enumerate(label_names)}
         self.label_shape = list(labels.shape[1:])
         self.num_labels = np.prod(self.label_shape)
 
@@ -156,7 +156,7 @@ class DataHandler(object):
         int
             Index.
         """
-        return self._label_name_dict[label_name]
+        return self.label_name_dict[label_name]
 
     def get_misc_index(self, misc_name):
         """Get index of a misc variable.

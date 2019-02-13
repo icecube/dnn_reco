@@ -34,8 +34,8 @@ def preprocess_icecube_data(is_training, shared_objects):
         Lower DeepCore array
         shape: [none, 1, 50, 8 * num_bins]
     """
-    X_IC78 = shared_objects['x_ic78']
-    X_DeepCore = shared_objects['x_deepcore']
+    X_IC78 = shared_objects['x_ic78_trafo']
+    X_DeepCore = shared_objects['x_deepcore_trafo']
     keep_prob_list = shared_objects['keep_prob_list']
 
     # -----------------------------------
