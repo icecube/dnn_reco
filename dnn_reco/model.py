@@ -47,6 +47,7 @@ class NNModel(object):
                 transform data.
         """
         self._model_is_compiled = False
+        self._step_offset = 0
         self.is_training = is_training
         self.config = config
         self.data_handler = data_handler
@@ -350,7 +351,6 @@ class NNModel(object):
         latest_checkpoint = tf.train.latest_checkpoint(os.path.dirname(
                                 self.config['model_checkpoint_path']))
         if latest_checkpoint is None:
-            self._step_offset = 0
             misc.print_warning(
                     'Could not find previous checkpoint. Creating new one!')
         else:

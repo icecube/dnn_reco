@@ -80,8 +80,26 @@
 'label_zenith_key': cascade_zenith
 # Name of azimuth direction label if it exists
 'label_azimuth_key': cascade_azimuth
+# Name of direction vector x-component label if it exists
+'label_dir_x_key': direction_x
+# Name of direction vector x-component label if it exists
+'label_dir_y_key': direction_y
+# Name of direction vector x-component label if it exists
+'label_dir_z_key': direction_z
 # Add direction vector components as labels
-'label_add_dir_vec': False
+'label_add_dir_vec': True
+# Define pid keys. The labels defined here will be fors to range [0, 1]
+# (depends on the chosen neural network model)
+'label_pid_keys': [
+    'p_cc_e', 'p_cc_mu', 'p_cc_tau', 'p_nc',
+    'p_starting', 'p_starting_300m', 'p_starting_glashow',
+    'p_starting_nc', 'p_starting_cc', 'p_starting_cc_e',
+    'p_starting_cc_mu', 'p_starting_cc_tau',
+    'p_starting_cc_tau_muon_decay',
+    'p_starting_cc_tau_double_bang', 'p_entering',
+    'p_entering_muon_single', 'p_entering_muon_bundle',
+    'p_outside_cascade',
+]
 
 #---------------------------
 # General Training settings

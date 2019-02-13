@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import numpy as np
 import tensorflow as tf
 
 from tfscripts import layers as tfs
@@ -156,69 +157,60 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                                 is_training=is_training,
                                                 **fc_settings)
 
-        y_pred = layers[-1]
+        y_pred_trafo = layers[-1]
 
-        # # -----------------------------------
-        # # Enforce Normalisation
-        # # -----------------------------------
-        # Y_namesDict = settings['Y_namesDict']
-        # if settings['normalizeData']:
+        # -----------------------------------
+        # Enforce Normalisation
+        # -----------------------------------
+        assert len(y_pred_trafo.get_shape().as_list()) == 2
 
-        #     # load norm model
-        #     normModel = np.load(settings['normModelFile'])
-        #     normalizationConstant = settings['normalizationConstant']
+        index_dir_x = data_handler.get_label_index(config['label_dir_x_key'])
+        index_dir_y = data_handler.get_label_index(config['label_dir_y_key'])
+        index_dir_z = data_handler.get_label_index(config['label_dir_z_key'])
+        index_zenith = data_handler.get_label_index(config['label_zenith_key'])
+        index_azimuth = data_handler.get_label_index(
+                                                config['label_azimuth_key'])
 
-        #     # Denormalize:
-        #     y_pred = y_pred * (normModel[5] + normalizationConstant) + normModel[4]
+        # transform back
+        y_pred = data_transformer.inverse_transform(y_pred_trafo,
+                                                    data_type='label')
+        y_pred_list = tf.unstack(y_pred, axis=1)
 
-        # y_pred_list = tf.unstack(y_pred, axis=1)
+        norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
+                       y_pred_list[index_dir_y]**2 +
+                       y_pred_list[index_dir_z]**2)
 
-        # norm = tf.sqrt( y_pred_list[Y_namesDict['PrimaryDirectionX']]**2 + \
-        #                 y_pred_list[Y_namesDict['PrimaryDirectionY']]**2 + \
-        #                 y_pred_list[Y_namesDict['PrimaryDirectionZ']]**2)
+        y_pred_list[index_dir_x] /= norm
+        y_pred_list[index_dir_y] /= norm
+        y_pred_list[index_dir_z] /= norm
 
-        # y_pred_list[Y_namesDict['PrimaryDirectionX']] /= norm
-        # y_pred_list[Y_namesDict['PrimaryDirectionY']] /= norm
-        # y_pred_list[Y_namesDict['PrimaryDirectionZ']] /= norm
+        # calculate zenith
+        y_pred_list[index_zenith] = tf.acos(tf.clip_by_value(
+                                                    -y_pred_list[index_dir_z],
+                                                    -1, 1))
 
-        # # calculate zenith
-        # y_pred_list[Y_namesDict['PrimaryZenith']] = tf.acos( tf.clip_by_value(
-        #                     -y_pred_list[Y_namesDict['PrimaryDirectionZ']],
-        #                     -1,1))
+        # calculate azimuth
+        y_pred_list[index_azimuth] = (tf.atan2(-y_pred_list[index_dir_y],
+                                               -y_pred_list[index_dir_x])
+                                      + 2 * np.pi) % (2 * np.pi)
 
-        # # calculate azimuth
-        # y_pred_list[Y_namesDict['PrimaryAzimuth']] = \
-        #                 (tf.atan2( -y_pred_list[Y_namesDict['PrimaryDirectionY']],
-        #                          -y_pred_list[Y_namesDict['PrimaryDirectionX']]) \
-        #                 + 2 * np.pi) % (2 * np.pi)
+        # limit PID variables to range 0 to 1
 
-        # # limit PID variables to range 0 to 1
-        # pid_keys = [
-        #     'p_cc_e', 'p_cc_mu', 'p_cc_tau', 'p_nc',
-        #     'p_starting', 'p_starting_300m', 'p_starting_glashow',
-        #     'p_starting_nc', 'p_starting_cc', 'p_starting_cc_e',
-        #     'p_starting_cc_mu', 'p_starting_cc_tau',
-        #     'p_starting_cc_tau_muon_decay',
-        #     'p_starting_cc_tau_double_bang', 'p_entering',
-        #     'p_entering_muon_single', 'p_entering_muon_bundle',
-        #     'p_outside_cascade',
-        # ]
+        # safety check
+        for k in data_handler.label_names:
+            if k[0:2] == 'p_' and k not in config['label_pid_keys']:
+                raise ValueError('Did you forget about {!r}?'.format(k))
 
-        # # safety check
-        # for k in Y_namesDict.keys():
-        #     if k[0:2] == 'p_' and k not in pid_keys:
-        #         raise ValueError('Did you forget about {!r}?'.format(k))
+        for pid_key in config['label_pid_keys']:
+            if pid_key in data_handler.label_names:
+                index_pid = data_handler.get_label_index(pid_key)
+                y_pred_list[index_pid] = tf.sigmoid(y_pred_list[index_pid])
 
-        # for pid_key in pid_keys:
-        #     if pid_key in Y_namesDict:
-        #         y_pred_list[Y_namesDict[pid_key]] = tf.sigmoid(
-        #                                     y_pred_list[Y_namesDict[pid_key]])
+        # put it back together
+        y_pred = tf.stack(y_pred_list, axis=1)
 
-        # y_pred = tf.stack(y_pred_list, axis=1)
-
-        # if settings['normalizeData']:
-        #     # Normalize:
-        #     y_pred = ( y_pred - normModel[4] ) / (normModel[5] + normalizationConstant)
+        # transform
+        y_pred_trafo = data_transformer.transform(y_pred, data_type='label')
 
     with tf.variable_scope('model_unc'):
 
@@ -234,15 +226,15 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                             keep_prob=keep_prob_list[3],
                                             **fc_unc_settings
                                             )
-        y_uncertainty_pred = uncertainty_layers[-1]
+        y_unc_pred_trafo = uncertainty_layers[-1]
 
     # -----------------------------------
     # print architecture
     # -----------------------------------
     print('flat IC78:', layer_flat_IC78)
     print('layer_flat:', layer_flat)
-    print('y_pred:', y_pred)
-    print('y_uncertainty_pred:', y_uncertainty_pred)
+    print('y_pred_trafo:', y_pred_trafo)
+    print('y_unc_pred_trafo:', y_unc_pred_trafo)
 
     # -----------------------------------
     # collect model variables that need to be saved
@@ -252,4 +244,4 @@ def general_model_IC86_opt4(is_training, config, data_handler,
     model_vars_unc = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
                                        'model_unc')
 
-    return y_pred, y_uncertainty_pred, model_vars_pred, model_vars_unc
+    return y_pred_trafo, y_unc_pred_trafo, model_vars_pred, model_vars_unc
