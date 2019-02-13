@@ -519,7 +519,7 @@ class NNModel(object):
                 print('\t[Validation] '+result_msg.format(**results_val))
 
                 # print info for each label
-                for name, index in data_handler.label_name_dict.items():
+                for name, index in self.data_handler.label_name_dict.items():
                     msg = '\t[{name}] weight: {weight:2.3f}'
                     print(msg.format(name=name,
                                      weight=updated_weights[index]))
