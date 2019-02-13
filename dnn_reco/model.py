@@ -521,12 +521,13 @@ class NNModel(object):
 
                 # print info for each label
                 for name, index in self.data_handler.label_name_dict.items():
-                    msg = '\t[{name}] weight: {weight:2.3f},'
-                    msg += ' train: {train:2.3f}, val: {val:2.3f},'
-                    print(msg.format(name=name,
-                                     weight=updated_weights[index],
+                    msg = '\tweight: {weight:2.3f},'
+                    msg += ' train: {train:2.3f}, val: {val:2.3f} [{name}]'
+                    print(msg.format(weight=updated_weights[index],
                                      train=results_train['rmse_trafo'][index],
-                                     val=results_val['rmse_trafo'][index]))
+                                     val=results_val['rmse_trafo'][index],
+                                     name=name,
+                                     ))
 
             # ----------------
             # save models
