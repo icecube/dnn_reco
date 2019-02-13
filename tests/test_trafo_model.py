@@ -38,7 +38,7 @@ def main(config_files):
                 'pick_random_files_forever': False,
                 'file_capacity': 1,
                 'batch_capacity': 2,
-                'num_jobs': config['trafo_num_jobs'],
+                'num_jobs': config['num_jobs'],
                 'num_add_files': 0,
                 'num_repetitions': 1,
                 'init_values': config['DOM_init_values'],
@@ -78,15 +78,21 @@ def main(config_files):
             deviations = np.reshape(np.abs(test_data_inv_trafo - test_data),
                                     [-1])
 
-            print('Checking Mean of {} for numpy trafo:'.format(data_type))
-            print('\tOrig: {:2.3f}, Trafo: {:2.3f}, Inv-Trafo: {:2.3f}'.format(
+            print('Checking numpy trafor for {}:'.format(data_type))
+            print('\tChecking Mean:')
+            print('\tOrig: {:2.5f}, Trafo: {:2.5f}, Inv-Trafo: {:2.5f}'.format(
                     np.mean(test_data),
                     np.mean(test_data_trafo),
                     np.mean(test_data_inv_trafo)))
+            print('\tChecking Standard Deviation:')
+            print('\tOrig: {:2.5f}, Trafo: {:2.5f}, Inv-Trafo: {:2.5f}'.format(
+                    np.std(test_data, ddof=1),
+                    np.std(test_data_trafo, ddof=1),
+                    np.std(test_data_inv_trafo, ddof=1)))
             print('\tOriginal is same as inv-trafo(trafo(original)): ',
                   np.allclose(test_data, test_data_inv_trafo),
                   (test_data_inv_trafo == test_data).all())
-            print('\tResiduals: min {:2.3f}, max {:2.3f}, mean {:2.3f}'.format(
+            print('\tResiduals: min {:2.8f}, max {:2.8f}, mean {:2.8f}'.format(
                     np.min(deviations),
                     np.max(deviations),
                     np.mean(deviations)))
@@ -102,15 +108,21 @@ def main(config_files):
             deviations = np.reshape(np.abs(test_data_inv_trafo - test_data),
                                     [-1])
 
-            print('Checking Mean of {} for tf trafo:'.format(data_type))
-            print('\tOrig: {:2.3f}, Trafo: {:2.3f}, Inv-Trafo: {:2.3f}'.format(
+            print('Checking tensorflow trafor for {}:'.format(data_type))
+            print('\tChecking Mean:')
+            print('\tOrig: {:2.5f}, Trafo: {:2.5f}, Inv-Trafo: {:2.5f}'.format(
                     np.mean(test_data),
                     np.mean(test_data_trafo),
                     np.mean(test_data_inv_trafo)))
+            print('\tChecking Standard Deviation:')
+            print('\tOrig: {:2.5f}, Trafo: {:2.5f}, Inv-Trafo: {:2.5f}'.format(
+                    np.std(test_data, ddof=1),
+                    np.std(test_data_trafo, ddof=1),
+                    np.std(test_data_inv_trafo, ddof=1)))
             print('\tOriginal is same as inv-trafo(trafo(original)): ',
                   np.allclose(test_data, test_data_inv_trafo),
                   (test_data_inv_trafo == test_data).all())
-            print('\tResiduals: min {:2.3f}, max {:2.3f}, mean {:2.3f}'.format(
+            print('\tResiduals: min {:2.8f}, max {:2.8f}, mean {:2.8f}'.format(
                 np.min(deviations), np.max(deviations), np.mean(deviations)))
 
 

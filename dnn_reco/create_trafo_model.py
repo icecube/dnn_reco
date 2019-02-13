@@ -26,11 +26,11 @@ def main(config_files):
     config = setup_manager.get_config()
 
     # Create Data Handler object
-    data_handler = DataHandler(test_input_data=config['training_data_file'],
+    data_handler = DataHandler(test_input_data=config['trafo_data_file'],
                                config=config)
 
     settings_trafo = {
-                'input_data': config['training_data_file'],
+                'input_data': config['trafo_data_file'],
                 'batch_size': config['batch_size'],
                 'sample_randomly': True,
                 'pick_random_files_forever': False,
