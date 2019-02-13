@@ -78,8 +78,6 @@ def general_model_IC86_opt4(is_training, config, data_handler,
     list of tf.Tensor
         The trainable parameters of the uncertainty sub network.
     """
-    X_IC78 = shared_objects['x_ic78']
-    X_DeepCore = shared_objects['x_deepcore']
     keep_prob_list = shared_objects['keep_prob_list']
     num_labels = data_handler.label_shape[-1]
 

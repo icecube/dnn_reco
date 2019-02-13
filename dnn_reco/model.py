@@ -488,6 +488,7 @@ class NNModel(object):
                 eval_dict = {
                     'merged_summary': self._merged_summary,
                     'weights': self.shared_objects['label_weights_benchmark'],
+                    'rmse_trafo': self.shared_objects['rmse_values_trafo'],
                 }
                 result_msg = ''
                 for k, loss in self.shared_objects['label_loss_dict'].items():
@@ -520,9 +521,12 @@ class NNModel(object):
 
                 # print info for each label
                 for name, index in self.data_handler.label_name_dict.items():
-                    msg = '\t[{name}] weight: {weight:2.3f}'
+                    msg = '\t[{name}] weight: {weight:2.3f},'
+                    msg += ' train: {train:2.3f}, val: {val:2.3f},'
                     print(msg.format(name=name,
-                                     weight=updated_weights[index]))
+                                     weight=updated_weights[index],
+                                     train=results_train['rmse_trafo'][index],
+                                     val=results_val['rmse_trafo'][index]))
 
             # ----------------
             # save models

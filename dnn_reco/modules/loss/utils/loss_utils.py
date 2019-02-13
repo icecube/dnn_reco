@@ -33,12 +33,14 @@ def add_logging_info(data_handler, shared_objects):
     y_diff_trafo = (shared_objects['y_pred_trafo']
                     - shared_objects['y_true_trafo'])
     mse_values_trafo = tf.reduce_mean(tf.square(y_diff_trafo), 0)
+    rmse_values_trafo = tf.sqrt(mse_values_trafo)
+    shared_objects['rmse_values_trafo'] = rmse_values_trafo
 
     # add the RMSE of each label as a tf.summary.scalar
     for i, name in enumerate(data_handler.label_names):
         tf.summary.scalar('RMSE_' + name, rmse_values[i])
 
-    tf.summary.scalar('Benchmark', tf.reduce_sum(tf.sqrt(mse_values_trafo), 0))
+    tf.summary.scalar('Benchmark', tf.reduce_sum(rmse_values_trafo, 0))
 
 
 def correct_azimuth_residual(y_diff_trafo, config, data_handler,
