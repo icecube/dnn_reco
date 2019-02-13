@@ -325,11 +325,29 @@ class DataHandler(object):
         # --------------------------
         # fill nan values if desired
         # --------------------------
-        if nan_fill_value is not None:
+        if nan_fill_value is None:
+            mask = np.isfinite(np.sum(x_ic78, axis=(1, 2, 3, 4)))
+            mask = np.logical_and(
+                mask, np.isfinite(np.sum(x_deepcore, axis=(1, 2, 3))))
+            mask = np.logical_and(
+                mask, np.isfinite(np.sum(labels,
+                                         axis=tuple(range(1, labels.ndim)))))
+            if not mask.all():
+                misc.print_warning('Found NaNs. ' +
+                                   'Removing {} events from batch.'.format(
+                                                len(mask) - np.sum(mask)))
+
+                x_ic78 = x_ic78[mask]
+                x_deepcore = x_deepcore[mask]
+                labels = labels[mask]
+                if self.misc_data_exists:
+                    misc_data = misc_data[mask]
+        else:
             x_ic78[~np.isfinite(x_ic78)] = nan_fill_value
             x_deepcore[~np.isfinite(x_deepcore)] = nan_fill_value
             labels[~np.isfinite(labels)] = nan_fill_value
-            misc_data[~np.isfinite(misc_data)] = nan_fill_value
+            if self.misc_data_exists:
+                misc_data[~np.isfinite(misc_data)] = nan_fill_value
         # --------------------------
 
         if verbose:
