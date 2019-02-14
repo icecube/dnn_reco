@@ -10,26 +10,34 @@
 # General settings
 #---------------------------
 'training_data_file' : [
-    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/04000-04999/*.hdf5',
   ]
 'trafo_data_file' : [
-    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/04000-04999/*.hdf5',
   ]
 'validation_data_file' : [
-    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/05000-05999/*.hdf5',
   ]
 'test_data_file' : [
-    '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
+    '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/05000-05999/*.hdf5',
   ]
 
 'float_precision': float32
-'num_jobs' : 3
-'file_capacity' : 2
-'batch_capacity' : 5
-'num_add_files' : 1
-'num_repetitions' : 1
+'num_jobs' : 12
+'file_capacity' : 20
+'batch_capacity' : 200
+'num_add_files' : 10
+'num_repetitions' : 3
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
-'batch_size' : 2
+'batch_size' : 32
 
 'log_path' : "../logs/\
                 {config_name}/\
@@ -39,7 +47,7 @@
 #----------------------
 # Data Handler settings
 #----------------------
-'data_handler_num_bins': 9
+'data_handler_num_bins': 7
 
 'data_handler_label_file': 'default_labels'
 'data_handler_label_name': 'simple_label_loader'
@@ -53,7 +61,7 @@
 
 
 # must be a list of keys or empty list
-'data_handler_relative_time_keys': []
+'data_handler_relative_time_keys': ['PrimaryMuonTimeAtEntry']
 # lower case pattern
 'data_handler_relative_time_key_pattern': 'time'
 
@@ -61,18 +69,27 @@
 # Label settings
 # --------------
 # initialize label weights with this value
-'label_weight_initialization': 1
+'label_weight_initialization': 0
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
-
+  'PrimaryMuonTimeAtEntry': 1,
+  'PrimaryMuonAzimuth': 1,
+  'PrimaryMuonZenith': 1,
+  'PrimaryMuonEnergyEntry': 1,
+  'PrimaryMuonEntryx': 1,
+  'PrimaryMuonEntryy': 1,
+  'PrimaryMuonEntryz': 1,
+  'direction_x': 10,
+  'direction_y': 10,
+  'direction_z': 10,
 }
 # Update label weights during training
 'label_update_weights': True
 # Name of zenith direction label if it exists
-'label_zenith_key': cascade_zenith
+'label_zenith_key': PrimaryMuonZenith
 # Name of azimuth direction label if it exists
-'label_azimuth_key': cascade_azimuth
+'label_azimuth_key': PrimaryMuonAzimuth
 # Name of direction vector x-component label if it exists
 'label_dir_x_key': direction_x
 # Name of direction vector x-component label if it exists
@@ -100,7 +117,7 @@
 'num_training_iterations' : 100000000
 'validation_frequency' : 100
 'save_frequency' : 500
-'keep_probability_list' : [0.9, 1.0, 1.0, 1.0]
+'keep_probability_list' : [1.0, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
 'evaluation_file': default_evaluation
@@ -109,13 +126,13 @@
 #---------------------------
 # Trafo settings
 #---------------------------
-'trafo_num_jobs' : 3
-'trafo_num_batches' : 10
+'trafo_num_jobs' : 25
+'trafo_num_batches' : 200
 'trafo_model_path' : '../data/trafo_models/test_trafo_model.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : True
-'trafo_log_dom_bins' : False
+'trafo_log_dom_bins' : [True, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
                             'cascade_energy': True,
                          }

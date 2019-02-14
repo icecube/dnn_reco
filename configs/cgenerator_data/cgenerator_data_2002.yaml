@@ -76,7 +76,10 @@
 # --------------
 # Label settings
 # --------------
-# Weights of each label are 1 per default, unless defined otherwise here
+# initialize label weights with this value
+'label_weight_initialization': 1
+# Weights of each label are initialized with label_weight_initialization,
+# unless defined otherwise here
 'label_weight_dict': {
   'cascade_energy': 0,
   'direction_x': 10,

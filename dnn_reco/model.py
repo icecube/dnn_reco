@@ -162,6 +162,7 @@ class NNModel(object):
         """Create label weights and update operation
         """
         label_weight_config = np.ones(self.data_handler.label_shape)
+        label_weight_config *= self.config['label_weight_initialization']
 
         if 'label_weight_dict' in self.config:
             for key in self.config['label_weight_dict'].keys():
