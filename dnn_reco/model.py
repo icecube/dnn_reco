@@ -489,6 +489,8 @@ class NNModel(object):
                     'merged_summary': self._merged_summary,
                     'weights': self.shared_objects['label_weights_benchmark'],
                     'rmse_trafo': self.shared_objects['rmse_values_trafo'],
+                    'y_pred': self.shared_objects['y_pred'],
+                    'y_unc': self.shared_objects['y_unc'],
                 }
                 result_msg = ''
                 for k, loss in self.shared_objects['label_loss_dict'].items():
@@ -499,16 +501,17 @@ class NNModel(object):
                 # -------------------------------------
                 # Test performance on training data
                 # -------------------------------------
-                feed_dict = self._feed_placeholders(train_data_generator,
-                                                    is_validation=True)
-                results_train = self.sess.run(eval_dict, feed_dict=feed_dict)
+                feed_dict_train = self._feed_placeholders(train_data_generator,
+                                                          is_validation=True)
+                results_train = self.sess.run(eval_dict,
+                                              feed_dict=feed_dict_train)
 
                 # -------------------------------------
                 # Test performance on validation data
                 # -------------------------------------
-                feed_dict = self._feed_placeholders(val_data_generator,
-                                                    is_validation=True)
-                results_val = self.sess.run(eval_dict, feed_dict=feed_dict)
+                feed_dict_val = self._feed_placeholders(val_data_generator,
+                                                        is_validation=True)
+                results_val = self.sess.run(eval_dict, feed_dict=feed_dict_val)
 
                 self._train_writer.add_summary(
                                         results_train['merged_summary'], i)
@@ -528,6 +531,22 @@ class NNModel(object):
                                      val=results_val['rmse_trafo'][index],
                                      name=name,
                                      ))
+
+                # Call user defined evaluation method
+                if self.config['evaluation_file'] is not None:
+                    class_string = 'dnn_reco.modules.evaluation.{}.{}'.format(
+                                self.config['evaluation_file'],
+                                self.config['evaluation_name'],
+                                )
+                    eval_func = misc.load_class(class_string)
+                    eval_func(feed_dict_train=feed_dict_train,
+                              feed_dict_val=feed_dict_val,
+                              results_train=results_train,
+                              results_val=results_val,
+                              config=self.config,
+                              data_handler=self.data_handler,
+                              data_transformer=self.data_transformer,
+                              shared_objects=self.shared_objects)
 
             # ----------------
             # save models
