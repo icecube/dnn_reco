@@ -30,6 +30,7 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/11069/output/summaryV2_clipped/05000-05999/*.hdf5',
   ]
 
+'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 12
 'file_capacity' : 20

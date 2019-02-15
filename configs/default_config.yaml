@@ -22,6 +22,7 @@
     '/home/mirco/Repositories/github/cascade-generator/data/icecube/cscd/NuGen/*/*/IC86_2013_holeice_30_v4/cscd_l3/output/inhomogenous_3_3_skewness_wf_100/*/*.hdf5'
   ]
 
+'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 3
 'file_capacity' : 2

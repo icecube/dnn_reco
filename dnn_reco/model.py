@@ -69,6 +69,7 @@ class NNModel(object):
                                 device_count={'GPU': 1},
                               )).__enter__()
         self.sess = sess
+        tf.set_random_seed(self.config['tf_random_seed'])
 
     def _setup_placeholders(self):
         """Sets up placeholders for input data.
