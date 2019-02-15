@@ -454,11 +454,17 @@ class NNModel(object):
             # calculate online variabels for label weights
             # --------------------------------------------
             if self.config['label_update_weights']:
-                label_weight_n += 1
-                delta = train_result['mse_values_trafo'] - label_weight_mean
-                label_weight_mean += delta / label_weight_n
-                delta2 = train_result['mse_values_trafo'] - label_weight_mean
-                label_weight_M2 += delta * delta2
+                if np.isfinite(train_result['mse_values_trafo']).all():
+                    label_weight_n += 1
+                    delta = train_result['mse_values_trafo'] \
+                        - label_weight_mean
+                    label_weight_mean += delta / label_weight_n
+                    delta2 = train_result['mse_values_trafo'] \
+                        - label_weight_mean
+                    label_weight_M2 += delta * delta2
+                else:
+                    misc.print_warning('Found NaNs:',
+                                       train_result['mse_values_trafo'])
 
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
