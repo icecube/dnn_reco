@@ -463,8 +463,8 @@ class NNModel(object):
                         - label_weight_mean
                     label_weight_M2 += delta * delta2
                 else:
-                    misc.print_warning('Found NaNs:',
-                                       train_result['mse_values_trafo'])
+                    misc.print_warning('Found NaNs: {}'.format(
+                                       train_result['mse_values_trafo']))
 
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
