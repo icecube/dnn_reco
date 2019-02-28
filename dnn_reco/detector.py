@@ -74,6 +74,8 @@ def get_dom_coords(string, dom):
     tuple(float, float, float)
         The x, y, z coordinates of the DOM.
     """
+    assert string > 0 and string <= 86, 'String must be within [1, 86]'
+    assert dom > 0 and dom <= 60, 'DOM must be within [1, 86]'
     a, b = get_matrix_indices(string)
     dom_id = dom - 1
     return X_IC79_coords[a, b, dom_id]
