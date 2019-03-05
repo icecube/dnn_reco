@@ -1,8 +1,11 @@
 from __future__ import division, print_function
+import os
 import tensorflow as tf
 import numpy as np
-import os
+import yaml
+import click
 import timeit
+import glob
 
 from dnn_reco import misc
 from dnn_reco.modules.loss.utils import loss_utils
@@ -70,6 +73,45 @@ class NNModel(object):
                               )).__enter__()
         self.sess = sess
         tf.set_random_seed(self.config['tf_random_seed'])
+
+    def _setup_training_config_saver(self):
+        """Setup variables and check training step in order to save the
+        training config during training.
+
+        Previous training configs and training step files will only be deleted
+        if the model is actually being overwritten, e.g. if model is saved
+        in the model.fit method (further below).
+        These will not yet be deleted here.
+        """
+        self._check_point_path = os.path.dirname(self.config[
+                                                    'model_checkpoint_path'])
+        self._training_steps_file = os.path.join(self._check_point_path,
+                                                 'training_steps.yaml')
+
+        # Load training iterations dict
+        if os.path.isfile(self._training_steps_file):
+            self._training_iterations_dict = yaml.safe_load(
+                                            open(self._training_steps_file))
+        else:
+            utils.print_warning('Did not find {!r}. Creating new one'.format(
+                self._training_steps_file))
+            self._training_iterations_dict = {}
+
+        # get the training step number
+        if cfg['model_restore_model']:
+            files = glob.glob(os.path.join(self._check_point_path,
+                                           'config_training_*.yaml'))
+            max_file = os.path.basename(np.sort(files)[-1])
+            self._training_step = int(max_file.replace(
+                                    'config_training_',
+                                    '').replace('.yaml', '')) + 1
+        else:
+            self._training_iterations_dict = {}
+            self._training_step = 0
+
+        self._training_config_file = os.path.join(
+                    self._check_point_path,
+                    'config_training_{:04d}.yaml'.format(self._training_step))
 
     def _setup_placeholders(self):
         """Sets up placeholders for input data.
@@ -560,12 +602,55 @@ class NNModel(object):
             # save models
             # ----------------
             if i % self.config['save_frequency'] == 0:
+                self._save_training_config()
                 if self.config['model_save_model']:
                     self.saver.save(
                             sess=self.sess,
                             global_step=self._step_offset + i,
                             save_path=self.config['model_checkpoint_path'])
             # ----------------
+
+    def _save_training_config(self, iteration):
+        """Save Training config and iterations to file.
+
+        Parameters
+        ----------
+        iteration : int
+            The current training iteration.
+
+        Raises
+        ------
+        ValueError
+            Description
+        """
+        if iteration == 0:
+            if not cfg['model_restore_model']:
+                # Delete old training config files and create a new and empty
+                # training_steps.txt, since we are training a new model
+                # from scratch and overwriting the old one
+
+                # delete all previous training config files (if they exist)
+                files = glob.glob(os.path.join(self._check_point_path,
+                                               'config_training_*.yaml'))
+                if files:
+                    utils.print_warning("Please confirm the deletion of the "
+                                        "previous trainin configs:")
+                for file in files:
+                    if click.confirm('Delete {!r}?'.format(file),
+                                     default=True):
+                        os.remove(file)
+                    else:
+                        raise ValueError(
+                                    'Old training configs must be deleted!')
+
+            # save training step config under appropriate name
+            yaml.dump(self.config, self._training_config_file,
+                      default_flow_style=False)
+
+        # update number of training iterations in training_steps.yaml
+        self._training_iterations_dict[self._training_step] = iteration
+        yaml.dump(self._training_iterations_dict, self._training_steps_file,
+                  default_flow_style=False)
 
     def count_parameters(self, var_list=None):
         """Count number of trainable parameters
