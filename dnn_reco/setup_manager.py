@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import os
 import numpy as np
 import tensorflow as tf
-import yaml
+import ruamel.yaml as yaml
 
 from dnn_reco import misc
 
