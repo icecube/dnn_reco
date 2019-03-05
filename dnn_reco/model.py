@@ -104,10 +104,13 @@ class NNModel(object):
         if self.config['model_restore_model']:
             files = glob.glob(os.path.join(self._check_point_path,
                                            'config_training_*.yaml'))
-            max_file = os.path.basename(np.sort(files)[-1])
-            self._training_step = int(max_file.replace(
-                                    'config_training_',
-                                    '').replace('.yaml', '')) + 1
+            if files:
+                max_file = os.path.basename(np.sort(files)[-1])
+                self._training_step = int(max_file.replace(
+                                        'config_training_',
+                                        '').replace('.yaml', '')) + 1
+            else:
+                self._training_step = 0
         else:
             self._training_iterations_dict = {}
             self._training_step = 0
