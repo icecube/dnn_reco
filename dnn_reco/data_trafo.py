@@ -293,10 +293,10 @@ class DataTransformer:
             self.trafo_model['ic78_std'] = np.zeros(self._ic78_shape)
 
             # now calculate normalization for real DOMs
-            self.trafo_model['ic78_mean'][detector.IC78_real_DOMs_mask] = \
+            self.trafo_model['ic78_mean'][detector.ic78_real_DOMs_mask] = \
                 np.mean(ic78_mean[detector.IC78_real_DOMs_mask], axis=0)
-            self.trafo_model['ic78_std'][detector.IC78_real_DOMs_mask] = \
-                np.mean(ic78_std[detector.IC78_real_DOMs_mask], axis=0)
+            self.trafo_model['ic78_std'][detector.ic78_real_DOMs_mask] = \
+                np.mean(ic78_std[detector.ic78_real_DOMs_mask], axis=0)
 
             # DeepCore
             self.trafo_model['deepcore_mean'] = np.mean(deepcore_mean,
