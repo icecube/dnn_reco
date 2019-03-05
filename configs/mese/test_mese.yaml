@@ -1,0 +1,266 @@
+---
+##############
+# Test config
+#
+# Detailed information on the parameters are given in the SetupManager
+# class located in dnn_reco/setup_manager.py.
+##############
+
+#---------------------------
+# General settings
+#---------------------------
+'training_data_file' : [
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+  ]
+'trafo_data_file' : [
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+  ]
+'validation_data_file' : [
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+  ]
+'test_data_file' : [
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+  ]
+
+'tf_random_seed': 42
+'float_precision': float32
+'num_jobs' : 15
+'file_capacity' : 20
+'batch_capacity' : 200
+'num_add_files' : 10
+'num_repetitions' : 3
+#'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
+'batch_size' : 32
+
+'log_path' : "../logs/\
+                {config_name}/\
+                {model_file}__\
+                {model_name}"
+
+#----------------------
+# Data Handler settings
+#----------------------
+'data_handler_num_bins': 9
+
+'data_handler_label_file': 'default_labels'
+'data_handler_label_name': 'simple_label_loader'
+'data_handler_misc_file': 'default_misc'
+'data_handler_misc_name': 'dummy_misc_loader'
+'data_handler_filter_file': 'default_filter'
+'data_handler_filter_name': 'dummy_filter'
+
+
+'data_handler_label_key': 'LabelsDeepLearning'
+
+
+# must be a list of keys or empty list
+'data_handler_relative_time_keys': []
+# lower case pattern
+'data_handler_relative_time_key_pattern': 'time'
+
+# --------------
+# Label settings
+# --------------
+# initialize label weights with this value
+'label_weight_initialization': 1
+# Weights of each label are initialized with label_weight_initialization,
+# unless defined otherwise here
+'label_weight_dict': {
+  'EnergyVisible': 1,
+  'PrimaryDirectionX': 10,
+  'PrimaryDirectionY': 10,
+  'PrimaryDirectionZ': 10,
+}
+# Update label weights during training
+'label_update_weights': True
+# Name of zenith direction label if it exists
+'label_zenith_key': PrimaryZenith
+# Name of azimuth direction label if it exists
+'label_azimuth_key': PrimaryAzimuth
+# Name of direction vector x-component label if it exists
+'label_dir_x_key': PrimaryDirectionX
+# Name of direction vector x-component label if it exists
+'label_dir_y_key': PrimaryDirectionY
+# Name of direction vector x-component label if it exists
+'label_dir_z_key': PrimaryDirectionZ
+# Add direction vector components as labels
+'label_add_dir_vec': False
+# Define pid keys. The labels defined here will be fors to range [0, 1]
+# (depends on the chosen neural network model)
+'label_pid_keys': [
+    'p_cc_e', 'p_cc_mu', 'p_cc_tau', 'p_nc',
+    'p_starting', 'p_starting_300m', 'p_starting_glashow',
+    'p_starting_nc', 'p_starting_cc', 'p_starting_cc_e',
+    'p_starting_cc_mu', 'p_starting_cc_tau',
+    'p_starting_cc_tau_muon_decay', 'p_is_track',
+    'p_starting_cc_tau_double_bang', 'p_entering',
+    'p_entering_muon_single', 'p_entering_muon_bundle',
+    'p_outside_cascade', p_entering_muon_single_stopping',
+]
+
+#---------------------------
+# General Training settings
+#---------------------------
+'num_training_iterations' : 100000000
+'validation_frequency' : 100
+'save_frequency' : 500
+'keep_probability_list' : [1.0, 1.0, 1.0, 1.0]
+# A custom evaluation method can be defined here.
+# If defined, this method will be run during each validation step.
+'evaluation_file': default_evaluation
+'evaluation_name': eval_direction
+
+#---------------------------
+# Trafo settings
+#---------------------------
+'trafo_num_jobs' : 25
+'trafo_num_batches' : 200
+'trafo_model_path' : '../data/trafo_models/test_trafo_model.npy'
+'trafo_normalize_dom_data' : True
+'trafo_normalize_label_data' : True
+'trafo_normalize_misc_data' : True
+'trafo_log_dom_bins' : [True, False, False, False, False, False, False]
+'trafo_log_label_bins' : {
+                            'cascade_energy': True,
+                         }
+'trafo_log_misc_bins' : False
+'trafo_treat_doms_equally' : True
+'trafo_norm_constant' : 0.0001
+
+#------------------
+# NN Model Training
+#------------------
+'model_checkpoint_path' : "../checkpoints/nn_model/\
+                              {model_file}__\
+                              {model_name}/\
+                              {config_name}/model"
+'model_restore_model' : True
+'model_save_model' : True
+
+# Define a dictionary of dictionaries of optimizers here.
+# Each optimizer has to define the following fields:
+#   'optimizer': name of tf.train.Optimizer, e.g. 'AdamOptimizer'
+#   'optimizer_settings': a dictionary of settings for the optimizer
+#   'vars': str or list of str specifying the variables the optimizer is
+#           adujusting. E.g. ['unc', 'pred'] to optimize weights of the
+#           main prediction network and the uncertainty subnetwork.
+#   'loss_file': str or list of str, defines file of loss function
+#   'loss_name': str or list of str, defines name of loss function
+#                If loss_file and loss_name are lists, they must have the same
+#                length. In this case, a sum of each loss will be performed
+# This structure might seem a bit confusing, but it enables the use of
+# different tensorflow optimizer operations, which can each apply to
+# different weights of the network and wrt different loss functions.
+'model_optimizer_dict': {
+
+  # define an arbitrary name of optimizer here
+  'simple_mse': {
+                  'optimizer': 'AdamOptimizer',
+                  'optimizer_settings': {'learning_rate': 0.001,},
+                  'vars' : ['pred', 'unc'],
+                  'loss_file': 'default_loss',
+                  'loss_name': 'mse',
+                },
+}
+
+#----------------------
+# NN Model Architecture
+#----------------------
+'model_file' : 'general_IC86_models'
+'model_name' : 'general_model_IC86_opt4'
+'model_is_training' : True
+
+# 2D convolutional layer of upper DeepCore
+'conv_upper_DeepCore_settings': {
+    'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 7], [1, 7], [1, 7], [1, 5],
+                         [1, 5], [1, 5], [1, 1], [1, 1]],
+    'num_filters_list': [80, 80, 100, 100, 100, 100, 100, 100],
+    'pooling_type_list': [False, False, 'max', False, False, 'max', False, False],
+    'pooling_strides_list': [1, 1, 2, 1],
+    'pooling_ksize_list': [1, 1, 2, 1],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+}
+
+# 2D convolutional layer of lower DeepCore
+'conv_lower_DeepCore_settings': {
+    'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9],
+                         [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 1], [1, 1]],
+    'num_filters_list': [80, 80, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                         100, 100, 100],
+    'pooling_type_list': [False, False, 'max',
+                          False, False, 'max',
+                          False, False, 'max',
+                          False, False, 'max',
+                          False, False],
+    'pooling_strides_list': [1, 1, 2, 1],
+    'pooling_ksize_list': [1, 1, 2, 1],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+}
+
+# 3D hexagonal convolution over main IceCube array (IC78)
+'conv_IC78_settings' : {
+    'filter_size_list': [[3, 0, 7], [3, 0, 7], [3, 0, 7], [3, 0, 7], [2, 0, 17],
+                         [3, 0, 7], [3, 0, 7], [2, 0, 17], [3, 0, 7], [2, 0, 5],
+                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5],
+                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [1, 0, 3], [1, 0, 1]],
+    'num_filters_list': [10, 10, 20, 20, 20, 20, 20, 20, 80, 80, 80, 80, 80,
+                         80, 100, 100, 100, 100, 100, 100],
+    'pooling_type_list': [False, False, 'max', False, False, False, False,
+                          False,'max', False, False, False, False, False, 'max',
+                          False, False, 'max', False, False],
+    'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+    'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+    'hex_zero_out_list': False,
+    'dilation_rate_list': ,
+    'hex_num_rotations_list': 1,
+}
+
+# Fully connected layer settings (Combine results from convolutions)
+'fc_settings': {
+    'fc_sizes': [300, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', ''],
+    'use_batch_normalisation_list': False,
+    'use_residual_list': [False, True],
+    'max_out_size_list': ,
+}
+
+# Fully connected layer settings for uncertainty subnetwork
+'fc_unc_settings': {
+    'fc_sizes': [300, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', 'abs'],
+    'use_batch_normalisation_list': False,
+    'use_residual_list': False,
+    'max_out_size_list': ,
+}
+
+...
