@@ -93,7 +93,7 @@ class NNModel(object):
 
         # Load training iterations dict
         if os.path.isfile(self._training_steps_file):
-            self._training_iterations_dict = yaml.safe_load(
+            self._training_iterations_dict = yaml.load(
                                             open(self._training_steps_file))
         else:
             misc.print_warning('Did not find {!r}. Creating new one'.format(
