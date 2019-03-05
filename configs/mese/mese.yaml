@@ -46,6 +46,13 @@
 #----------------------
 # Data Handler settings
 #----------------------
+# Name of data bin values key (e.g. DOMPulseBinValues, dnn_data_bin_values)
+'data_handler_bin_values_name': DOMPulseBinValues
+# Name of data bin indices key (e.g. DOMPulseBinIndices, dnn_data_bin_indices)
+'data_handler_bin_indices_name': DOMPulseBinIndices
+# Name of data global time offset key (e.g. DOMPulseTimeRangeStart, dnn_data_global_time_offset)
+'data_handler_time_offset_name': DOMPulseTimeRangeStart
+
 'data_handler_num_bins': 7
 
 'data_handler_label_file': 'default_labels'

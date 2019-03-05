@@ -216,9 +216,9 @@ class DataHandler(object):
 
         try:
             with pd.HDFStore(input_data,  mode='r') as f:
-                bin_values = f['DOMPulseBinValues']
-                bin_indices = f['DOMPulseBinIndices']
-                _time_range = f['DOMPulseTimeRangeStart']
+                bin_values = f[self._config['data_handler_bin_values_name']]
+                bin_indices = f[self._config['data_handler_bin_indices_name']]
+                _time_range = f[self._config['data_handler_time_offset_name']]
 
         except Exception as e:
             print(e)
