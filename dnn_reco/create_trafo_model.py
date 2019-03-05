@@ -62,12 +62,13 @@ def main(config_files):
                             num_batches=config['trafo_num_batches'])
 
     # save trafo model to file
-    base_name = os.path.basename(cfg['trafo_model_path'])
+    base_name = os.path.basename(config['trafo_model_path'])
     if '.' in base_name:
         file_ending = base_name.split('.')[-1]
         base_name = base_name.replace('.' + file_ending, '')
-    trafo_config_file = os.path.join(os.path.dirname(cfg['trafo_model_path']),
-                                     'config_trafo__{}.yaml'.format(base_name))
+    trafo_config_file = os.path.join(
+                                os.path.dirname(config['trafo_model_path']),
+                                'config_trafo__{}.yaml'.format(base_name))
     yaml.dump(config, trafo_config_file, default_flow_style=False)
     data_transformer.save_trafo_model(config['trafo_model_path'])
 
