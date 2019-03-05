@@ -1,7 +1,7 @@
 from __future__ import division, print_function
 import os
 import click
-import yaml
+import ruamel.yaml as yaml
 
 from dnn_reco import misc
 from dnn_reco.setup_manager import SetupManager

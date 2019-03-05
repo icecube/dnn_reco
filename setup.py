@@ -12,7 +12,7 @@ setup(name='dnn_reco',
       author_email='mirco.huennefeld@tu-dortmund.de',
       url='https://github.com/mhuen/dnn_reco',
       packages=['dnn_reco'],
-      install_requires=['numpy', 'pandas', 'click', 'pyyaml', 'tables',
+      install_requires=['numpy', 'pandas', 'click', 'ruamel.yaml', 'tables',
                         'tfscripts',
                         ],
       dependency_links=[
