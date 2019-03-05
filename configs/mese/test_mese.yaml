@@ -102,7 +102,7 @@
     'p_starting_cc_tau_muon_decay', 'p_is_track',
     'p_starting_cc_tau_double_bang', 'p_entering',
     'p_entering_muon_single', 'p_entering_muon_bundle',
-    'p_outside_cascade', p_entering_muon_single_stopping',
+    'p_outside_cascade', 'p_entering_muon_single_stopping',
 ]
 
 #---------------------------
