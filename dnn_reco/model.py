@@ -98,7 +98,7 @@ class NNModel(object):
             self._training_iterations_dict = {}
 
         # get the training step number
-        if cfg['model_restore_model']:
+        if self.config['model_restore_model']:
             files = glob.glob(os.path.join(self._check_point_path,
                                            'config_training_*.yaml'))
             max_file = os.path.basename(np.sort(files)[-1])
@@ -624,7 +624,7 @@ class NNModel(object):
             Description
         """
         if iteration == 0:
-            if not cfg['model_restore_model']:
+            if not self.config['model_restore_model']:
                 # Delete old training config files and create a new and empty
                 # training_steps.txt, since we are training a new model
                 # from scratch and overwriting the old one
