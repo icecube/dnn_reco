@@ -602,7 +602,7 @@ class NNModel(object):
             # save models
             # ----------------
             if i % self.config['save_frequency'] == 0:
-                self._save_training_config()
+                self._save_training_config(iteration)
                 if self.config['model_save_model']:
                     self.saver.save(
                             sess=self.sess,
