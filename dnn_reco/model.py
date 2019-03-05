@@ -644,13 +644,14 @@ class NNModel(object):
                                     'Old training configs must be deleted!')
 
             # save training step config under appropriate name
-            yaml.dump(self.config, self._training_config_file,
-                      default_flow_style=False)
+            with open(self._training_config_file, 'w') as yaml_file:
+                yaml.dump(self.config, yaml_file, default_flow_style=False)
 
         # update number of training iterations in training_steps.yaml
         self._training_iterations_dict[self._training_step] = iteration
-        yaml.dump(self._training_iterations_dict, self._training_steps_file,
-                  default_flow_style=False)
+        with open(self._training_steps_file, 'w') as yaml_file:
+            yaml.dump(self._training_iterations_dict, yaml_file,
+                      default_flow_style=False)
 
     def count_parameters(self, var_list=None):
         """Count number of trainable parameters

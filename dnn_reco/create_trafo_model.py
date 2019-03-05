@@ -69,7 +69,8 @@ def main(config_files):
     trafo_config_file = os.path.join(
                                 os.path.dirname(config['trafo_model_path']),
                                 'config_trafo__{}.yaml'.format(base_name))
-    yaml.dump(config, trafo_config_file, default_flow_style=False)
+    with open(trafo_config_file, 'w') as yaml_file:
+        yaml.dump(config, yaml_file, default_flow_style=False)
     data_transformer.save_trafo_model(config['trafo_model_path'])
 
 
