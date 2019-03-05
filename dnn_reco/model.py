@@ -56,6 +56,9 @@ class NNModel(object):
         self.data_handler = data_handler
         self.data_transformer = data_transformer
 
+        # create necessary variables to save training config files
+        self._setup_training_config_saver()
+
         self.shared_objects = {}
 
         # create tensorflow placeholders for input data
