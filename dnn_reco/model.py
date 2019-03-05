@@ -96,7 +96,7 @@ class NNModel(object):
             self._training_iterations_dict = yaml.safe_load(
                                             open(self._training_steps_file))
         else:
-            utils.print_warning('Did not find {!r}. Creating new one'.format(
+            misc.print_warning('Did not find {!r}. Creating new one'.format(
                 self._training_steps_file))
             self._training_iterations_dict = {}
 
@@ -636,8 +636,8 @@ class NNModel(object):
                 files = glob.glob(os.path.join(self._check_point_path,
                                                'config_training_*.yaml'))
                 if files:
-                    utils.print_warning("Please confirm the deletion of the "
-                                        "previous trainin configs:")
+                    misc.print_warning("Please confirm the deletion of the "
+                                       "previous trainin configs:")
                 for file in files:
                     if click.confirm('Delete {!r}?'.format(file),
                                      default=True):
