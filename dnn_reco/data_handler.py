@@ -70,9 +70,9 @@ class DataHandler(object):
         """Add relative time keys
         """
         self.relative_time_keys = \
-            self.config['data_handler_relative_time_keys']
+            self._config['data_handler_relative_time_keys']
 
-        pattern = self.config['data_handler_relative_time_key_pattern']
+        pattern = self._config['data_handler_relative_time_key_pattern']
         if pattern is not None:
             self.relative_time_keys.extend([n for n in self.label_names
                                             if pattern in n.lower()])
