@@ -252,7 +252,7 @@ class SetupManager:
         # ----------------------------------
         # expand all strings with variables
         # ----------------------------------
-        config['config_name'] = config_name
+        config['config_name'] = str(config_name)
         for key in config:
             if isinstance(config[key], str):
                 config[key] = config[key].format(**config)
