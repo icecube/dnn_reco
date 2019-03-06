@@ -79,6 +79,9 @@ def main(config_files, output_folder, data_settings, logs):
         raise ValueError('Could not find a checkpoint. Aborting export!')
     else:
         print(latest_checkpoint)
+        for ending in ['.index', '.meta', '.data-00000-00001']:
+            shutil.copy2(src=latest_checkpoint + ending,
+                         dst=output_folder)
         raise NotImplementedError('Need to copy the checkpoints over')
 
     # -----------------------------
