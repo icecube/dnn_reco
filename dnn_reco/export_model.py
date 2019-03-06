@@ -164,7 +164,7 @@ def export_data_settings(data_settings, output_folder):
         written to.
     """
     with open(data_settings, 'r') as stream:
-        data_config = yaml.safe_load(stream)
+        data_config = yaml.load(stream)
 
     data_settings = {}
     if 'pulse_time_quantiles' not in data_config:
