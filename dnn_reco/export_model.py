@@ -137,7 +137,7 @@ def main(config_files, output_folder, data_settings, logs):
         'label_name_dict': data_handler.label_name_dict,
         'label_shape': data_handler.label_shape,
         'num_labels': data_handler.num_labels,
-        'misc_names' = data_handler.misc_names,
+        'misc_names': data_handler.misc_names,
         'misc_name_dict': data_handler.misc_name_dict,
         'misc_data_exists': data_handler.misc_data_exists,
         'misc_shape': data_handler.misc_shape,
