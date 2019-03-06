@@ -36,7 +36,13 @@ def main(config_files, output_folder, data_settings, logs):
         os.makedirs(output_folder)
     else:
         if len(os.listdir(output_folder)) > 0:
-            raise ValueError('Directory already exists and contains files!')
+            if click.confirm("Directory already exists and contains files!"
+                             "Delete {!r}?".format(output_folder),
+                             default=True):
+                os.removedirs(output_folder)
+                os.makedirs(output_folder)
+            else:
+                raise ValueError('Aborting!')
 
     # read in and combine config files and set up
     setup_manager = SetupManager(config_files)
@@ -106,7 +112,7 @@ def main(config_files, output_folder, data_settings, logs):
     # ----------------------------
     # Export training config files
     # ----------------------------
-    training_files = glob.glob(os.path.join(self._check_point_path,
+    training_files = glob.glob(os.path.join(config['model_checkpoint_path'],
                                             'config_training_*.yaml'))
     for training_file in training_files:
         shutil.copy2(src=training_file,
@@ -173,7 +179,6 @@ def export_data_settings(data_settings, output_folder):
                                             lambda _, node: node.value)
             data_config = yaml.safe_load(stream)
 
-    print(data_config)
     data_settings = {}
     if 'pulse_time_quantiles' not in data_config:
         data_config['pulse_time_quantiles'] = None
