@@ -36,11 +36,11 @@ def main(config_files, output_folder, data_settings, logs):
         os.makedirs(output_folder)
     else:
         if len(os.listdir(output_folder)) > 0:
-            if click.confirm("Directory already exists and contains files!"
+            if click.confirm("Directory already exists and contains files! "
                              "Delete {!r}?".format(output_folder),
                              default=True):
-                os.remove(output_folder)
-                os.makedirs(output_folder)
+                for file in os.listdir(output_folder):
+                    os.remove(file)
             else:
                 raise ValueError('Aborting!')
 
