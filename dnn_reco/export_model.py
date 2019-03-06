@@ -145,9 +145,9 @@ def main(config_files, output_folder, data_settings, logs):
                         dst=os.path.join(output_folder, 'logs'))
 
     print('\n====================================')
-    print('  = Successfully exported model to: ==')
+    print('= Successfully exported model to: =')
     print('====================================')
-    print('{!r}'.format(output_folder))
+    print('{!r}\n'.format(output_folder))
 
 
 def export_data_settings(data_settings, output_folder):
