@@ -16,7 +16,7 @@ from dnn_reco.data_trafo import DataTransformer
 @click.argument('config_files', click.Path(exists=True), nargs=-1)
 @click.option('--output_folder', '-o', default=None,
               help='folder to which the model will be exported')
-@click.option('--data_settings', '-s',  click.Path(exists=True),
+@click.option('--data_settings', '-s',  default=None,
               help='Config file used to create training data')
 @click.option('--logs/--no-logs', default=True,
               help='Export tensorflow log files.')
