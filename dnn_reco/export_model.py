@@ -168,7 +168,9 @@ def export_data_settings(data_settings, output_folder):
             data_config = yaml.safe_load(stream)
         except Exception as e:
             print(e)
-            data_config = yaml.load(stream)
+            yaml.SafeLoader.add_constructor('tag:yaml.org,2002:python/unicode',
+                                            lambda _, node: node.value)
+            data_config = yaml.safe_load(stream)
 
     data_settings = {}
     if 'pulse_time_quantiles' not in data_config:
