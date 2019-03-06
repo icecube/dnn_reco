@@ -6,6 +6,7 @@ import glob
 import resource
 import timeit
 import os
+import ruamel.yaml as yaml
 
 from dnn_reco import misc
 from dnn_reco import detector
@@ -47,36 +48,21 @@ class DataHandler(object):
 
     """
 
-    def __init__(self, test_input_data, config):
+    def __init__(self, config):
         """Initializes DataHandler object and reads in input data as dataframe.
 
         Parameters
         ----------
-        test_input_data : str or list of str
-            File name pattern or list of file patterns which define the paths
-            to input data files. The first of the specified files will be
-            read in to obtain meta data.
         config : dict
             Dictionary containing all settings as read in from config file.
             Must contain:
                 'data_handler_num_bins': int
                     The number of bins for each DOM input.
         """
-        if isinstance(test_input_data, list):
-            self.test_input_data = []
-            for input_pattern in test_input_data:
-                self.test_input_data.extend(glob.glob(input_pattern))
-        else:
-            self.test_input_data = glob.glob(test_input_data)
 
         # read input data
         self._config = dict(config)
         self.num_bins = config['data_handler_num_bins']
-
-        # ToDo: option to pass in the meta data, such that the test file
-        # does not need to be read
-        self._get_label_meta_data()
-        self._get_misc_meta_data()
 
         # add relative time keys
         self.relative_time_keys = config['data_handler_relative_time_keys']
@@ -87,6 +73,59 @@ class DataHandler(object):
                                             if pattern in n.lower()])
             self.relative_time_keys.extend([n for n in self.misc_names
                                             if pattern in n.lower()])
+        self.is_setup = False
+
+    def setup_with_test_data(self, test_input_data):
+        """Setup the datahandler with a test input file.
+
+        Parameters
+        ----------
+        test_input_data : str or list of str
+            File name pattern or list of file patterns which define the paths
+            to input data files. The first of the specified files will be
+            read in to obtain meta data.
+        """
+        if isinstance(test_input_data, list):
+            self.test_input_data = []
+            for input_pattern in test_input_data:
+                self.test_input_data.extend(glob.glob(input_pattern))
+        else:
+            self.test_input_data = glob.glob(test_input_data)
+
+        # ToDo: option to pass in the meta data, such that the test file
+        # does not need to be read
+        self._get_label_meta_data()
+        self._get_misc_meta_data()
+
+        self.is_setup = True
+
+    def setup_with_config(self, config_file):
+        """Setup the datahandler with settings from a yaml configuration file.
+
+        Parameters
+        ----------
+        config_file : str
+            The path to the configuration file
+
+        Raises
+        ------
+        NotImplementedError
+            Description
+        """
+        with open(data_settings, 'r') as stream:
+            config_meta = yaml.safe_load(stream)
+
+        self.label_names = config_meta['label_names']
+        self.label_name_dict = config_meta['label_name_dict']
+        self.label_shape = config_meta['label_shape']
+        self.num_labels = config_meta['num_labels']
+        self.misc_names = config_meta['misc_names']
+        self.misc_name_dict = config_meta['misc_name_dict']
+        self.misc_data_exists = config_meta['misc_data_exists']
+        self.misc_shape = config_meta['misc_shape']
+        self.num_misc = config_meta['num_misc']
+
+        self.is_setup = True
 
     def _get_label_meta_data(self):
         """Loads labels from a sample file to obtain label meta data.
@@ -116,7 +155,7 @@ class DataHandler(object):
                                             self._config)
 
         self.misc_names = misc_names
-        self._misc_name_dict = {n: i for i, n in enumerate(misc_names)}
+        self.misc_name_dict = {n: i for i, n in enumerate(misc_names)}
         if misc_data is None:
             self.misc_data_exists = False
             self.misc_shape = None
@@ -171,7 +210,7 @@ class DataHandler(object):
         int
             Index.
         """
-        return self._misc_name_dict[misc_name]
+        return self.misc_name_dict[misc_name]
 
     def read_icecube_data(self, input_data, nan_fill_value=None,
                           init_values=0., verbose=False):
@@ -212,6 +251,9 @@ class DataHandler(object):
         ValueError
             Description
         """
+        if not self.is_setup:
+            raise ValueError('DataHandler needs to be set up first!')
+
         start_time = timeit.default_timer()
 
         try:
@@ -454,6 +496,9 @@ class DataHandler(object):
                 dom_responses: [batch_size, x_dim, y_dim, z_dim, num_bins]
                 cascade_parameters: [batch_size, num_cascade_parameters]
         """
+        if not self.is_setup:
+            raise ValueError('DataHandler needs to be set up first!')
+
         if isinstance(input_data, list):
             file_list = []
             for input_pattern in input_data:

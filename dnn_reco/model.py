@@ -57,7 +57,8 @@ class NNModel(object):
         self.data_transformer = data_transformer
 
         # create necessary variables to save training config files
-        self._setup_training_config_saver()
+        if self.is_training:
+            self._setup_training_config_saver()
 
         self.shared_objects = {}
 
@@ -70,10 +71,19 @@ class NNModel(object):
         # get or create new default session
         sess = tf.get_default_session()
         if sess is None:
-            sess = tf.Session(config=tf.ConfigProto(
-                                gpu_options=tf.GPUOptions(allow_growth=True),
-                                device_count={'GPU': 1},
-                              )).__enter__()
+            if 'tf_parallelism_threads' in self.config:
+                n_cpus = self.config['tf_parallelism_threads']
+                sess = tf.Session(config=tf.ConfigProto(
+                            gpu_options=tf.GPUOptions(allow_growth=True),
+                            device_count={'GPU': 1},
+                            intra_op_parallelism_threads=n_cpus,
+                            inter_op_parallelism_threads=n_cpus,
+                          )).__enter__()
+            else:
+                sess = tf.Session(config=tf.ConfigProto(
+                            gpu_options=tf.GPUOptions(allow_growth=True),
+                            device_count={'GPU': 1},
+                          )).__enter__()
         self.sess = sess
         tf.set_random_seed(self.config['tf_random_seed'])
 
@@ -380,11 +390,12 @@ class NNModel(object):
     def compile(self):
 
         # create label_weights and assign op
-        self._create_label_weights()
+        if self.is_training:
+            self._create_label_weights()
 
-        self._get_optimizers_and_loss()
+            self._get_optimizers_and_loss()
 
-        self._merge_tensorboard_summaries()
+            self._merge_tensorboard_summaries()
 
         self._initialize_and_finalize_model()
 

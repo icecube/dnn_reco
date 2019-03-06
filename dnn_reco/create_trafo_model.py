@@ -28,8 +28,8 @@ def main(config_files):
     config = setup_manager.get_config()
 
     # Create Data Handler object
-    data_handler = DataHandler(test_input_data=config['trafo_data_file'],
-                               config=config)
+    data_handler = DataHandler(config)
+    data_handler.setup_with_test_data(config['trafo_data_file'])
 
     settings_trafo = {
                 'input_data': config['trafo_data_file'],

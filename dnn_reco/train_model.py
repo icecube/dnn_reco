@@ -26,9 +26,12 @@ def main(config_files):
     setup_manager = SetupManager(config_files)
     config = setup_manager.get_config()
 
+    if not config['model_is_training']:
+        raise ValueError('Model must be in training mode!')
+
     # Create Data Handler object
-    data_handler = DataHandler(test_input_data=config['training_data_file'],
-                               config=config)
+    data_handler = DataHandler(config)
+    data_handler.setup_with_test_data(config['training_data_file'])
 
     # Create Data iterators for training and validation data
     train_data_generator = data_handler.get_batch_generator(
