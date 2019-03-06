@@ -144,7 +144,9 @@ def main(config_files, output_folder, data_settings, logs):
         shutil.copytree(src=log_directory,
                         dst=os.path.join(output_folder, 'logs'))
 
-    print('\n=== Successfully exported model to: ====')
+    print('\n====================================')
+    print('  = Successfully exported model to: ==')
+    print('====================================')
     print('{!r}'.format(output_folder))
 
 
