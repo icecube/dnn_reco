@@ -255,8 +255,7 @@ class SetupManager:
         config['git_sha'] = str(version_control.sha)
         config['git_origin'] = str(version_control.origin)
         config['git_uncommited_changes'] = version_control.uncommitted_changes
-        config['pip_installed_packages'] = \
-            version_control.installed_packages_list
+        config['pip_installed_packages'] = version_control.installed_packages
 
         # ----------------------------------
         # expand all strings with variables
