@@ -201,7 +201,7 @@ def export_data_settings(data_settings, output_folder):
 
     with open(os.path.join(output_folder,
               'config_data_settings.yaml'), 'w') as f:
-        yaml.dump(data_config, f, default_flow_style=False)
+        yaml.dump(data_settings, f, default_flow_style=False)
 
 
 if __name__ == '__main__':
