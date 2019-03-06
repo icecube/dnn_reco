@@ -13,7 +13,7 @@ setup(name='dnn_reco',
       url='https://github.com/mhuen/dnn_reco',
       packages=['dnn_reco'],
       install_requires=['numpy', 'pandas', 'click', 'ruamel.yaml', 'tables',
-                        'tfscripts',
+                        'gitpython', 'tfscripts',
                         ],
       dependency_links=[
        'git+https://github.com/mhuen/TFScripts.git@master#egg=tfscripts-0.0.1',
