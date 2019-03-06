@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import os
 import shutil
@@ -138,7 +140,9 @@ def main(config_files, output_folder, data_settings, logs):
     # Export tensorflow training logs
     # -------------------------------
     if logs:
-        raise NotImplementedError()
+        log_directory = os.path.dirname(config['log_path'])
+        shutil.copytree(src=log_directory,
+                        dst=os.path.join(output_folder, 'logs'))
 
     # Todo:
 
