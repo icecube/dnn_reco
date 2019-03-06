@@ -142,7 +142,7 @@ def main(config_files, output_folder, data_settings, logs):
         'git_uncommited_changes': config['git_uncommited_changes'],
         }
     with open(os.path.join(output_folder, 'git_version.yaml'), 'w') as f:
-        yaml.dumP(version_control)
+        yaml.dump(version_control, f, default_flow_style=False)
 
     # -------------------------------
     # Export tensorflow training logs
@@ -200,7 +200,7 @@ def export_data_settings(data_settings, output_folder):
 
     with open(os.path.join(output_folder,
               'config_data_settings.yaml'), 'w') as f:
-        yaml.dumP(data_config)
+        yaml.dump(data_config, f, default_flow_style=False)
 
 
 if __name__ == '__main__':
