@@ -64,7 +64,11 @@ class DataHandler(object):
         self._config = dict(config)
         self.num_bins = config['data_handler_num_bins']
 
-        # add relative time keys
+        self.is_setup = False
+
+    def _setup_time_keys(self):
+        """Add relative time keys
+        """
         self.relative_time_keys = config['data_handler_relative_time_keys']
 
         pattern = config['data_handler_relative_time_key_pattern']
@@ -73,7 +77,6 @@ class DataHandler(object):
                                             if pattern in n.lower()])
             self.relative_time_keys.extend([n for n in self.misc_names
                                             if pattern in n.lower()])
-        self.is_setup = False
 
     def setup_with_test_data(self, test_input_data):
         """Setup the datahandler with a test input file.
@@ -97,6 +100,7 @@ class DataHandler(object):
         self._get_label_meta_data()
         self._get_misc_meta_data()
 
+        self._setup_time_keys()
         self.is_setup = True
 
     def setup_with_config(self, config_file):
@@ -125,6 +129,7 @@ class DataHandler(object):
         self.misc_shape = config_meta['misc_shape']
         self.num_misc = config_meta['num_misc']
 
+        self._setup_time_keys()
         self.is_setup = True
 
     def _get_label_meta_data(self):
