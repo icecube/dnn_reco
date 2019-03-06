@@ -144,22 +144,8 @@ def main(config_files, output_folder, data_settings, logs):
         shutil.copytree(src=log_directory,
                         dst=os.path.join(output_folder, 'logs'))
 
-    # Todo:
-
-    # # restore model weights
-    # if config['model_restore_model']:
-    #     model.restore()
-
-    # if i % self.config['save_frequency'] == 0:
-    #         self._save_training_config(i)
-    #         if self.config['model_save_model']:
-    #             self.saver.save(
-    #                     sess=self.sess,
-    #                     global_step=self._step_offset + i,
-    #                     save_path=self.config['model_checkpoint_path'])
-
-    # ToDo: save model correctly in output path
-    # data_transformer.save_trafo_model(config['trafo_model_path'])
+    print('\n=== Successfully exported model to: ====')
+    print('{!r}'.format(output_folder))
 
 
 def export_data_settings(data_settings, output_folder):
@@ -178,6 +164,7 @@ def export_data_settings(data_settings, output_folder):
             data_config = yaml.safe_load(stream)
     except Exception as e:
         print(e)
+        print('Falling back to modified SafeLoader')
         with open(data_settings, 'r') as stream:
             yaml.SafeLoader.add_constructor('tag:yaml.org,2002:python/unicode',
                                             lambda _, node: node.value)
