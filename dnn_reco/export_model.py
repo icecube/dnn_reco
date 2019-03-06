@@ -142,7 +142,7 @@ def main(config_files, output_folder, data_settings, logs):
         'git_uncommited_changes': config['git_uncommited_changes'],
         'pip_installed_packages': config['pip_installed_packages'],
         }
-    with open(os.path.join(output_folder, 'git_version.yaml'), 'w') as f:
+    with open(os.path.join(output_folder, 'version_control.yaml'), 'w') as f:
         yaml.dump(version_control, f, default_flow_style=False)
 
     # -------------------------------
