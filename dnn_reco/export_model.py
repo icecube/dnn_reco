@@ -41,8 +41,8 @@ def main(config_files, output_folder, data_settings, logs):
             if click.confirm("Directory already exists and contains files! "
                              "Delete {!r}?".format(output_folder),
                              default=False):
-                for file in os.listdir(output_folder):
-                    os.remove(os.path.join(output_folder, file))
+                shutil.rmtree(output_folder)
+                os.makedirs(output_folder)
             else:
                 raise ValueError('Aborting!')
 
