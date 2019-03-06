@@ -140,6 +140,7 @@ def main(config_files, output_folder, data_settings, logs):
         'git_sha': config['git_sha'],
         'git_origin': config['git_origin'],
         'git_uncommited_changes': config['git_uncommited_changes'],
+        'pip_installed_packages': config['pip_installed_packages'],
         }
     with open(os.path.join(output_folder, 'git_version.yaml'), 'w') as f:
         yaml.dump(version_control, f, default_flow_style=False)

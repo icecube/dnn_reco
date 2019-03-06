@@ -251,10 +251,12 @@ class SetupManager:
         tfs.FLOAT_PRECISION = config['tf_float_precision']
 
         # get git repo information
-        config['git_short_sha'] = version_control.short_sha
-        config['git_sha'] = version_control.sha
-        config['git_origin'] = version_control.origin
+        config['git_short_sha'] = str(version_control.short_sha)
+        config['git_sha'] = str(version_control.sha)
+        config['git_origin'] = str(version_control.origin)
         config['git_uncommited_changes'] = version_control.uncommitted_changes
+        config['pip_installed_packages'] = \
+            version_control.installed_packages_list
 
         # ----------------------------------
         # expand all strings with variables
