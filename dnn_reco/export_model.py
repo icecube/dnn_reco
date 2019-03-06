@@ -132,6 +132,20 @@ def main(config_files, output_folder, data_settings, logs):
     # ToDo: implement DataHandler.setup_with_config(config_meta_data.yaml)
     #       (instead of DataHandler.setup_with_data_container)
 
+    meta_data = {
+        'label_names': data_handler.label_names,
+        'label_name_dict': data_handler.label_name_dict,
+        'label_shape': data_handler.label_shape,
+        'num_labels': data_handler.num_labels,
+        'misc_names' = data_handler.misc_names,
+        'misc_name_dict': data_handler.misc_name_dict,
+        'misc_data_exists': data_handler.misc_data_exists,
+        'misc_shape': data_handler.misc_shape,
+        'num_misc': data_handler.num_misc,
+    }
+    with open(os.path.join(output_folder, 'config_meta_data.yaml'), 'w') as f:
+        yaml.dump(meta_data, f, default_flow_style=False)
+
     # ------------------------------------
     # Export package versions and git hash
     # ------------------------------------
