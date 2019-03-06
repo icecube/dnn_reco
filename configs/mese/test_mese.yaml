@@ -6,6 +6,9 @@
 # class located in dnn_reco/setup_manager.py.
 ##############
 
+# Provide a unique name for the model
+'unique_name': 'test_mese'
+
 #---------------------------
 # General settings
 #---------------------------
@@ -33,7 +36,7 @@
 'batch_size' : 32
 
 'log_path' : "../logs/\
-                {config_name}/\
+                {unique_name}/\
                 {model_file}__\
                 {model_name}"
 
@@ -143,7 +146,7 @@
 'model_checkpoint_path' : "../checkpoints/nn_model/\
                               {model_file}__\
                               {model_name}/\
-                              {config_name}/model"
+                              {unique_name}/model"
 'model_restore_model' : True
 'model_save_model' : True
 
