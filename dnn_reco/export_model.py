@@ -34,7 +34,7 @@ def main(config_files, output_folder, data_settings, logs):
         print('Creating directory: {!r}'.format(output_folder))
         os.makedirs(output_folder)
     else:
-        if len(os.listdir(path=output_folder)) > 0:
+        if len(os.listdir(output_folder)) > 0:
             raise ValueError('Directory already exists and contains files!')
 
     # read in and combine config files and set up
