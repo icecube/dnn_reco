@@ -45,8 +45,6 @@ def main(config_files, output_folder, data_settings, logs):
     data_handler = DataHandler(config)
     data_handler.setup_with_test_data(config['training_data_file'])
 
-    assert data_settings['num_bins'] == data_handler.num_bins
-
     # create data transformer
     data_transformer = DataTransformer(
                     data_handler=data_handler,
