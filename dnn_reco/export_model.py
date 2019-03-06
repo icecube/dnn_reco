@@ -40,7 +40,7 @@ def main(config_files, output_folder, data_settings, logs):
                              "Delete {!r}?".format(output_folder),
                              default=True):
                 for file in os.listdir(output_folder):
-                    os.remove(file)
+                    os.remove(os.path.join(output_folder, file))
             else:
                 raise ValueError('Aborting!')
 
