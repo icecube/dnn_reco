@@ -661,8 +661,12 @@ class NNModel(object):
                                     'Old training configs must be deleted!')
 
             # save training step config under appropriate name
+            training_config = dict(self.config)
+            del training_config['np_float_precision']
+            del training_config['tf_float_precision']
+
             with open(self._training_config_file, 'w') as yaml_file:
-                yaml.dump(self.config, yaml_file, default_flow_style=False)
+                yaml.dump(training_config, yaml_file, default_flow_style=False)
 
         # update number of training iterations in training_steps.yaml
         self._training_iterations_dict[self._training_step] = iteration
