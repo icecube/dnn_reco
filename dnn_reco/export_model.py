@@ -172,6 +172,7 @@ def export_data_settings(data_settings, output_folder):
                                             lambda _, node: node.value)
             data_config = yaml.safe_load(stream)
 
+    print(data_config)
     data_settings = {}
     if 'pulse_time_quantiles' not in data_config:
         data_config['pulse_time_quantiles'] = None
