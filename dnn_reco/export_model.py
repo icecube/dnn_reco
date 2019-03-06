@@ -38,7 +38,7 @@ def main(config_files, output_folder, data_settings, logs):
         if len(os.listdir(output_folder)) > 0:
             if click.confirm("Directory already exists and contains files! "
                              "Delete {!r}?".format(output_folder),
-                             default=True):
+                             default=False):
                 for file in os.listdir(output_folder):
                     os.remove(os.path.join(output_folder, file))
             else:
@@ -112,14 +112,14 @@ def main(config_files, output_folder, data_settings, logs):
     # ----------------------------
     # Export training config files
     # ----------------------------
-    training_files = glob.glob(os.path.join(config['model_checkpoint_path'],
+    checkpoint_directory = os.dirname(config['model_checkpoint_path'])
+    training_files = glob.glob(os.path.join(checkpoint_directory,
                                             'config_training_*.yaml'))
     for training_file in training_files:
         shutil.copy2(src=training_file,
                      dst=os.path.join(output_folder,
                                       os.path.basename(training_file)))
-    shutil.copy2(src=os.path.join(config['model_checkpoint_path'],
-                                  'training_steps.yaml'),
+    shutil.copy2(src=os.path.join(checkpoint_directory, 'training_steps.yaml'),
                  dst=os.path.join(output_folder, 'training_steps.yaml'))
 
     # ----------------------
