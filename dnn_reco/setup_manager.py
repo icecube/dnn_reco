@@ -230,7 +230,7 @@ class SetupManager:
             else:
                 config_name += '__' + file_base_name
 
-            config_update = yaml.load(open(config_file))
+            config_update = yaml.safe_load(open(config_file))
             duplicates = set(new_config.keys()).intersection(
                                                     set(config_update.keys()))
 
