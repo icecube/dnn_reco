@@ -5,6 +5,7 @@ import tensorflow as tf
 import ruamel.yaml as yaml
 
 from dnn_reco import misc
+from dnn_reco import version_control
 
 
 class SetupManager:
@@ -248,6 +249,12 @@ class SetupManager:
         config['np_float_precision'] = getattr(np, config['float_precision'])
         import tfscripts as tfs
         tfs.FLOAT_PRECISION = config['tf_float_precision']
+
+        # get git repo information
+        config['git_short_sha'] = version_control.short_sha
+        config['git_sha'] = version_control.sha
+        config['git_origin'] = version_control.origin
+        config['git_uncommited_changes'] = version_control.uncommitted_changes
 
         # ----------------------------------
         # expand all strings with variables

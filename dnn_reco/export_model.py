@@ -135,6 +135,14 @@ def main(config_files, output_folder, data_settings, logs):
     # ------------------------------------
     # Export package versions and git hash
     # ------------------------------------
+    version_control = {
+        'git_short_sha': config['git_short_sha'],
+        'git_sha': config['git_sha'],
+        'git_origin': config['git_origin'],
+        'git_uncommited_changes': config['git_uncommited_changes'],
+        }
+    with open(os.path.join(output_folder, 'git_version.yaml'), 'w') as f:
+        yaml.dumP(version_control)
 
     # -------------------------------
     # Export tensorflow training logs
@@ -145,7 +153,7 @@ def main(config_files, output_folder, data_settings, logs):
                         dst=os.path.join(output_folder, 'logs'))
 
     print('\n====================================')
-    print('= Successfully exported model to: =')
+    print('= Successfully exported model to:  =')
     print('====================================')
     print('{!r}\n'.format(output_folder))
 
@@ -192,7 +200,7 @@ def export_data_settings(data_settings, output_folder):
 
     with open(os.path.join(output_folder,
               'config_data_settings.yaml'), 'w') as f:
-        data_config = yaml.dump(f)
+        yaml.dumP(data_config)
 
 
 if __name__ == '__main__':
