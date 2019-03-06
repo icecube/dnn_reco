@@ -147,7 +147,7 @@ class DataHandler(object):
         self.label_names = label_names
         self.label_name_dict = {n: i for i, n in enumerate(label_names)}
         self.label_shape = list(labels.shape[1:])
-        self.num_labels = np.prod(self.label_shape)
+        self.num_labels = int(np.prod(self.label_shape))
 
     def _get_misc_meta_data(self):
         """Loads misc data from a sample file to obtain misc meta data.
@@ -169,7 +169,7 @@ class DataHandler(object):
         else:
             self.misc_data_exists = True
             self.misc_shape = list(misc_data.shape[1:])
-            self.num_misc = np.prod(self.misc_shape)
+            self.num_misc = int(np.prod(self.misc_shape))
 
     def _get_indices_from_string(self, string):
         """Get hexagonal indices assuming detector is centered around (0,0).
