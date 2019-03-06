@@ -197,7 +197,8 @@ def export_data_settings(data_settings, output_folder):
     data_settings['autoencoder_settings'] = data_config['autoencoder_settings']
     data_settings['autoencoder_name'] = data_config['autoencoder_encoder_name']
 
-    with open(os.path.join(output_folder, 'config_data_settings'), 'w') as f:
+    with open(os.path.join(output_folder,
+              'config_data_settings.yaml'), 'w') as f:
         data_config = yaml.dump(f)
 
 
