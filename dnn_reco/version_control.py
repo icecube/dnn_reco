@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import git
-import pip
+import pkg_resources
 
 
 def get_git_infos():
@@ -22,6 +22,5 @@ def get_git_infos():
 
 short_sha, sha, origin, uncommitted_changes = get_git_infos()
 
-installed_packages = pip.get_installed_distributions()
-installed_packages_list = sorted(["%s==%s" % (i.key, i.version)
-                                  for i in installed_packages])
+installed_packages = [(d.project_name, d.version) for
+                      d in pkg_resources.working_set]
