@@ -112,7 +112,7 @@ def main(config_files, output_folder, data_settings, logs):
     # ----------------------------
     # Export training config files
     # ----------------------------
-    checkpoint_directory = os.dirname(config['model_checkpoint_path'])
+    checkpoint_directory = os.path.dirname(config['model_checkpoint_path'])
     training_files = glob.glob(os.path.join(checkpoint_directory,
                                             'config_training_*.yaml'))
     for training_file in training_files:
