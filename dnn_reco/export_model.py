@@ -163,11 +163,12 @@ def export_data_settings(data_settings, output_folder):
         Path to model output directory to which the exported model will be
         written to.
     """
-    with open(data_settings, 'r') as stream:
-        try:
+    try:
+        with open(data_settings, 'r') as stream:
             data_config = yaml.safe_load(stream)
-        except Exception as e:
-            print(e)
+    except Exception as e:
+        print(e)
+        with open(data_settings, 'r') as stream:
             yaml.SafeLoader.add_constructor('tag:yaml.org,2002:python/unicode',
                                             lambda _, node: node.value)
             data_config = yaml.safe_load(stream)
