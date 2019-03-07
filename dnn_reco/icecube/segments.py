@@ -7,7 +7,7 @@ from icecube import icetray
 
 from ic3_data.container import DNNDataContainer
 from ic3_data.data import DNNContainerHandler
-from dnn_reco.icetray.module import ApplyDNNReco
+from dnn_reco.icetray.module import DeepLearningReco
 
 
 @icetray.traysegment
