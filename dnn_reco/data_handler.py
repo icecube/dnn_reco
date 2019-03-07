@@ -117,7 +117,7 @@ class DataHandler(object):
         NotImplementedError
             Description
         """
-        with open(data_settings, 'r') as stream:
+        with open(config_file, 'r') as stream:
             config_meta = yaml.safe_load(stream)
 
         self.label_names = config_meta['label_names']
