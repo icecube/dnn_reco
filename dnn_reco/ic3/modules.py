@@ -50,7 +50,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.config = setup_manager.get_config()
 
         # ToDo: Adjust necessary values in config
-        self.config['model_checkpoint_path'] = self._model_path
+        self.config['model_checkpoint_path'] = os.path.join(self._model_path,
+                                                            'model')
         self.config['model_is_training'] = False
         self.config['trafo_model_path'] = os.path.join(self._model_path,
                                                        'trafo_model.npy')
