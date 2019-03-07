@@ -81,15 +81,16 @@ def main(config_files, output_folder, data_settings, logs):
     # -------------------------
     # Export latest checkpoints
     # -------------------------
-    latest_checkpoint = tf.train.latest_checkpoint(os.path.dirname(
-                                config['model_checkpoint_path']))
+    checkpoint_dir = os.path.dirname(config['model_checkpoint_path'])
+    latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
     if latest_checkpoint is None:
         raise ValueError('Could not find a checkpoint. Aborting export!')
     else:
-        print(latest_checkpoint)
         for ending in ['.index', '.meta', '.data-00000-of-00001']:
             shutil.copy2(src=latest_checkpoint + ending,
                          dst=output_folder)
+        shutil.copy2(src=os.path.join(checkpoint_dir, 'checkpoint'),
+                     dst=output_folder)
 
     # -----------------------------
     # read and export data settings
