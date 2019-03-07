@@ -18,7 +18,25 @@ from dnn_reco.model import NNModel
 
 
 class DeepLearningReco(icetray.I3ConditionalModule):
+
+    """Module to apply dnn reco.
+
+    Attributes
+    ----------
+    config : dict
+        Dictionary with configuration settings
+    data_handler : dnn_reco.data_handler.DataHanlder
+        A data handler object. Handles nn model input meta data and provides
+        tensorflow placeholders.
+    data_transformer : dnn_reco.data_trafo.DataTransformer
+        The data transformer.
+    model : dnn_reco.model.NNModel
+        The neural network model
+    """
+
     def __init__(self, context):
+        """Initialize DeepLearningReco Module
+        """
         icetray.I3ConditionalModule.__init__(self, context)
         self.AddParameter('ModelPath', 'Path to DNN model', None)
         self.AddParameter('DNNDataContainer',
@@ -36,6 +54,15 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                           "[# CPUs]", None)
 
     def Configure(self):
+        """Configure DeepLearningReco module.
+
+        Read in configuration and build nn model.
+
+        Raises
+        ------
+        ValueError
+            If settings do not match the expected settings by the nn model.
+        """
         self._model_path = self.GetParameter('ModelPath')
         self._container = self.GetParameter('DNNDataContainer')
         self._output_key = self.GetParameter("OutputBaseName")
@@ -100,4 +127,13 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.model.restore()
 
     def Physics(self, frame):
+        """Apply DNN reco on physics frames
+
+        Parameters
+        ----------
+        frame : I3Frame
+            The current physics frame.
+        """
+        self.model.predict(x_ic78=self._container.x_ic78,
+                           x_deepcore=self._container.x_deepcore)
         raise NotImplementedError()

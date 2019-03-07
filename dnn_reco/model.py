@@ -434,6 +434,22 @@ class NNModel(object):
             self._step_offset = int(latest_checkpoint.split('-')[-1])
             self.saver.restore(sess=self.sess, save_path=latest_checkpoint)
 
+    def predict(self, x_ic78, x_deepcore, *args, **kwargs):
+        """Reconstruct events.
+
+        Parameters
+        ----------
+        x_ic78 : float, list or numpy.ndarray
+            The input data for the main IceCube array.
+        x_deepcore : float, list or numpy.ndarray
+            The input data for the DeepCore array.
+        *args
+            Variable length argument list.
+        **kwargs
+            Arbitrary keyword arguments.
+        """
+        pass
+
     def _feed_placeholders(self, data_generator, is_validation):
         """Feed placeholder variables with a batch from the data_generator
 
