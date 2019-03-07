@@ -199,7 +199,7 @@ def export_data_settings(data_settings, output_folder):
     for k in ['pulse_time_quantiles', 'pulse_time_binning',
               'autoencoder_settings', 'autoencoder_encoder_name']:
         if k not in data_config:
-            data_config[k] = None
+            data_settings[k] = None
     for k in ['pulse_time_quantiles', 'pulse_time_binning']:
         if data_config[k] is not None:
             data_config[k] = list(data_config[k])
