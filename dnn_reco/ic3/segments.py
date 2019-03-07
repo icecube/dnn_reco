@@ -47,7 +47,7 @@ def ApplyDNNRecos(
         model_names = [model_names]
 
     if output_keys is None:
-        output_keys = []
+        output_keys = ['DeepLearningReco_{}'.format(m) for m in model_names]
 
     # create DNN data container object
     container = DNNDataContainer()
