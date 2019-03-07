@@ -448,6 +448,7 @@ class NNModel(object):
         **kwargs
             Arbitrary keyword arguments.
         """
+        print(np.mean(x_ic78), np.mean(x_deepcore))
         pass
 
     def _feed_placeholders(self, data_generator, is_validation):
