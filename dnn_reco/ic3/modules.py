@@ -56,10 +56,14 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         if self._parallelism_threads is not None:
             self.config['tf_parallelism_threads'] = self._parallelism_threads
 
-        # Todo: check if settings of data container match settings in model path
-        raise NotImplementedError()
-
-        # Todo:
+        # Check if settings of data container match settings in model path
+        cfg_file = os.path.join(self._model_path, 'config_data_settings.yaml')
+        with open(cfg_file, 'r') as stream:
+            data_config = yaml.safe_load(stream)
+        for k in self._container.config:
+            if not self._container.config[k] == data_config[k]:
+                raise ValueError('Settings do not match: {!r} != {!r}'.format(
+                        self._container.config[k], data_config[k]))
 
         # Create Data Handler object
         self.data_handler = DataHandler(config)
@@ -82,6 +86,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.data_transformer.load_trafo_model(config['trafo_model_path'])
 
         # create NN model
+        raise NotImplementedError()
+
         self.model = NNModel(is_training=False,
                              config=self.config,
                              data_handler=self.data_handler,
