@@ -134,5 +134,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         frame : I3Frame
             The current physics frame.
         """
-        self.model.predict(x_ic78=self._container.x_ic78,
-                           x_deepcore=self._container.x_deepcore)
+        y_pred, y_unc = self.model.predict(
+                                    x_ic78=self._container.x_ic78,
+                                    x_deepcore=self._container.x_deepcore)
+        print(y_pred)

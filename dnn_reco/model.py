@@ -448,8 +448,20 @@ class NNModel(object):
         **kwargs
             Arbitrary keyword arguments.
         """
-        print(np.mean(x_ic78), np.mean(x_deepcore))
-        pass
+        feed_dict = {
+            self.shared_objects['x_ic78']: x_ic78,
+            self.shared_objects['x_deepcore']: x_deepcore,
+        }
+
+        # Fill in keep rates for dropout
+        for keep_prob in self.shared_objects['keep_prob_list']:
+            feed_dict[keep_prob] = 1.0
+
+        y_pred, y_unc = self.sess.run([self.shared_objects['y_pred'],
+                                       self.shared_objects['y_unc']],
+                                      feed_dict=feed_dict)
+
+        return y_pred, y_unc
 
     def _feed_placeholders(self, data_generator, is_validation):
         """Feed placeholder variables with a batch from the data_generator
