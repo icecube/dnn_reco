@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import os
+import glob
+import numpy as np
 
 from icecube import icetray, dataclasses
 
@@ -40,23 +42,22 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._parallelism_threads = self.GetParameter("ParallelismThreads")
 
         # read in and combine config files and set up
-        last_training_file =
-        config_files = [os.path.join(self._model_path, last_training_file)]
-        setup_manager = SetupManager(config_files)
+        training_files = glob.glob(os.path.join(self._model_path,
+                                                'config_training_*.yaml'))
+        last_training_file = np.sort(training_files)[-1]
+        setup_manager = SetupManager([last_training_file])
         self.config = setup_manager.get_config()
-
-        if not config['model_is_training']:
-            raise ValueError('Model must be in training mode!')
 
         # ToDo: Adjust necessary values in config
         self.config['model_checkpoint_path'] = self._model_path
-        self.config['model_is_trraining'] = False
+        self.config['model_is_training'] = False
         self.config['trafo_model_path'] = os.path.join(self._model_path,
                                                        'trafo_model.npy')
         if self._parallelism_threads is not None:
             self.config['tf_parallelism_threads'] = self._parallelism_threads
 
         # Todo: check if settings of data container match settings in model path
+        rasie NotImplementedError()
 
         # Todo:
 

@@ -16,7 +16,7 @@ def ApplyDNNRecos(
         pulse_key,
         model_names,
         output_keys=None,
-        models_dir='/data/user/mhuennefeld/DNN_reco/models/dnn_reco',
+        models_dir='/data/user/mhuennefeld/DNN_reco/models/exported_models',
         cascade_key='MCCascade',
         ):
     """Apply DNN reco
