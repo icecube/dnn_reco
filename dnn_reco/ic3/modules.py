@@ -67,24 +67,24 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                         self._container.config[k], data_config[k]))
 
         # Create Data Handler object
-        self.data_handler = DataHandler(config)
+        self.data_handler = DataHandler(self.config)
         self.data_handler.setup_with_config(
                     os.path.join(self._model_path, 'config_meta_data.yaml'))
 
         # create data transformer
         self.data_transformer = DataTransformer(
-                    data_handler=self.data_handler,
-                    treat_doms_equally=config['trafo_treat_doms_equally'],
-                    normalize_dom_data=config['trafo_normalize_dom_data'],
-                    normalize_label_data=config['trafo_normalize_label_data'],
-                    normalize_misc_data=config['trafo_normalize_misc_data'],
-                    log_dom_bins=config['trafo_log_dom_bins'],
-                    log_label_bins=config['trafo_log_label_bins'],
-                    log_misc_bins=config['trafo_log_misc_bins'],
-                    norm_constant=config['trafo_norm_constant'])
+                data_handler=self.data_handler,
+                treat_doms_equally=self.config['trafo_treat_doms_equally'],
+                normalize_dom_data=self.config['trafo_normalize_dom_data'],
+                normalize_label_data=self.config['trafo_normalize_label_data'],
+                normalize_misc_data=self.config['trafo_normalize_misc_data'],
+                log_dom_bins=self.config['trafo_log_dom_bins'],
+                log_label_bins=self.config['trafo_log_label_bins'],
+                log_misc_bins=self.config['trafo_log_misc_bins'],
+                norm_constant=self.config['trafo_norm_constant'])
 
         # load trafo model from file
-        self.data_transformer.load_trafo_model(config['trafo_model_path'])
+        self.data_transformer.load_trafo_model(self.config['trafo_model_path'])
 
         # create NN model
         raise NotImplementedError()
