@@ -6,6 +6,7 @@ import glob
 import numpy as np
 
 from icecube import icetray, dataclasses
+import ruamel.yaml as yaml
 
 from ic3_data.container import DNNDataContainer
 from ic3_data.data import DNNContainerHandler
