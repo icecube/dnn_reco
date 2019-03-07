@@ -207,7 +207,7 @@ def export_data_settings(data_settings, output_folder):
     data_settings['num_bins'] = data_config['num_data_bins']
     data_settings['relative_time_method'] = data_config['relative_time_method']
     data_settings['data_format'] = data_config['pulse_data_format']
-    data_settings['time_bins'] = data_config['pulse_time_binning'],
+    data_settings['time_bins'] = data_config['pulse_time_binning']
     data_settings['time_quantiles'] = data_config['pulse_time_quantiles']
     data_settings['autoencoder_settings'] = data_config['autoencoder_settings']
     data_settings['autoencoder_name'] = data_config['autoencoder_encoder_name']
