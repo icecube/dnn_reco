@@ -136,4 +136,3 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         """
         self.model.predict(x_ic78=self._container.x_ic78,
                            x_deepcore=self._container.x_deepcore)
-        raise NotImplementedError()
