@@ -193,18 +193,24 @@ def export_data_settings(data_settings, output_folder):
         with open(data_settings, 'r') as stream:
             yaml.SafeLoader.add_constructor('tag:yaml.org,2002:python/unicode',
                                             lambda _, node: node.value)
-            data_config = yaml.safe_load(stream)
+            data_config = dict(yaml.safe_load(stream))
 
-    data_settings = {}
     for k in ['pulse_time_quantiles', 'pulse_time_binning',
               'autoencoder_settings', 'autoencoder_encoder_name']:
         if k not in data_config or data_config[k] is None:
-            data_settings[k] = None
-        else:
-            data_settings[k] = data_config[k]
+            data_config[k] = None
     for k in ['pulse_time_quantiles', 'pulse_time_binning']:
-        if data_settings[k] is not None:
-            data_settings[k] = list(data_settings[k])
+        if data_config[k] is not None:
+            data_config[k] = list(data_config[k])
+
+    data_settings = {}
+    data_settings['num_bins'] = data_config['num_data_bins']
+    data_settings['relative_time_method'] = data_config['relative_time_method']
+    data_settings['data_format'] = data_config['pulse_data_format']
+    data_settings['time_bins'] = data_config['pulse_time_binning'],
+    data_settings['time_quantiles'] = data_config['pulse_time_quantiles']
+    data_settings['autoencoder_settings'] = data_config['autoencoder_settings']
+    data_settings['autoencoder_name'] = data_config['autoencoder_encoder_name']
 
     with open(os.path.join(output_folder,
               'config_data_settings.yaml'), 'w') as f:
