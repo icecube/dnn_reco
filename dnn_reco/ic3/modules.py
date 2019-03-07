@@ -57,7 +57,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             self.config['tf_parallelism_threads'] = self._parallelism_threads
 
         # Todo: check if settings of data container match settings in model path
-        rasie NotImplementedError()
+        raise NotImplementedError()
 
         # Todo:
 
