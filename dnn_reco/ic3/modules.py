@@ -138,3 +138,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                                     x_ic78=self._container.x_ic78,
                                     x_deepcore=self._container.x_deepcore)
         print(y_pred)
+
+        # ToDo: pick out labels that were trained
+
+        # Todo: create combined I3Particle
+
+        # Todo: write I3Particle and prediction to frame
