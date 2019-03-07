@@ -196,14 +196,13 @@ def export_data_settings(data_settings, output_folder):
             data_config = yaml.safe_load(stream)
 
     data_settings = {}
-    if 'pulse_time_quantiles' not in data_config:
-        data_config['pulse_time_quantiles'] = None
-    if 'pulse_time_binning' not in data_config:
-        data_config['pulse_time_binning'] = None
-    if 'autoencoder_settings' not in data_config:
-        data_config['autoencoder_settings'] = None
-    if 'autoencoder_encoder_name' not in data_config:
-        data_config['autoencoder_encoder_name'] = None
+    for k in ['pulse_time_quantiles', 'pulse_time_binning',
+              'autoencoder_settings', 'autoencoder_encoder_name']:
+        if k not in data_config:
+            data_config[k] = None
+    for k in ['pulse_time_quantiles', 'pulse_time_binning']:
+        if data_config[k] is not None:
+            data_config[k] = list(data_config[k])
 
     data_settings['num_bins'] = data_config['num_data_bins']
     data_settings['relative_time_method'] = data_config['relative_time_method']
