@@ -87,8 +87,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.data_transformer.load_trafo_model(self.config['trafo_model_path'])
 
         # create NN model
-        raise NotImplementedError()
-
         self.model = NNModel(is_training=False,
                              config=self.config,
                              data_handler=self.data_handler,
