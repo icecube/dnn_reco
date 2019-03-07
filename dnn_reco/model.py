@@ -56,8 +56,11 @@ class NNModel(object):
         self.data_handler = data_handler
         self.data_transformer = data_transformer
 
-        # create necessary variables to save training config files
         if self.is_training:
+            # create necessary directories
+            self._setup_directories()
+
+            # create necessary variables to save training config files
             self._setup_training_config_saver()
 
         self.shared_objects = {}
@@ -86,6 +89,19 @@ class NNModel(object):
                           )).__enter__()
         self.sess = sess
         tf.set_random_seed(self.config['tf_random_seed'])
+
+    def _setup_directories(self):
+        """Creates necessary directories
+        """
+        # Create directories
+        directories = [self.config['model_checkpoint_path'],
+                       self.config['log_path'],
+                       ]
+        for directory in directories:
+            directory = os.path.dirname(directory)
+            if not os.path.isdir(directory):
+                os.makedirs(directory)
+                misc.print_warning('Creating directory: {}'.format(directory))
 
     def _setup_training_config_saver(self):
         """Setup variables and check training step in order to save the

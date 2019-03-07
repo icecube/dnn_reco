@@ -202,9 +202,6 @@ class SetupManager:
         # load and combine configs
         self._setup_config()
 
-        # create necessary directories
-        self._setup_directories()
-
     def _setup_config(self):
         """Loads and merges config
 
@@ -269,19 +266,6 @@ class SetupManager:
         #       and make sure this defines a unique name.
 
         self.config = config
-
-    def _setup_directories(self):
-        """Creates necessary directories
-        """
-        # Create directories
-        directories = [self.config['model_checkpoint_path'],
-                       self.config['log_path'],
-                       ]
-        for directory in directories:
-            directory = os.path.dirname(directory)
-            if not os.path.isdir(directory):
-                os.makedirs(directory)
-                misc.print_warning('Creating directory: {}'.format(directory))
 
     def get_config(self):
         """Returns config
