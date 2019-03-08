@@ -159,19 +159,15 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         if self.data_handler.relative_time_keys:
             y_pred[self.mask_time] += self._container.global_time_offset
 
-        # ToDo: pick out labels that were trained
-        print(y_pred[self.mask_labels])
-
-        # Todo: create combined I3Particle
-
-        # Todo: write I3Particle and prediction to frame
-        results = {name: value for name, value in
+        # Write I3Particle and prediction to frame
+        results = {name: float(value) for name, value in
                    zip(self.non_zero_labels, y_pred[self.mask_labels])}
         print(results)
 
+        # Todo: create combined I3Particle
         particle = dataclasses.I3Particle()
 
         frame[self._output_key + '_I3Particle'] = particle
-        # frame[self._output_key] = dataclasses.I3MapStringDouble(results)
+        frame[self._output_key] = dataclasses.I3MapStringDouble(results)
 
         self.PushFrame(frame)
