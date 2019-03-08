@@ -167,10 +167,11 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # Todo: write I3Particle and prediction to frame
         results = {name: value for name, value in
                    zip(self.non_zero_labels, y_pred[self.mask_labels])}
+        print(results)
 
         particle = dataclasses.I3Particle()
 
         frame[self._output_key + '_I3Particle'] = particle
-        frame[self._output_key] = dataclasses.I3MapStringDouble(results)
+        # frame[self._output_key] = dataclasses.I3MapStringDouble(results)
 
         self.PushFrame(frame)
