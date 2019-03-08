@@ -104,9 +104,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.time_mask = []
         for i, name in enumerate(self.data_handler.label_names):
             if name in self.data_handler.relative_time_keys:
-                time_mask.append(True)
+                self.time_mask .append(True)
             else:
-                time_mask.append(False)
+                self.time_mask .append(False)
         self.time_mask = np.expand_dims(np.array(self.time_mask), axis=0)
 
         # create data transformer
