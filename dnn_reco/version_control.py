@@ -22,5 +22,5 @@ def get_git_infos():
 
 short_sha, sha, origin, uncommitted_changes = get_git_infos()
 
-installed_packages = [(d.project_name, d.version) for
+installed_packages = [[d.project_name, d.version] for
                       d in pkg_resources.working_set]
