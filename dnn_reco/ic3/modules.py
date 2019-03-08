@@ -99,15 +99,20 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.data_handler.setup_with_config(
                     os.path.join(self._model_path, 'config_meta_data.yaml'))
 
-        # Get relative time variables that need to be corrected by global time
-        # offset
-        self.time_mask = []
+        # Get time variables that need to be corrected by global time offset
+        self.mask_time = []
         for i, name in enumerate(self.data_handler.label_names):
             if name in self.data_handler.relative_time_keys:
-                self.time_mask .append(True)
+                self.mask_time .append(True)
             else:
-                self.time_mask .append(False)
-        self.time_mask = np.expand_dims(np.array(self.time_mask), axis=0)
+                self.mask_time .append(False)
+        self.mask_time = np.expand_dims(np.array(self.mask_time), axis=0)
+
+        self.mask_labels = \
+            self.data_handler.shared_objects['label_weight_config'] > 0
+        self.non_zero_labels = self.data_handler.label_names[self.mask_labels]
+        self.mask_time = np.expand_dims(self.mask_labels, axis=0)
+        print(self.non_zero_labels)
 
         # create data transformer
         self.data_transformer = DataTransformer(
@@ -147,13 +152,13 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         y_pred, y_unc = self.model.predict(
                                     x_ic78=self._container.x_ic78,
                                     x_deepcore=self._container.x_deepcore)
-        print(y_pred)
 
         # Fix time offset
         if self.data_handler.relative_time_keys:
-            y_pred[self.time_mask] += self._container.global_time_offset
+            y_pred[self.mask_time] += self._container.global_time_offset
 
         print(y_pred)
+        print(y_pred[self.mask_time])
         # ToDo: pick out labels that were trained
 
         # Todo: create combined I3Particle
