@@ -167,7 +167,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # Todo: create combined I3Particle
 
         # Todo: write I3Particle and prediction to frame
-        results = {name, value for name, value in
+        results = {name: value for name, value in
                    zip(self.non_zero_labels, y_pred[self.mask_labels])}
 
         particle = dataclasses.I3Particle()
