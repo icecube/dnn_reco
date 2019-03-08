@@ -163,24 +163,33 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         results = {name: float(value) for name, value in
                    zip(self.non_zero_labels, y_pred[self.mask_labels])}
         frame[self._output_key] = dataclasses.I3MapStringDouble(results)
-        print(results)
 
         # Create combined I3Particle
         if 'label_particle_keys' in self.config:
             particle_keys = self.config['label_particle_keys']
 
             particle = dataclasses.I3Particle()
-            particle.energy = results[particle_keys['energy']]
-            particle.time = results[particle_keys['time']]
-            particle.length = results[particle_keys['length']]
-            particle.dir = dataclasses.I3Direction(
-                                        results[particle_keys['dir_x']],
-                                        results[particle_keys['dir_y']],
-                                        results[particle_keys['dir_z']])
-            particle.pos = dataclasses.I3Position(
-                                        results[particle_keys['pos_x']],
-                                        results[particle_keys['pos_y']],
-                                        results[particle_keys['pos_z']])
+            if 'energy' in particle_keys:
+                particle.energy = results[particle_keys['energy']]
+            if 'time' in particle_keys:
+                particle.time = results[particle_keys['time']]
+            if 'length' in particle_keys:
+                particle.length = results[particle_keys['length']]
+            if 'dir_x' in particle_keys:
+                particle.dir = dataclasses.I3Direction(
+                                            results[particle_keys['dir_x']],
+                                            results[particle_keys['dir_y']],
+                                            results[particle_keys['dir_z']])
+            elif 'azimuth' in particle_keys:
+                particle.dir = dataclasses.I3Direction(
+                                            results[particle_keys['azimuth']],
+                                            results[particle_keys['zenith']])
+
+            if 'pos_x' in particle_keys:
+                particle.pos = dataclasses.I3Position(
+                                            results[particle_keys['pos_x']],
+                                            results[particle_keys['pos_y']],
+                                            results[particle_keys['pos_z']])
 
             frame[self._output_key + '_I3Particle'] = particle
 

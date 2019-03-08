@@ -87,6 +87,18 @@
   'direction_y': 10,
   'direction_z': 10,
 }
+# Keys to use for I3Particle
+'label_particle_keys': {
+  'energy': EnergyVisible,
+  'time': VertexTime,
+  'length': LengthInDetector,
+  'dir_x': PrimaryDirectionX,
+  'dir_y': PrimaryDirectionY,
+  'dir_z': PrimaryDirectionZ,
+  'pos_x': VertexX,
+  'pos_y': VertexY,
+  'pos_z': VertexZ,
+}
 # Update label weights during training
 'label_update_weights': True
 # Name of zenith direction label if it exists
