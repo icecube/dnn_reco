@@ -103,7 +103,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # offset
         self.time_mask = []
         for i, name in enumerate(self.data_handler.label_names):
-            if name in self.data_handlerrelative_time_keys:
+            if name in self.data_handler.relative_time_keys:
                 time_mask.append(True)
             else:
                 time_mask.append(False)
@@ -155,7 +155,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
         print(y_pred)
         # ToDo: pick out labels that were trained
-
 
         # Todo: create combined I3Particle
 
