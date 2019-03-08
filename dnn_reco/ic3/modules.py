@@ -162,12 +162,24 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # Write I3Particle and prediction to frame
         results = {name: float(value) for name, value in
                    zip(self.non_zero_labels, y_pred[self.mask_labels])}
+        frame[self._output_key] = dataclasses.I3MapStringDouble(results)
         print(results)
 
-        # Todo: create combined I3Particle
-        particle = dataclasses.I3Particle()
+        # Create combined I3Particle
+        if 'label_particle_keys' in self.config:
+            particle_keys = self.config['label_particle_keys']
 
-        frame[self._output_key + '_I3Particle'] = particle
-        frame[self._output_key] = dataclasses.I3MapStringDouble(results)
+            particle = dataclasses.I3Particle()
+            particle.energy = particle_keys['energy']
+            particle.time = particle_keys['time']
+            particle.length = particle_keys['length']
+            particle.dir = dataclasses.I3Direction(particle_keys['dir_x'],
+                                                   particle_keys['dir_y'],
+                                                   particle_keys['dir_z'])
+            particle.pos = dataclasses.I3Position(particle_keys['pos_x'],
+                                                  particle_keys['pos_y'],
+                                                  particle_keys['pos_z'])
+
+            frame[self._output_key + '_I3Particle'] = particle
 
         self.PushFrame(frame)
