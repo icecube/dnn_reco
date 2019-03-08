@@ -138,7 +138,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # Get trained labels, e.g. labels with weights greater than zero
         self.mask_labels = \
             self.model.shared_objects['label_weight_config'] > 0
-        self.non_zero_labels = self.data_handler.label_names[self.mask_labels]
+        self.non_zero_labels = [n for n, b in
+                                zip(self.data_handler.label_names,
+                                    self.mask_labels) if b]
         self.mask_time = np.expand_dims(self.mask_labels, axis=0)
         print(self.non_zero_labels)
 
