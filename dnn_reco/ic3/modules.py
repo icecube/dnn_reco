@@ -142,6 +142,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                                 zip(self.data_handler.label_names,
                                     self.mask_labels) if b]
         self.mask_labels = np.expand_dims(self.mask_labels, axis=0)
+        print(self.non_zero_labels)
+        print(self.mask_labels)
+        print(self.mask_time)
 
     def Physics(self, frame):
         """Apply DNN reco on physics frames
