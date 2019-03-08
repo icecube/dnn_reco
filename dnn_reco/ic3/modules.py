@@ -170,15 +170,17 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             particle_keys = self.config['label_particle_keys']
 
             particle = dataclasses.I3Particle()
-            particle.energy = particle_keys['energy']
-            particle.time = particle_keys['time']
-            particle.length = particle_keys['length']
-            particle.dir = dataclasses.I3Direction(particle_keys['dir_x'],
-                                                   particle_keys['dir_y'],
-                                                   particle_keys['dir_z'])
-            particle.pos = dataclasses.I3Position(particle_keys['pos_x'],
-                                                  particle_keys['pos_y'],
-                                                  particle_keys['pos_z'])
+            particle.energy = results[particle_keys['energy']]
+            particle.time = results[particle_keys['time']]
+            particle.length = results[particle_keys['length']]
+            particle.dir = dataclasses.I3Direction(
+                                        results[particle_keys['dir_x']],
+                                        results[particle_keys['dir_y']],
+                                        results[particle_keys['dir_z']])
+            particle.pos = dataclasses.I3Position(
+                                        results[particle_keys['pos_x']],
+                                        results[particle_keys['pos_y']],
+                                        results[particle_keys['pos_z']])
 
             frame[self._output_key + '_I3Particle'] = particle
 
