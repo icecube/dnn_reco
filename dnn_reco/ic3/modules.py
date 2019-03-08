@@ -108,12 +108,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 self.mask_time .append(False)
         self.mask_time = np.expand_dims(np.array(self.mask_time), axis=0)
 
-        self.mask_labels = \
-            self.data_handler.shared_objects['label_weight_config'] > 0
-        self.non_zero_labels = self.data_handler.label_names[self.mask_labels]
-        self.mask_time = np.expand_dims(self.mask_labels, axis=0)
-        print(self.non_zero_labels)
-
         # create data transformer
         self.data_transformer = DataTransformer(
                 data_handler=self.data_handler,
@@ -140,6 +134,13 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
         # restore model weights
         self.model.restore()
+
+        # Get trained labels, e.g. labels with weights greater than zero
+        self.mask_labels = \
+            self.model.shared_objects['label_weight_config'] > 0
+        self.non_zero_labels = self.data_handler.label_names[self.mask_labels]
+        self.mask_time = np.expand_dims(self.mask_labels, axis=0)
+        print(self.non_zero_labels)
 
     def Physics(self, frame):
         """Apply DNN reco on physics frames
