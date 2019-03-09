@@ -172,12 +172,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         # transform back
         y_pred = data_transformer.inverse_transform(y_pred_trafo,
                                                     data_type='label')
-        # y_pred = tf.Print(y_pred,
-        #                 [
-        #                  tf.reduce_mean(y_pred_trafo, axis=0),
-        #                  tf.reduce_mean(y_pred, axis=0),
-        #                  tf.reduce_mean(shared_objects['y_true'], axis=0),
-        #                 ], summarize=100)
+
         y_pred_list = tf.unstack(y_pred, axis=1)
 
         norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
@@ -220,14 +215,6 @@ def general_model_IC86_opt4(is_training, config, data_handler,
 
         # transform
         y_pred_trafo = data_transformer.transform(y_pred, data_type='label')
-
-        # y_pred_trafo = tf.Print(y_pred_trafo,
-        #                         [
-        #                          tf.reduce_mean(y_pred_trafo),
-        #                          tf.reduce_mean(y_pred),
-        #                          tf.reduce_mean(layers[-1]),
-        #                          tf.reduce_mean(norm),
-        #                         ])
 
     with tf.variable_scope('model_unc'):
 
