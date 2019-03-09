@@ -13,22 +13,22 @@
 # General settings
 #---------------------------
 'training_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/00000-00999/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/01000-01999/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/02000-02999/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/03000-03999/*.hdf5',
   ]
 'trafo_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/00000-00999/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/01000-01999/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/02000-02999/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/03000-03999/*.hdf5',
   ]
 'validation_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/04000-04999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*.hdf5',
   ]
 'test_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/cascade_clipped_wo_brights_Nu*l5*/output/summaryV2_clipped/04000-04999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*.hdf5',
   ]
 
 'tf_random_seed': 42
@@ -50,13 +50,13 @@
 # Data Handler settings
 #----------------------
 # Name of data bin values key (e.g. DOMPulseBinValues, dnn_data_bin_values)
-'data_handler_bin_values_name': DOMPulseBinValues
+'data_handler_bin_values_name': dnn_data_bin_values
 # Name of data bin indices key (e.g. DOMPulseBinIndices, dnn_data_bin_indices)
-'data_handler_bin_indices_name': DOMPulseBinIndices
+'data_handler_bin_indices_name': dnn_data_bin_indices
 # Name of data global time offset key (e.g. DOMPulseTimeRangeStart, dnn_data_global_time_offset)
-'data_handler_time_offset_name': DOMPulseTimeRangeStart
+'data_handler_time_offset_name': dnn_data_global_time_offset
 
-'data_handler_num_bins': 7
+'data_handler_num_bins': 9
 
 'data_handler_label_file': 'default_labels'
 'data_handler_label_name': 'simple_label_loader'
@@ -78,14 +78,26 @@
 # Label settings
 # --------------
 # initialize label weights with this value
-'label_weight_initialization': 1
+'label_weight_initialization': 0
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
-  'cascade_energy': 0,
-  'direction_x': 10,
-  'direction_y': 10,
-  'direction_z': 10,
+  'EnergyVisible': 1,
+  'VertexTime': 1,
+  'LengthInDetector': 1,
+  'PrimaryDirectionX': 10,
+  'PrimaryDirectionY': 10,
+  'PrimaryDirectionZ': 10,
+  'VertexX': 1,
+  'VertexY': 1,
+  'VertexZ': 1,
+  'p_starting': 1,
+  'p_starting_300m': 1,
+  'p_is_track': 1,
+  'p_entering': 1,
+  'p_entering_muon_single': 0,
+  'p_entering_muon_bundle': 0,
+  'p_outside_cascade': 1,
 }
 # Keys to use for I3Particle
 'label_particle_keys': {
@@ -102,17 +114,17 @@
 # Update label weights during training
 'label_update_weights': True
 # Name of zenith direction label if it exists
-'label_zenith_key': cascade_zenith
+'label_zenith_key': PrimaryZenith
 # Name of azimuth direction label if it exists
-'label_azimuth_key': cascade_azimuth
+'label_azimuth_key': PrimaryAzimuth
 # Name of direction vector x-component label if it exists
-'label_dir_x_key': direction_x
+'label_dir_x_key': PrimaryDirectionX
 # Name of direction vector x-component label if it exists
-'label_dir_y_key': direction_y
+'label_dir_y_key': PrimaryDirectionY
 # Name of direction vector x-component label if it exists
-'label_dir_z_key': direction_z
+'label_dir_z_key': PrimaryDirectionZ
 # Add direction vector components as labels
-'label_add_dir_vec': True
+'label_add_dir_vec': False
 # Define pid keys. The labels defined here will be fors to range [0, 1]
 # (depends on the chosen neural network model)
 'label_pid_keys': [
@@ -120,10 +132,10 @@
     'p_starting', 'p_starting_300m', 'p_starting_glashow',
     'p_starting_nc', 'p_starting_cc', 'p_starting_cc_e',
     'p_starting_cc_mu', 'p_starting_cc_tau',
-    'p_starting_cc_tau_muon_decay',
+    'p_starting_cc_tau_muon_decay', 'p_is_track',
     'p_starting_cc_tau_double_bang', 'p_entering',
     'p_entering_muon_single', 'p_entering_muon_bundle',
-    'p_outside_cascade',
+    'p_outside_cascade', 'p_entering_muon_single_stopping',
 ]
 
 #---------------------------
@@ -143,13 +155,16 @@
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 200
-'trafo_model_path' : '../data/trafo_models/test_trafo_model.npy'
+'trafo_model_path' : '../data/trafo_models/dnn_reco_mese_trafo_model.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : True
-'trafo_log_dom_bins' : [True, False, False, False, False, False, False]
+'trafo_log_dom_bins' : [True, True, True, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
-                            'cascade_energy': True,
+                            'EnergyVisible': True,
+                            'PrimaryEnergy': True,
+                            'leading_energy_rel_entry': True,
+                            'Length': True,
                          }
 'trafo_log_misc_bins' : False
 'trafo_treat_doms_equally' : True
