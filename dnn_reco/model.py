@@ -68,8 +68,8 @@ class NNModel(object):
         # create tensorflow placeholders for input data
         self._setup_placeholders()
 
-        # create label_weights and assign op
-        self._create_label_weights()
+        # initalize label weights and non zero mask
+        self._intialize_label_weights()
 
         # build NN architecture
         self._build_model()
@@ -236,8 +236,8 @@ class NNModel(object):
         # create saver
         self.saver = tf.train.Saver(self.shared_objects['model_vars'])
 
-    def _create_label_weights(self):
-        """Create label weights and update operation
+    def _intialize_label_weights(self):
+        """Initialize label weights and non zero mask
         """
         label_weight_config = np.ones(self.data_handler.label_shape)
         label_weight_config *= self.config['label_weight_initialization']
@@ -249,9 +249,12 @@ class NNModel(object):
         self.shared_objects['label_weight_config'] = label_weight_config
         self.shared_objects['non_zero_mask'] = label_weight_config > 0
 
+    def _create_label_weights(self):
+        """Create label weights and update operation
+        """
         if self.config['label_update_weights']:
             label_weights = tf.Variable(
-                                    label_weight_config,
+                                    self.shared_objects['label_weight_config'],
                                     name='label_weights',
                                     trainable=False,
                                     dtype=self.config['tf_float_precision'])
@@ -280,21 +283,20 @@ class NNModel(object):
 
         else:
             label_weights = tf.constant(
-                                    label_weight_config,
+                                    self.shared_objects['label_weight_config'],
                                     shape=self.data_handler.label_shape,
                                     dtype=self.config['tf_float_precision'])
 
-        if self.is_training:
-            self.shared_objects['label_weights'] = label_weights
-            self.shared_objects['label_weights_benchmark'] = tf.reduce_sum(
-                                                                label_weights)
+        self.shared_objects['label_weights'] = label_weights
+        self.shared_objects['label_weights_benchmark'] = tf.reduce_sum(
+                                                            label_weights)
 
-            tf.summary.histogram('label_weights', label_weights)
-            tf.summary.scalar('label_weights_benchmark',
-                              self.shared_objects['label_weights_benchmark'])
+        tf.summary.histogram('label_weights', label_weights)
+        tf.summary.scalar('label_weights_benchmark',
+                          self.shared_objects['label_weights_benchmark'])
 
-            misc.print_warning('Total Benchmark should be: {:3.3f}'.format(
-                                                    sum(label_weight_config)))
+        misc.print_warning('Total Benchmark should be: {:3.3f}'.format(
+                            sum(self.shared_objects['label_weight_config'])))
 
     def _get_optimizers_and_loss(self):
         """Get optimizers and loss terms as defined in config.
@@ -411,6 +413,9 @@ class NNModel(object):
     def compile(self):
 
         if self.is_training:
+
+            # create label_weights and assign op
+            self._create_label_weights()
 
             self._get_optimizers_and_loss()
 
