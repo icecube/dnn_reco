@@ -175,6 +175,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         y_pred = tf.Print(y_pred,
                         [
                          tf.reduce_mean(y_pred, axis=0),
+                         tf.reduce_mean(shared_objects['y_true'], axis=0),
                         ], summarize=100)
         y_pred_list = tf.unstack(y_pred, axis=1)
 
