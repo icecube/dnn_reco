@@ -221,6 +221,12 @@ class NNModel(object):
                                                         data_type='label',
                                                         bias_correction=False)
 
+        y_pred = tf.Print(y_pred,
+                        [
+                         tf.reduce_mean(y_pred_trafo, axis=0),
+                         tf.reduce_mean(y_pred, axis=0),
+                        ], summarize=100)
+
         self.shared_objects['y_pred_trafo'] = y_pred_trafo
         self.shared_objects['y_unc_trafo'] = y_unc_trafo
         self.shared_objects['y_pred'] = y_pred
