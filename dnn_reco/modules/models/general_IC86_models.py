@@ -174,9 +174,11 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                                     data_type='label')
         y_pred = tf.Print(y_pred,
                         [
-                         tf.reduce_mean(y_pred_trafo),
                          tf.reduce_mean(layers[-1]),
                          tf.reduce_mean(y_pred),
+                         tf.reduce_mean(y_pred_trafo),
+                         tf.reduce_mean(data_transformer.transform(
+                                            y_pred, data_type='label'))
                         ])
         y_pred_list = tf.unstack(y_pred, axis=1)
 
