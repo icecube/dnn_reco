@@ -68,6 +68,9 @@ class NNModel(object):
         # create tensorflow placeholders for input data
         self._setup_placeholders()
 
+        # create label_weights and assign op
+        self._create_label_weights()
+
         # build NN architecture
         self._build_model()
 
@@ -406,9 +409,6 @@ class NNModel(object):
         tf.get_default_graph().finalize()
 
     def compile(self):
-
-        # create label_weights and assign op
-        self._create_label_weights()
 
         if self.is_training:
 
