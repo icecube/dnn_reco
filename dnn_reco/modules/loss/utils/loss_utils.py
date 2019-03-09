@@ -121,8 +121,16 @@ def get_y_diff_trafo(config, data_handler, data_transformer, shared_objects):
         A tensorflow tensor containing the loss for each label.
         Shape: label_shape (same shape as labels)
     """
+
     y_diff_trafo = (shared_objects['y_pred_trafo']
                     - shared_objects['y_true_trafo'])
+    y_diff_trafo = tf.Print(y_diff_trafo,
+                            [
+                             tf.reduce_sum(shared_objects['y_pred_trafo']),
+                             tf.reduce_sum(shared_objects['y_true_trafo']),
+                             tf.reduce_sum(shared_objects['x_ic78_trafo']),
+                             tf.reduce_sum(shared_objects['x_deepcore_trafo']),
+                            ])
 
     # correct azimuth residual for 2pi periodicity
     if config['label_azimuth_key']:
@@ -132,5 +140,4 @@ def get_y_diff_trafo(config, data_handler, data_transformer, shared_objects):
                                     data_handler=data_handler,
                                     data_transformer=data_transformer,
                                     name_pattern=config['label_azimuth_key'])
-    y_diff_trafo = tf.Print(y_diff_trafo, [tf.reduce_sum(y_diff_trafo)])
     return y_diff_trafo
