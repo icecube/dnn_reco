@@ -361,7 +361,7 @@ class NNModel(object):
                     label_loss += label_loss_i
 
             # weight label_losses
-            label_loss = tf.where(shared_objects['non_zero_mask'],
+            label_loss = tf.where(self.shared_objects['non_zero_mask'],
                                   label_loss, tf.zeros_like(label_loss))
             weighted_label_loss = label_loss * self.shared_objects[
                                                             'label_weights']
