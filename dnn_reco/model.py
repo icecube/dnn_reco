@@ -575,6 +575,7 @@ class NNModel(object):
                                        mse_values_trafo))
                     for i, name in enumerate(self.data_handler.label_names):
                         print(name, mse_values_trafo[i])
+                    print(np.isfinite(feed_dict[self.shared_objects['y_true']]).all())
 
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
