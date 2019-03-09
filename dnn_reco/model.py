@@ -638,7 +638,7 @@ class NNModel(object):
 
                 # print info for each label
                 for name, index in self.data_handler.label_name_dict.items():
-                    if weight=updated_weights[index] > 0:
+                    if updated_weights[index] > 0:
                         msg = '\tweight: {weight:2.3f},'
                         msg += ' train: {train:2.3f}, val: {val:2.3f} [{name}]'
                         print(msg.format(
