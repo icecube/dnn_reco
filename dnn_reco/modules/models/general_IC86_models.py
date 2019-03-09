@@ -175,7 +175,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         y_pred = tf.Print(y_pred,
                         [
                          tf.reduce_mean(y_pred, axis=0),
-                        ])
+                        ], summarize=100)
         y_pred_list = tf.unstack(y_pred, axis=1)
 
         norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
