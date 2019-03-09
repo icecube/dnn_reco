@@ -638,13 +638,15 @@ class NNModel(object):
 
                 # print info for each label
                 for name, index in self.data_handler.label_name_dict.items():
-                    msg = '\tweight: {weight:2.3f},'
-                    msg += ' train: {train:2.3f}, val: {val:2.3f} [{name}]'
-                    print(msg.format(weight=updated_weights[index],
-                                     train=results_train['rmse_trafo'][index],
-                                     val=results_val['rmse_trafo'][index],
-                                     name=name,
-                                     ))
+                    if weight=updated_weights[index] > 0:
+                        msg = '\tweight: {weight:2.3f},'
+                        msg += ' train: {train:2.3f}, val: {val:2.3f} [{name}]'
+                        print(msg.format(
+                                    weight=updated_weights[index],
+                                    train=results_train['rmse_trafo'][index],
+                                    val=results_val['rmse_trafo'][index],
+                                    name=name,
+                                    ))
 
                 # Call user defined evaluation method
                 if self.config['evaluation_file'] is not None:
