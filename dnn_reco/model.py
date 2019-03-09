@@ -244,6 +244,7 @@ class NNModel(object):
                 label_weight_config[self.data_handler.get_label_index(key)] = \
                     self.config['label_weight_dict'][key]
         self.shared_objects['label_weight_config'] = label_weight_config
+        self.non_zero_mask = self.shared_objects['label_weight_config'] > 0
 
         if self.config['label_update_weights']:
             label_weights = tf.Variable(
@@ -420,7 +421,6 @@ class NNModel(object):
         self._model_is_compiled = True
 
         # tukey scaling
-        # non_zero_mask
         # med_abs_dev
         # update importance
 
@@ -561,27 +561,23 @@ class NNModel(object):
             # calculate online variabels for label weights
             # --------------------------------------------
             if self.config['label_update_weights']:
-                if np.isfinite(train_result['mse_values_trafo']).all():
+                mse_values_trafo = train_result['mse_values_trafo']
+                mse_values_trafo[~self.non_zero_mask] = 1.
+
+                if np.isfinite(mse_values_trafo).all():
                     label_weight_n += 1
-                    delta = train_result['mse_values_trafo'] \
-                        - label_weight_mean
+                    delta = mse_values_trafo - label_weight_mean
                     label_weight_mean += delta / label_weight_n
-                    delta2 = train_result['mse_values_trafo'] \
-                        - label_weight_mean
+                    delta2 = mse_values_trafo - label_weight_mean
                     label_weight_M2 += delta * delta2
                 else:
                     misc.print_warning('Found NaNs: {}'.format(
-                                       train_result['mse_values_trafo']))
+                                       mse_values_trafo))
                     for i, name in enumerate(self.data_handler.label_names):
-                        print(name, train_result['mse_values_trafo'][i])
+                        print(name, mse_values_trafo[i])
 
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
-                    mask = np.logical_and(
-                            self.shared_objects['label_weight_config'] == 0,
-                            ~np.isfinite(label_weight_mean))
-                    label_weight_mean[mask] = 1.
-
                     new_weights = 1.0 / (np.sqrt(label_weight_mean) + 1e-3)
                     new_weights[new_weights < 1] = 1
                     new_weights *= self.shared_objects['label_weight_config']
