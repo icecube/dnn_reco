@@ -174,6 +174,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                                     data_type='label')
         y_pred = tf.Print(y_pred,
                         [
+                         tf.reduce_mean(y_pred_trafo, axis=0),
                          tf.reduce_mean(y_pred, axis=0),
                          tf.reduce_mean(shared_objects['y_true'], axis=0),
                         ], summarize=100)
@@ -209,6 +210,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                 index_pid = data_handler.get_label_index(pid_key)
                 y_pred_list[index_pid] = tf.sigmoid(y_pred_list[index_pid])
 
+        # zero out labels with weights == 0
         for i, non_zero in enumerate(shared_objects['non_zero_mask']):
             if not non_zero:
                 y_pred_list[i] = tf.zeros_like(y_pred_list[i])
