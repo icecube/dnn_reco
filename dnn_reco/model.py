@@ -572,9 +572,16 @@ class NNModel(object):
                 else:
                     misc.print_warning('Found NaNs: {}'.format(
                                        train_result['mse_values_trafo']))
+                    for i, name in enumerate(self.data_handler.label_names):
+                        print(name, train_result['mse_values_trafo'][i])
 
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
+                    mask = np.logical_and(
+                            self.shared_objects['label_weight_config'] == 0,
+                            ~np.isfinite(label_weight_mean))
+                    label_weight_mean[mask] = 1.
+
                     new_weights = 1.0 / (np.sqrt(label_weight_mean) + 1e-3)
                     new_weights[new_weights < 1] = 1
                     new_weights *= self.shared_objects['label_weight_config']
