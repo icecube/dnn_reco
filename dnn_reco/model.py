@@ -244,7 +244,7 @@ class NNModel(object):
                 label_weight_config[self.data_handler.get_label_index(key)] = \
                     self.config['label_weight_dict'][key]
         self.shared_objects['label_weight_config'] = label_weight_config
-        self.non_zero_mask = self.shared_objects['label_weight_config'] > 0
+        self.shared_objects['non_zero_mask'] = label_weight_config > 0
 
         if self.config['label_update_weights']:
             label_weights = tf.Variable(
@@ -348,6 +348,9 @@ class NNModel(object):
                     label_loss += label_loss_i
 
             # weight label_losses
+            label_loss = tf.where(tf.is_nan(label_loss),
+                                  tf.zeros_like(label_loss),
+                                  label_loss)
             weighted_label_loss = label_loss * self.shared_objects[
                                                             'label_weights']
             weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
@@ -562,7 +565,7 @@ class NNModel(object):
             # --------------------------------------------
             if self.config['label_update_weights']:
                 mse_values_trafo = train_result['mse_values_trafo']
-                mse_values_trafo[~self.non_zero_mask] = 1.
+                mse_values_trafo[~self.shared_objects['non_zero_mask']] = 1.
 
                 if np.isfinite(mse_values_trafo).all():
                     label_weight_n += 1
