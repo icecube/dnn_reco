@@ -348,9 +348,6 @@ class NNModel(object):
                     label_loss += label_loss_i
 
             # weight label_losses
-            label_loss = tf.where(tf.is_nan(label_loss),
-                                  tf.zeros_like(label_loss),
-                                  label_loss)
             weighted_label_loss = label_loss * self.shared_objects[
                                                             'label_weights']
             weighted_loss_sum = tf.reduce_sum(weighted_label_loss)

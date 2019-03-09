@@ -209,6 +209,9 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                 index_pid = data_handler.get_label_index(pid_key)
                 y_pred_list[index_pid] = tf.sigmoid(y_pred_list[index_pid])
 
+        y_pred_list[~self.shared_objects['non_zero_mask']] = \
+            tf.zeros_like(y_pred_list[0])
+
         # put it back together
         y_pred = tf.stack(y_pred_list, axis=1)
 
