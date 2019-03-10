@@ -183,7 +183,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         results = {name: float(value) for name, value in
                    zip(self.non_zero_labels, y_pred[self.mask_labels])}
         frame[self._output_key] = dataclasses.I3MapStringDouble(results)
-        print(self._output_key)
 
         # Create combined I3Particle
         if 'label_particle_keys' in self.config:
