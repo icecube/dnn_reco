@@ -33,7 +33,8 @@ class NNModel(object):
         on to sub modules.
     """
 
-    def __init__(self, is_training, config, data_handler, data_transformer):
+    def __init__(self, is_training, config, data_handler, data_transformer,
+                 sess=None):
         """Initializes neural network base class.
 
         Parameters
@@ -48,6 +49,10 @@ class NNModel(object):
         data_transformer : :obj: of class DataTransformer
                 An instance of the DataTransformer class. The object is used to
                 transform data.
+        sess : tf.Session, optional
+            The tensorflow session to use. If None is given, the default
+            session will be used if it exists. Otherwise a new one will be
+            created
         """
         self._model_is_compiled = False
         self._step_offset = 0
@@ -75,21 +80,22 @@ class NNModel(object):
         self._build_model()
 
         # get or create new default session
-        sess = tf.get_default_session()
         if sess is None:
-            if 'tf_parallelism_threads' in self.config:
-                n_cpus = self.config['tf_parallelism_threads']
-                sess = tf.Session(config=tf.ConfigProto(
-                            gpu_options=tf.GPUOptions(allow_growth=True),
-                            device_count={'GPU': 1},
-                            intra_op_parallelism_threads=n_cpus,
-                            inter_op_parallelism_threads=n_cpus,
-                          )).__enter__()
-            else:
-                sess = tf.Session(config=tf.ConfigProto(
-                            gpu_options=tf.GPUOptions(allow_growth=True),
-                            device_count={'GPU': 1},
-                          )).__enter__()
+            sess = tf.get_default_session()
+            if sess is None:
+                if 'tf_parallelism_threads' in self.config:
+                    n_cpus = self.config['tf_parallelism_threads']
+                    sess = tf.Session(config=tf.ConfigProto(
+                                gpu_options=tf.GPUOptions(allow_growth=True),
+                                device_count={'GPU': 1},
+                                intra_op_parallelism_threads=n_cpus,
+                                inter_op_parallelism_threads=n_cpus,
+                              )).__enter__()
+                else:
+                    sess = tf.Session(config=tf.ConfigProto(
+                                gpu_options=tf.GPUOptions(allow_growth=True),
+                                device_count={'GPU': 1},
+                              )).__enter__()
         self.sess = sess
         tf.set_random_seed(self.config['tf_random_seed'])
 

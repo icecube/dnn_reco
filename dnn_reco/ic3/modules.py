@@ -95,8 +95,21 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 raise ValueError('Settings do not match: {!r} != {!r}'.format(
                         self._container.config[k], data_config[k]))
 
-        g_1 = tf.Graph()
-        with g_1.as_default():
+        g = tf.Graph()
+        if 'tf_parallelism_threads' in self.config:
+            n_cpus = self.config['tf_parallelism_threads']
+            sess = tf.Session(graph=g, config=tf.ConfigProto(
+                        gpu_options=tf.GPUOptions(allow_growth=True),
+                        device_count={'GPU': 1},
+                        intra_op_parallelism_threads=n_cpus,
+                        inter_op_parallelism_threads=n_cpus,
+                      )).__enter__()
+        else:
+            sess = tf.Session(graph=g, config=tf.ConfigProto(
+                        gpu_options=tf.GPUOptions(allow_growth=True),
+                        device_count={'GPU': 1},
+                      )).__enter__()
+        with g.as_default():
             # Create Data Handler object
             self.data_handler = DataHandler(self.config)
             self.data_handler.setup_with_config(
