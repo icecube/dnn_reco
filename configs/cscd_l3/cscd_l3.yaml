@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'mese'
+'unique_name': 'cscd_l3'
 
 #---------------------------
 # General settings
