@@ -95,6 +95,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 raise ValueError('Settings do not match: {!r} != {!r}'.format(
                         self._container.config[k], data_config[k]))
 
+        # Create a new tensorflow graph and session for this instance of
+        # dnn reco
         g = tf.Graph()
         if 'tf_parallelism_threads' in self.config:
             n_cpus = self.config['tf_parallelism_threads']
@@ -144,7 +146,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             self.model = NNModel(is_training=False,
                                  config=self.config,
                                  data_handler=self.data_handler,
-                                 data_transformer=self.data_transformer)
+                                 data_transformer=self.data_transformer,
+                                 sess=sess)
 
             # compile model: initalize and finalize graph
             self.model.compile()
