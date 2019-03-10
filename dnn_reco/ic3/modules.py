@@ -4,6 +4,7 @@ from __future__ import division, print_function
 import os
 import glob
 import numpy as np
+import tensorflow as tf
 
 from icecube import icetray, dataclasses
 import ruamel.yaml as yaml
