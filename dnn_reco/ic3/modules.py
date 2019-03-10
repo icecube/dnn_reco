@@ -94,22 +94,24 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 raise ValueError('Settings do not match: {!r} != {!r}'.format(
                         self._container.config[k], data_config[k]))
 
-        # Create Data Handler object
-        self.data_handler = DataHandler(self.config)
-        self.data_handler.setup_with_config(
+        g_1 = tf.Graph()
+        with g_1.as_default():
+            # Create Data Handler object
+            self.data_handler = DataHandler(self.config)
+            self.data_handler.setup_with_config(
                     os.path.join(self._model_path, 'config_meta_data.yaml'))
 
-        # Get time variables that need to be corrected by global time offset
-        self.mask_time = []
-        for i, name in enumerate(self.data_handler.label_names):
-            if name in self.data_handler.relative_time_keys:
-                self.mask_time .append(True)
-            else:
-                self.mask_time .append(False)
-        self.mask_time = np.expand_dims(np.array(self.mask_time), axis=0)
+            # Get time vars that need to be corrected by global time offset
+            self.mask_time = []
+            for i, name in enumerate(self.data_handler.label_names):
+                if name in self.data_handler.relative_time_keys:
+                    self.mask_time .append(True)
+                else:
+                    self.mask_time .append(False)
+            self.mask_time = np.expand_dims(np.array(self.mask_time), axis=0)
 
-        # create data transformer
-        self.data_transformer = DataTransformer(
+            # create data transformer
+            self.data_transformer = DataTransformer(
                 data_handler=self.data_handler,
                 treat_doms_equally=self.config['trafo_treat_doms_equally'],
                 normalize_dom_data=self.config['trafo_normalize_dom_data'],
@@ -120,28 +122,29 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 log_misc_bins=self.config['trafo_log_misc_bins'],
                 norm_constant=self.config['trafo_norm_constant'])
 
-        # load trafo model from file
-        self.data_transformer.load_trafo_model(self.config['trafo_model_path'])
+            # load trafo model from file
+            self.data_transformer.load_trafo_model(
+                                            self.config['trafo_model_path'])
 
-        # create NN model
-        self.model = NNModel(is_training=False,
-                             config=self.config,
-                             data_handler=self.data_handler,
-                             data_transformer=self.data_transformer)
+            # create NN model
+            self.model = NNModel(is_training=False,
+                                 config=self.config,
+                                 data_handler=self.data_handler,
+                                 data_transformer=self.data_transformer)
 
-        # compile model: initalize and finalize graph
-        self.model.compile()
+            # compile model: initalize and finalize graph
+            self.model.compile()
 
-        # restore model weights
-        self.model.restore()
+            # restore model weights
+            self.model.restore()
 
-        # Get trained labels, e.g. labels with weights greater than zero
-        self.mask_labels = \
-            self.model.shared_objects['label_weight_config'] > 0
-        self.non_zero_labels = [n for n, b in
-                                zip(self.data_handler.label_names,
-                                    self.mask_labels) if b]
-        self.mask_labels = np.expand_dims(self.mask_labels, axis=0)
+            # Get trained labels, e.g. labels with weights greater than zero
+            self.mask_labels = \
+                self.model.shared_objects['label_weight_config'] > 0
+            self.non_zero_labels = [n for n, b in
+                                    zip(self.data_handler.label_names,
+                                        self.mask_labels) if b]
+            self.mask_labels = np.expand_dims(self.mask_labels, axis=0)
 
     def Physics(self, frame):
         """Apply DNN reco on physics frames
