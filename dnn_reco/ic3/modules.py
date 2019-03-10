@@ -174,7 +174,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
         # Fix time offset
         if self.data_handler.relative_time_keys:
-            y_pred[self.mask_time] += self._container.global_time_offset
+            y_pred[self.mask_time] += self._container.global_time_offset.value
 
         # Write I3Particle and prediction to frame
         results = {name: float(value) for name, value in
