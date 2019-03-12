@@ -5,6 +5,7 @@ import os
 import glob
 import numpy as np
 import tensorflow as tf
+import timeit
 
 from icecube import icetray, dataclasses
 import ruamel.yaml as yaml
@@ -171,6 +172,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         frame : I3Frame
             The current physics frame.
         """
+        if self._measure_time:
+            start_time = timeit.default_timer()
+
         y_pred, y_unc = self.model.predict(
                                     x_ic78=self._container.x_ic78,
                                     x_deepcore=self._container.x_deepcore)
@@ -182,6 +186,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # Write I3Particle and prediction to frame
         results = {name: float(value) for name, value in
                    zip(self.non_zero_labels, y_pred[self.mask_labels])}
+        if self._measure_time:
+            results['runtime_prediction'] = timeit.default_timer() - start_time
+            results['runtime_preprocess'] = self._container.runtime.value
         frame[self._output_key] = dataclasses.I3MapStringDouble(results)
 
         # Create combined I3Particle

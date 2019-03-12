@@ -18,6 +18,7 @@ def ApplyDNNRecos(
         output_keys=None,
         models_dir='/data/user/mhuennefeld/DNN_reco/models/exported_models',
         cascade_key='MCCascade',
+        measure_time=True,
         ):
     """Apply DNN reco
 
@@ -33,15 +34,17 @@ def ApplyDNNRecos(
         A list of strings or a single string that define the models to apply.
         If a list of model names is given, the reco will be applied with each
         model.
-    OutputKeys : None, optional
+    output_keys : None, optional
         A list of output keys for the reco results.
         If None, the output will be saved as dnn_reco_{ModelName}.
     models_dir : str, optional
         The main model directory. The final model directory will be:
             os.path.join(models_dir, ModelName)
-    CascadeKey : str, optional
+    cascade_key : str, optional
         The particle to use if the relative time method is 'vertex' or
         'first_light_at_dom'.
+    measure_time : bool, optional
+        If True, the run-time will be measured.
     """
     if isinstance(model_names, str):
         model_names = [model_names]
@@ -69,5 +72,5 @@ def ApplyDNNRecos(
                        ModelPath=os.path.join(models_dir, model_name),
                        DNNDataContainer=container,
                        OutputBaseName=output_key,
-                       MeasureTime=True,
+                       MeasureTime=measure_time,
                        )
