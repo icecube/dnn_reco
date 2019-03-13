@@ -235,6 +235,9 @@ class NNModel(object):
         self.shared_objects['model_vars_unc'] = model_vars_unc
         self.shared_objects['model_vars'] = model_vars_pred + model_vars_unc
 
+        tf.summary.histogram('y_pred_trafo', tf.reduce_mean(y_pred_trafo,
+                                                            axis=0))
+
         # count number of trainable parameters
         print('Number of free parameters in NN model: {}'.format(
                     self.count_parameters(self.shared_objects['model_vars'])))
@@ -650,7 +653,7 @@ class NNModel(object):
                                                         is_validation=True)
                 results_val = self.sess.run(eval_dict, feed_dict=feed_dict_val)
                 y_true_train = feed_dict_train[self.shared_objects['y_true']]
-                y_true_val = feed_dict_train[self.shared_objects['y_true']]
+                y_true_val = feed_dict_val[self.shared_objects['y_true']]
 
                 self._train_writer.add_summary(
                                         results_train['merged_summary'], i)
