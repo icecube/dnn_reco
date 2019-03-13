@@ -216,7 +216,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         # transform
         y_pred_trafo = data_transformer.transform(y_pred, data_type='label')
 
-        y_pred = tf.Print(y_pred,
+        y_pred_trafo = tf.Print(y_pred_trafo,
                           [
                            tf.reduce_mean(y_pred_trafo),
                            tf.reduce_mean(y_pred_trafo, 0),
