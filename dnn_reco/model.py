@@ -591,7 +591,10 @@ class NNModel(object):
 
                 if not np.isfinite(label_weight_mean).all():
                     for i, name in enumerate(self.data_handler.label_names):
-                        print(name, label_weight_mean[i])
+                        print('weight', name, label_weight_mean[i])
+
+                if not np.isfinite(mse_values_trafo).all():
+                    raise ValueError('FOUND NANS!')
 
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
