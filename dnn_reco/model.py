@@ -649,7 +649,8 @@ class NNModel(object):
                 feed_dict_val = self._feed_placeholders(val_data_generator,
                                                         is_validation=True)
                 results_val = self.sess.run(eval_dict, feed_dict=feed_dict_val)
-                y_true = feed_dict_train[self.shared_objects['y_true']]
+                y_true_train = feed_dict_train[self.shared_objects['y_true']]
+                y_true_val = feed_dict_train[self.shared_objects['y_true']]
 
                 self._train_writer.add_summary(
                                         results_train['merged_summary'], i)
@@ -665,13 +666,14 @@ class NNModel(object):
                     if updated_weights[index] > 0:
                         msg = '\tweight: {weight:2.3f},'
                         msg += ' train: {train:2.3f}, val: {val:2.3f} [{name}'
-                        msg += ', mean: {mean:2.3f}]'
+                        msg += ', mean: {mean_train:2.3f} {mean_val:2.3f}]'
                         print(msg.format(
                                     weight=updated_weights[index],
                                     train=results_train['rmse_trafo'][index],
                                     val=results_val['rmse_trafo'][index],
                                     name=name,
-                                    mean=np.mean(y_true[:, index]),
+                                    mean_train=np.mean(y_true_train[:, index]),
+                                    mean_val=np.mean(y_true_val[:, index]),
                                     ))
 
                 # Call user defined evaluation method

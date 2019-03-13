@@ -221,6 +221,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                            tf.reduce_mean(y_pred_trafo),
                            tf.reduce_mean(y_pred_trafo, 0),
                            tf.reduce_mean(y_pred, 0),
+                           tf.reduce_mean(y_pred_trafo, 1),
                           ], summarize=100)
 
     with tf.variable_scope('model_unc'):
