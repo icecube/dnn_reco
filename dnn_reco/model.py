@@ -589,6 +589,10 @@ class NNModel(object):
                     for i, name in enumerate(self.data_handler.label_names):
                         print(name, mse_values_trafo[i])
 
+                if not np.isfinite(label_weight_mean).all():
+                    for i, name in enumerate(self.data_handler.label_names):
+                        print(name, label_weight_mean[i])
+
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
                     new_weights = 1.0 / (np.sqrt(label_weight_mean) + 1e-3)
