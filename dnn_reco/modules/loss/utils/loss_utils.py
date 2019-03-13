@@ -124,13 +124,6 @@ def get_y_diff_trafo(config, data_handler, data_transformer, shared_objects):
     y_diff_trafo = (shared_objects['y_pred_trafo']
                     - shared_objects['y_true_trafo'])
 
-    y_diff_trafo = tf.Print(y_diff_trafo,
-                            [
-                             tf.reduce_mean(y_diff_trafo),
-                             tf.reduce_mean(shared_objects['y_pred_trafo'], 0),
-                             tf.reduce_mean(shared_objects['y_true_trafo'], 0),
-                            ], summarize=100)
-
     # correct azimuth residual for 2pi periodicity
     if config['label_azimuth_key']:
         y_diff_trafo = correct_azimuth_residual(

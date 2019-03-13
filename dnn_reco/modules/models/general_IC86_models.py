@@ -172,6 +172,12 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         # transform back
         y_pred = data_transformer.inverse_transform(y_pred_trafo,
                                                     data_type='label')
+        y_pred = tf.Print(y_pred,
+                          [
+                           tf.reduce_mean(y_pred),
+                           tf.reduce_mean(y_pred_trafo, 0),
+                           tf.reduce_mean(y_pred, 0),
+                          ], summarize=100)
 
         y_pred_list = tf.unstack(y_pred, axis=1)
 
