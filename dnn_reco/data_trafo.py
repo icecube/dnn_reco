@@ -542,18 +542,8 @@ class DataTransformer:
             If DataTransformer object has not created or loaded a trafo model.
             If provided data_type is unkown.
         """
-        if tf.contrib.framework.is_tensor(data):
-            data = tf.Print(data, [tf.reduce_mean(data)], 'inv input')
-        else:
-            print(np.isfinite(data).all())
-
         data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
             self._check_settings(data, data_type)
-
-        if is_tf:
-            data = tf.Print(data, [tf.reduce_mean(data)], 'before')
-        else:
-            print(np.isfinite(data).all())
 
         # de-normalize data
         if self.trafo_model[normalize_name]:
@@ -573,8 +563,6 @@ class DataTransformer:
                 data_list = tf.unstack(data, axis=-1)
                 for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
                     if log_bin:
-                        data_list[bin_i] = tf.Print(data_list[bin_i],
-                                    [tf.reduce_mean(data_list[bin_i])], 'log bin '  +str(bin_i))
                         data_list[bin_i] = exp_func(data_list[bin_i]) - 1.0
                 data = tf.stack(data_list, axis=-1)
             else:
