@@ -480,11 +480,6 @@ class DataTransformer:
         data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
             self._check_settings(data, data_type)
 
-        if is_tf:
-            data = tf.Print(data, [tf.reduce_mean(data)], 'before trafo')
-        else:
-            print(np.isfinite(data).all())
-
         # perform logarithm on bins
         if np.all(self.trafo_model[log_name]):
             # logarithm is applied to all bins: one operation
@@ -517,11 +512,6 @@ class DataTransformer:
         else:
             data = data.astype(dtype)
 
-        if is_tf:
-            data = tf.Print(data, [tf.reduce_mean(data)], 'after trafo')
-        else:
-            print(np.isfinite(data).all())
-
         return data
 
     def inverse_transform(self, data, data_type, bias_correction=True):
@@ -552,6 +542,11 @@ class DataTransformer:
             If DataTransformer object has not created or loaded a trafo model.
             If provided data_type is unkown.
         """
+        if is_tf:
+            data = tf.Print(data, [tf.reduce_mean(data)], 'inv input')
+        else:
+            print(np.isfinite(data).all())
+
         data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
             self._check_settings(data, data_type)
 
@@ -566,11 +561,6 @@ class DataTransformer:
                      self.trafo_model['{}_std'.format(data_type.lower())])
             if bias_correction:
                 data += self.trafo_model['{}_mean'.format(data_type.lower())]
-
-        if is_tf:
-            data = tf.Print(data, [tf.reduce_mean(data)], 'after de norm')
-        else:
-            print(np.isfinite(data).all())
 
         # undo logarithm on bins
         if np.all(self.trafo_model[log_name]):
@@ -592,21 +582,11 @@ class DataTransformer:
                     if log_bin:
                         data[..., bin_i] = exp_func(data[..., bin_i]) - 1.0
 
-        if is_tf:
-            data = tf.Print(data, [tf.reduce_mean(data)], 'after exp')
-        else:
-            print(np.isfinite(data).all())
-
         # cast back to original dtype
         if is_tf:
             if dtype != self._tf_float_dtype:
                 data = tf.cast(data, dtype=dtype)
         else:
             data = data.astype(dtype)
-
-        if is_tf:
-            data = tf.Print(data, [tf.reduce_mean(data)], 'after')
-        else:
-            print(np.isfinite(data).all())
 
         return data
