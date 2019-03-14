@@ -542,7 +542,7 @@ class DataTransformer:
             If DataTransformer object has not created or loaded a trafo model.
             If provided data_type is unkown.
         """
-        if is_tf:
+        if tf.contrib.framework.is_tensor(data):
             data = tf.Print(data, [tf.reduce_mean(data)], 'inv input')
         else:
             print(np.isfinite(data).all())
