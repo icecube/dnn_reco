@@ -399,9 +399,6 @@ class NNModel(object):
                               for grad, var in gvs]
             else:
                 capped_gvs = gvs
-
-            gradients = tf.stack([grad for grad, var in gvs])
-            capped_gvs = tf.Print(capped_gvs, [gradients])
             optimizer_ops.append(optimizer.apply_gradients(capped_gvs))
 
         self.shared_objects['optimizer_ops'] = optimizer_ops
