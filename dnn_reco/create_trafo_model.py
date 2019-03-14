@@ -68,9 +68,15 @@ def main(config_files):
     if '.' in base_name:
         file_ending = base_name.split('.')[-1]
         base_name = base_name.replace('.' + file_ending, '')
-    trafo_config_file = os.path.join(
-                                os.path.dirname(config['trafo_model_path']),
-                                'config_trafo__{}.yaml'.format(base_name))
+
+    directory = os.path.dirname(config['trafo_model_path'])
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+        misc.print_warning('Creating directory: {}'.format(directory))
+
+    trafo_config_file = os.path.join(directory,
+                                     'config_trafo__{}.yaml'.format(base_name))
+
     with open(trafo_config_file, 'w') as yaml_file:
         yaml.dump(config, yaml_file, default_flow_style=False)
     data_transformer.save_trafo_model(config['trafo_model_path'])
