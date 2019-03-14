@@ -146,7 +146,7 @@
 'num_training_iterations' : 100000000
 'validation_frequency' : 100
 'save_frequency' : 500
-'keep_probability_list' : [1.0, 1.0, 1.0, 1.0]
+'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
 'evaluation_file': default_evaluation
