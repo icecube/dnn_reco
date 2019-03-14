@@ -235,8 +235,9 @@ class NNModel(object):
         self.shared_objects['model_vars_unc'] = model_vars_unc
         self.shared_objects['model_vars'] = model_vars_pred + model_vars_unc
 
-        tf.summary.histogram('y_pred_trafo', tf.reduce_mean(y_pred_trafo,
-                                                            axis=0))
+        y_pred_list = tf.unstack(self.shared_objects['y_pred'], axis=1)
+        for i, name in enumerate(self.data_handler.label_names):
+            tf.summary.histogram('y_pred_' + name, y_pred_list[i])
 
         # count number of trainable parameters
         print('Number of free parameters in NN model: {}'.format(
