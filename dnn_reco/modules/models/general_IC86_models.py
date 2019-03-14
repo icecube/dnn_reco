@@ -205,10 +205,12 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                 index_pid = data_handler.get_label_index(pid_key)
                 y_pred_list[index_pid] = tf.sigmoid(y_pred_list[index_pid])
 
-        # # zero out labels with weights == 0
-        # for i, non_zero in enumerate(shared_objects['non_zero_mask']):
-        #     if not non_zero:
-        #         y_pred_list[i] = tf.zeros_like(y_pred_list[i])
+        # zero out labels with weights == 0 if they are nan
+        for i, non_zero in enumerate(shared_objects['non_zero_mask']):
+            if not non_zero:
+                y_pred_list[i] = tf.where(tf.is_nan(y_pred_list[i]),
+                                          tf.zeros_like(y_pred_list[i]),
+                                          y_pred_list[i])
 
         # put it back together
         y_pred = tf.stack(y_pred_list, axis=1)
