@@ -480,6 +480,11 @@ class DataTransformer:
         data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
             self._check_settings(data, data_type)
 
+        if is_tf:
+            data = tf.Print(data, [tf.reduce_mean(data)], 'before trafo')
+        else:
+            print(np.isfinite(data).all())
+
         # perform logarithm on bins
         if np.all(self.trafo_model[log_name]):
             # logarithm is applied to all bins: one operation
@@ -511,6 +516,11 @@ class DataTransformer:
                 data = tf.cast(data, dtype=dtype)
         else:
             data = data.astype(dtype)
+
+        if is_tf:
+            data = tf.Print(data, [tf.reduce_mean(data)], 'after trafo')
+        else:
+            print(np.isfinite(data).all())
 
         return data
 
@@ -545,6 +555,11 @@ class DataTransformer:
         data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
             self._check_settings(data, data_type)
 
+        if is_tf:
+            data = tf.Print(data, [tf.reduce_mean(data)], 'before')
+        else:
+            print(np.isfinite(data).all())
+
         # de-normalize data
         if self.trafo_model[normalize_name]:
             data *= (self.trafo_model['norm_constant'] +
@@ -576,5 +591,10 @@ class DataTransformer:
                 data = tf.cast(data, dtype=dtype)
         else:
             data = data.astype(dtype)
+
+        if is_tf:
+            data = tf.Print(data, [tf.reduce_mean(data)], 'after')
+        else:
+            print(np.isfinite(data).all())
 
         return data
