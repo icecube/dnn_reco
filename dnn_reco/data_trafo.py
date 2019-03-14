@@ -270,12 +270,12 @@ class DataTransformer:
                                 M2=label_M2)
 
             if self.trafo_model['misc_shape'] is not None:
-                label_n, label_mean, label_M2 = self._perform_update_step(
-                                log_bins=self.trafo_model['log_label_bins'],
-                                data_batch=misc_data,
-                                n=label_n,
-                                mean=label_mean,
-                                M2=label_M2)
+                misc_n, misc_mean, misc_M2 = self._perform_update_step(
+                            log_bins=self.trafo_model['log_misc_bins'],
+                            data_batch=misc_data,
+                            n=misc_n,
+                            mean=misc_mean,
+                            M2=misc_M2)
 
         # Calculate standard deviation
         ic78_std = np.sqrt(ic78_M2 / ic78_n)
