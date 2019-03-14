@@ -208,7 +208,8 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         # zero out labels with weights == 0
         for i, non_zero in enumerate(shared_objects['non_zero_mask']):
             if not non_zero:
-                y_pred_list[i] = tf.zeros_like(y_pred_list[i])
+                y_pred_list[i] = tf.stop_gradient(
+                                        tf.zeros_like(y_pred_list[i]))
 
         # put it back together
         y_pred = tf.stack(y_pred_list, axis=1)

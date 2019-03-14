@@ -394,9 +394,9 @@ class NNModel(object):
             gvs = optimizer.compute_gradients(weighted_loss_sum,
                                               var_list=var_list)
 
-            # remove nans in gradients and replace these with zeros
-            gvs = [(tf.where(tf.is_nan(grad), tf.zeros_like(grad), grad),
-                    val) for grad, val in gvs]
+            # # remove nans in gradients and replace these with zeros
+            # gvs = [(tf.where(tf.is_nan(grad), tf.zeros_like(grad), grad),
+            #         val) for grad, val in gvs]
 
             clip_gradients = False
             if clip_gradients:
