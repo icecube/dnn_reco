@@ -223,14 +223,14 @@ class NNModel(object):
         # transform back
         y_pred = self.data_transformer.inverse_transform(y_pred_trafo,
                                                          data_type='label')
-        # y_unc = self.data_transformer.inverse_transform(y_unc_trafo,
-        #                                                 data_type='label',
-        #                                                 bias_correction=False)
+        y_unc = self.data_transformer.inverse_transform(y_unc_trafo,
+                                                        data_type='label',
+                                                        bias_correction=False)
 
         self.shared_objects['y_pred_trafo'] = y_pred_trafo
         self.shared_objects['y_unc_trafo'] = y_unc_trafo
         self.shared_objects['y_pred'] = y_pred
-        # self.shared_objects['y_unc'] = y_unc
+        self.shared_objects['y_unc'] = y_unc
         self.shared_objects['model_vars_pred'] = model_vars_pred
         self.shared_objects['model_vars_unc'] = model_vars_unc
         self.shared_objects['model_vars'] = model_vars_pred + model_vars_unc
@@ -630,7 +630,7 @@ class NNModel(object):
                     'weights': self.shared_objects['label_weights_benchmark'],
                     'rmse_trafo': self.shared_objects['rmse_values_trafo'],
                     'y_pred': self.shared_objects['y_pred'],
-                    # 'y_unc': self.shared_objects['y_unc'],
+                    'y_unc': self.shared_objects['y_unc'],
                 }
                 result_msg = ''
                 for k, loss in self.shared_objects['label_loss_dict'].items():
