@@ -364,10 +364,9 @@ class NNModel(object):
 
             # weight label_losses
             label_loss = tf.where(self.shared_objects['non_zero_mask'],
-                                  label_loss,
-                                  tf.stop_gradient(tf.zeros_like(label_loss)))
-            weighted_label_loss = label_loss * tf.stop_gradient(
-                                        self.shared_objects['label_weights'])
+                                  label_loss, tf.zeros_like(label_loss))
+            weighted_label_loss = label_loss * self.shared_objects[
+                                                            'label_weights']
             weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
 
             self.shared_objects['label_loss_dict'] = {
@@ -394,6 +393,11 @@ class NNModel(object):
 
             gvs = optimizer.compute_gradients(weighted_loss_sum,
                                               var_list=var_list)
+
+            # remove nans in gradients and replace these with zeros
+            gvs = [(tf.where(tf.is_nan(grad), tf.zeros_like(grad), grad),
+                    val) for grad, val in gvs]
+
             clip_gradients = False
             if clip_gradients:
                 capped_gvs = [(tf.clip_by_value(grad, -1., 1.), var)
