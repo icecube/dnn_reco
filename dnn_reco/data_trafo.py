@@ -567,6 +567,11 @@ class DataTransformer:
             if bias_correction:
                 data += self.trafo_model['{}_mean'.format(data_type.lower())]
 
+        if is_tf:
+            data = tf.Print(data, [tf.reduce_mean(data)], 'after de norm')
+        else:
+            print(np.isfinite(data).all())
+
         # undo logarithm on bins
         if np.all(self.trafo_model[log_name]):
             # logarithm is applied to all bins: one operation
@@ -584,6 +589,11 @@ class DataTransformer:
                 for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
                     if log_bin:
                         data[..., bin_i] = exp_func(data[..., bin_i]) - 1.0
+
+        if is_tf:
+            data = tf.Print(data, [tf.reduce_mean(data)], 'after log')
+        else:
+            print(np.isfinite(data).all())
 
         # cast back to original dtype
         if is_tf:
