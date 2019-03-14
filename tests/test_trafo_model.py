@@ -10,7 +10,7 @@ from dnn_reco.data_trafo import DataTransformer
 
 
 @click.command()
-@click.argument('config_files', click.Path(exists=True), nargs=-1)
+@click.argument('config_files', type=click.Path(exists=True), nargs=-1)
 def main(config_files):
     """Script to generate trafo model.
 

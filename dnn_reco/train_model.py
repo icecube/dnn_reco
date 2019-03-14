@@ -11,7 +11,7 @@ from dnn_reco.model import NNModel
 
 
 @click.command()
-@click.argument('config_files', click.Path(exists=True), nargs=-1)
+@click.argument('config_files', type=click.Path(exists=True), nargs=-1)
 def main(config_files):
     """Script to train the NN model.
 
