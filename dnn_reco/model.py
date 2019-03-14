@@ -630,7 +630,7 @@ class NNModel(object):
                     'weights': self.shared_objects['label_weights_benchmark'],
                     'rmse_trafo': self.shared_objects['rmse_values_trafo'],
                     'y_pred': self.shared_objects['y_pred'],
-                    'y_unc': self.shared_objects['y_unc'],
+                    # 'y_unc': self.shared_objects['y_unc'],
                 }
                 result_msg = ''
                 for k, loss in self.shared_objects['label_loss_dict'].items():
