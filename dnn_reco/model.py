@@ -395,8 +395,10 @@ class NNModel(object):
                                               var_list=var_list)
 
             # remove nans in gradients and replace these with zeros
-            gvs = [(tf.where(tf.is_nan(grad), tf.zeros_like(grad), grad),
-                    var) for grad, var in gvs if grad is not None]
+            remove_nan_gradients = False
+            if remove_nan_gradients:
+                gvs = [(tf.where(tf.is_nan(grad), tf.zeros_like(grad), grad),
+                        var) for grad, var in gvs if grad is not None]
 
             clip_gradients = False
             if clip_gradients:
