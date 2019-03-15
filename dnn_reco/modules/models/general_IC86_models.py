@@ -219,7 +219,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         y_pred_trafo_orig_list = tf.unstack(y_pred_trafo_orig, axis=1)
         y_pred_trafo_list = tf.unstack(y_pred_trafo, axis=1)
         y_pred_trafo_final_list = []
-        for i in range(y_pred_trafo_orig_list):
+        for i in range(len(y_pred_trafo_orig_list)):
             if i in trafo_indices:
                 y_pred_trafo_final_list.append(y_pred_trafo_list[i])
             else:
