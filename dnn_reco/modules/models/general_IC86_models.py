@@ -155,12 +155,12 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                                 is_training=is_training,
                                                 **fc_settings)
 
-        y_pred_trafo = layers[-1]
+        y_pred_trafo_orig = layers[-1]
 
         # -----------------------------------
         # Enforce Normalisation
         # -----------------------------------
-        assert len(y_pred_trafo.get_shape().as_list()) == 2
+        assert len(y_pred_trafo_orig.get_shape().as_list()) == 2
 
         index_dir_x = data_handler.get_label_index(config['label_dir_x_key'])
         index_dir_y = data_handler.get_label_index(config['label_dir_y_key'])
@@ -169,8 +169,11 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         index_azimuth = data_handler.get_label_index(
                                                 config['label_azimuth_key'])
 
+        trafo_indices = [index_dir_x, index_dir_y, index_dir_z,
+                         index_azimuth, index_zenith]
+
         # transform back
-        y_pred = data_transformer.inverse_transform(y_pred_trafo,
+        y_pred = data_transformer.inverse_transform(y_pred_trafo_orig,
                                                     data_type='label')
 
         y_pred_list = tf.unstack(y_pred, axis=1)
@@ -203,20 +206,35 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         for pid_key in config['label_pid_keys']:
             if pid_key in data_handler.label_names:
                 index_pid = data_handler.get_label_index(pid_key)
+                trafo_indices.append(index_pid)
                 y_pred_list[index_pid] = tf.sigmoid(y_pred_list[index_pid])
-
-        # zero out labels with weights == 0 if they are nan
-        for i, non_zero in enumerate(shared_objects['non_zero_mask']):
-            if not non_zero:
-                y_pred_list[i] = tf.where(tf.is_finite(y_pred_list[i]),
-                                          y_pred_list[i],
-                                          tf.zeros_like(y_pred_list[i]))
 
         # put it back together
         y_pred = tf.stack(y_pred_list, axis=1)
 
         # transform
         y_pred_trafo = data_transformer.transform(y_pred, data_type='label')
+
+        # Only do inv_trafo(trafo(y)) if necessary (numerical problems ...)
+        y_pred_trafo_orig_list = tf.unstack(y_pred_trafo_orig, axis=1)
+        y_pred_trafo_list = tf.unstack(y_pred_trafo, axis=1)
+        y_pred_trafo_final_list = []
+        for i in range(y_pred_trafo_orig_list):
+            if i in trafo_indices:
+                y_pred_trafo_final_list.append(y_pred_trafo_list[i])
+            else:
+                y_pred_trafo_final_list.append(y_pred_trafo_orig_list[i])
+
+        # # zero out labels with weights == 0 if they are nan
+        # for i, non_zero in enumerate(shared_objects['non_zero_mask']):
+        #     if not non_zero:
+        #         y_pred_trafo_final_list[i] = tf.where(
+        #                         tf.is_finite(y_pred_trafo_final_list[i]),
+        #                         y_pred_trafo_final_list[i],
+        #                         tf.zeros_like(y_pred_trafo_final_list[i]))
+
+        # put it back together
+        y_pred_trafo = tf.stack(y_pred_trafo_final_list, axis=1)
 
     with tf.variable_scope('model_unc'):
 
