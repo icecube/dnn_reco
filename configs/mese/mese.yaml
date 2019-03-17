@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'mese'
+'unique_name': 'mese_publication'
 
 #---------------------------
 # General settings
@@ -25,10 +25,10 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/03000-03999/*.hdf5',
   ]
 'validation_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*000000.hdf5',
   ]
 'test_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*000000.hdf5',
   ]
 
 'tf_random_seed': 42
@@ -78,7 +78,7 @@
 # Label settings
 # --------------
 # initialize label weights with this value
-'label_weight_initialization': 0
+'label_weight_initialization': 0.0000001
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
