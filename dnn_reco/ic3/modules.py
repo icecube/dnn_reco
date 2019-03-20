@@ -197,23 +197,29 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
             particle = dataclasses.I3Particle()
             if 'energy' in particle_keys:
-                particle.energy = results[particle_keys['energy']]
+                if particle_keys['energy'] in self.non_zero_labels:
+                    particle.energy = results[particle_keys['energy']]
             if 'time' in particle_keys:
-                particle.time = results[particle_keys['time']]
+                if particle_keys['time'] in self.non_zero_labels:
+                    particle.time = results[particle_keys['time']]
             if 'length' in particle_keys:
-                particle.length = results[particle_keys['length']]
+                if particle_keys['length'] in self.non_zero_labels:
+                    particle.length = results[particle_keys['length']]
             if 'dir_x' in particle_keys:
-                particle.dir = dataclasses.I3Direction(
+                if particle_keys['dir_x'] in self.non_zero_labels:
+                    particle.dir = dataclasses.I3Direction(
                                             results[particle_keys['dir_x']],
                                             results[particle_keys['dir_y']],
                                             results[particle_keys['dir_z']])
             elif 'azimuth' in particle_keys:
-                particle.dir = dataclasses.I3Direction(
+                if particle_keys['azimuth'] in self.non_zero_labels:
+                    particle.dir = dataclasses.I3Direction(
                                             results[particle_keys['azimuth']],
                                             results[particle_keys['zenith']])
 
             if 'pos_x' in particle_keys:
-                particle.pos = dataclasses.I3Position(
+                if particle_keys['pos_x'] in self.non_zero_labels:
+                    particle.pos = dataclasses.I3Position(
                                             results[particle_keys['pos_x']],
                                             results[particle_keys['pos_y']],
                                             results[particle_keys['pos_z']])
