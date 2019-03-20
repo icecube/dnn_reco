@@ -16,7 +16,7 @@ from dnn_reco.model import NNModel
 
 
 @click.command()
-@click.argument('config_files', click.Path(exists=True), nargs=-1)
+@click.argument('config_files', type=click.Path(exists=True), nargs=-1)
 @click.option('--output_folder', '-o', default=None,
               help='folder to which the model will be exported')
 @click.option('--data_settings', '-s',  default=None,
