@@ -564,7 +564,7 @@ class DataTransformer:
                 for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
                     if log_bin:
                         data_list[bin_i] = \
-                                tf.clip_by_value(data_list[bin_i], -80., 80.)
+                                tf.clip_by_value(data_list[bin_i], -60., 60.)
                         data_list[bin_i] = exp_func(data_list[bin_i]) - 1.0
                 data = tf.stack(data_list, axis=-1)
             else:
