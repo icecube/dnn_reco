@@ -395,8 +395,22 @@ class NNModel(object):
             for var_name in opt_config['vars']:
                 var_list.extend(self.shared_objects['model_vars_' + var_name])
 
-            gvs = optimizer.compute_gradients(weighted_loss_sum,
-                                              var_list=var_list)
+            # apply regularization
+            if opt_config['l1_regularization'] > 0. or \
+                    opt_config['l2_regularization'] > 0.:
+
+                regularizer = tf.contrib.layers.l1_l2_regularizer(
+                                    scale_l1=opt_config['l1_regularization'],
+                                    scale_l2=opt_config['l2_regularization'])
+
+                reg_loss = tf.contrib.layers.apply_regularization(
+                                            regularizer, weights_list=var_list)
+                total_loss = weighted_loss_sum + reg_loss
+
+            else:
+                total_loss = weighted_loss_sum
+
+            gvs = optimizer.compute_gradients(total_loss, var_list=var_list)
 
             # remove nans in gradients and replace these with zeros
             remove_nan_gradients = False

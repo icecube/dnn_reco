@@ -173,6 +173,8 @@
 #   'loss_name': str or list of str, defines name of loss function
 #                If loss_file and loss_name are lists, they must have the same
 #                length. In this case, a sum of each loss will be performed
+#   'l1_regularization': Regularization strength (lambda) for L1-Regularization
+#   'l2_regularization': Regularization strength (lambda) for L2-Regularization
 # This structure might seem a bit confusing, but it enables the use of
 # different tensorflow optimizer operations, which can each apply to
 # different weights of the network and wrt different loss functions.
@@ -185,6 +187,8 @@
                   'vars' : ['pred', 'unc'],
                   'loss_file': 'default_loss',
                   'loss_name': 'mse',
+                  'l1_regularization': 0.,
+                  'l2_regularization': 0.,
                 },
 }
 
