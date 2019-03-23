@@ -373,14 +373,6 @@ class NNModel(object):
                         tf.zeros_like(label_loss))
             weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
 
-            self.shared_objects['label_loss_dict'] = {
-                'loss_label_' + name: weighted_label_loss,
-                'loss_sum_' + name: weighted_loss_sum,
-            }
-
-            tf.summary.histogram('loss_label_' + name, weighted_label_loss)
-            tf.summary.scalar('loss_sum_' + name, weighted_loss_sum)
-
             # get optimizer
             optimizer = getattr(tf.train,
                                 opt_config['optimizer'])(
@@ -410,6 +402,18 @@ class NNModel(object):
             else:
                 total_loss = weighted_loss_sum
 
+            # logging
+            self.shared_objects['label_loss_dict'] = {
+                'loss_label_' + name: weighted_label_loss,
+                'loss_sum_' + name: weighted_loss_sum,
+                'loss_sum_total_' + name: total_loss,
+            }
+
+            tf.summary.histogram('loss_label_' + name, weighted_label_loss)
+            tf.summary.scalar('loss_sum_' + name, weighted_loss_sum)
+            tf.summary.scalar('loss_sum_total_' + name, total_loss)
+
+            # get gradients
             gvs = optimizer.compute_gradients(total_loss, var_list=var_list)
 
             # remove nans in gradients and replace these with zeros
