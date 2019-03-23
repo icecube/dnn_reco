@@ -363,10 +363,14 @@ class NNModel(object):
                     label_loss += label_loss_i
 
             # weight label_losses
-            label_loss = tf.where(self.shared_objects['non_zero_mask'],
-                                  label_loss, tf.zeros_like(label_loss))
-            weighted_label_loss = label_loss * self.shared_objects[
-                                                            'label_weights']
+            # use nested where trick to avoid NaNs:
+            # https://stackoverflow.com/questions/33712178/tensorflow-nan-bug
+            label_loss_safe = tf.where(self.shared_objects['non_zero_mask'],
+                                       label_loss, tf.zeros_like(label_loss))
+            weighted_label_loss = tf.where(
+                        self.shared_objects['non_zero_mask'],
+                        label_loss_safe * self.shared_objects['label_weights'],
+                        tf.zeros_like(label_loss))
             weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
 
             self.shared_objects['label_loss_dict'] = {
@@ -609,7 +613,8 @@ class NNModel(object):
 
                 # every n steps: update label_weights
                 if i % self.config['validation_frequency'] == 0:
-                    new_weights = 1.0 / (np.sqrt(label_weight_mean) + 1e-3)
+                    new_weights = 1.0 / (np.sqrt(
+                                    np.abs(label_weight_mean) + 1e-6) + 1e-3)
                     new_weights[new_weights < 1] = 1
                     new_weights *= self.shared_objects['label_weight_config']
 
