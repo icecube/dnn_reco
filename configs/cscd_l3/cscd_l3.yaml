@@ -61,9 +61,9 @@
 'data_handler_label_file': 'default_labels'
 'data_handler_label_name': 'simple_label_loader'
 'data_handler_misc_file': 'default_misc'
-'data_handler_misc_name': 'dummy_misc_loader'
+'data_handler_misc_name': 'general_misc_loader'
 'data_handler_filter_file': 'default_filter'
-'data_handler_filter_name': 'dummy_filter'
+'data_handler_filter_name': 'general_filter'
 
 
 'data_handler_label_key': 'LabelsDeepLearning'
@@ -73,6 +73,35 @@
 'data_handler_relative_time_keys': []
 # lower case pattern
 'data_handler_relative_time_key_pattern': 'time'
+
+# --------------
+# Misc settings
+# --------------
+# The general_misc_loader will load the keys defined in the misc_load_dict
+# from the training files. The pattern is: 'hdf key': 'column'
+# These values will then be added to the misc values under the name:
+#     'hdf key'_'column'
+'misc_load_dict': {
+  'CscdL3_Cont_Tag': 'value',
+}
+
+# --------------
+# Filter settings
+# --------------
+# The general_filter will filter events according to the key value pairs
+# defined in the dicts filter_equal, filter_greater_than, filter_less_than
+# The keys used here must exist in the loaded misc names.
+
+# For events to pass filter, the following must be True: misc[key] == value
+'filter_equal': {
+  'CscdL3_Cont_Tag_value': 1.
+}
+# For events to pass filter, the following must be True: misc[key] > value
+'filter_greater_than': {
+}
+# For events to pass filter, the following must be True: misc[key] < value
+'filter_less_than': {
+}
 
 # --------------
 # Label settings
@@ -157,7 +186,7 @@
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 1000
-'trafo_model_path' : '../data/trafo_models/dnn_reco_cscd_l3_trafo_model.npy'
+'trafo_model_path' : '../data/trafo_models/dnn_reco_cscd_l3_misc_trafo_model.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : True

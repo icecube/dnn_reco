@@ -344,7 +344,7 @@ class DataHandler(object):
                             self._config['data_handler_filter_name'],
                         )
         filter_func = misc.load_class(class_string)
-        mask = filter_func(input_data, self._config, x_ic78, x_deepcore,
+        mask = filter_func(self, input_data, self._config, x_ic78, x_deepcore,
                            labels, misc_data, time_range_start)
 
         # mask out events not passing filter:
