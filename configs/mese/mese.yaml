@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'mese_publication'
+'unique_name': 'mese_publication_final'
 
 #---------------------------
 # General settings
@@ -82,7 +82,7 @@
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
-  # 'EnergyVisible': 0,
+  'EnergyVisible': 0.1,
   # 'VertexTime': 0,
   # 'LengthInDetector': 0,
   'PrimaryAzimuth': 1,
@@ -157,7 +157,7 @@
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 1000
-'trafo_model_path' : '../data/trafo_models/dnn_reco_mese_trafo_model.npy'
+'trafo_model_path' : '../data/trafo_models/dnn_reco_mese_pub_trafo_model.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : True
@@ -165,7 +165,6 @@
 'trafo_log_label_bins' : {
                             'EnergyVisible': True,
                             'PrimaryEnergy': True,
-                            'leading_energy_rel_entry': True,
                             'Length': True,
                          }
 'trafo_log_misc_bins' : False
@@ -204,9 +203,18 @@
   'simple_mse': {
                   'optimizer': 'AdamOptimizer',
                   'optimizer_settings': {'learning_rate': 0.001,},
-                  'vars' : ['pred', 'unc'],
+                  'vars' : ['pred'],
                   'loss_file': 'default_loss',
                   'loss_name': 'mse',
+                  'l1_regularization': 0.,
+                  'l2_regularization': 0.00001,
+                },
+  'gaussian_unc': {
+                  'optimizer': 'AdamOptimizer',
+                  'optimizer_settings': {'learning_rate': 0.001,},
+                  'vars' : ['unc'],
+                  'loss_file': 'default_loss',
+                  'loss_name': 'gaussian_likelihood',
                   'l1_regularization': 0.,
                   'l2_regularization': 0.00001,
                 },
