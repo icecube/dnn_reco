@@ -318,8 +318,11 @@ class NNModel(object):
         """
         optimizer_dict = dict(self.config['model_optimizer_dict'])
 
-        # create empy list to hold tensorflow optimizer operations
+        # create empty list to hold tensorflow optimizer operations
         optimizer_ops = []
+
+        # create empty dictionary to hold loss values
+        self.shared_objects['label_loss_dict'] = {}
 
         # create each optimizer
         for name, opt_config in optimizer_dict.items():
@@ -403,11 +406,11 @@ class NNModel(object):
                 total_loss = weighted_loss_sum
 
             # logging
-            self.shared_objects['label_loss_dict'] = {
+            self.shared_objects['label_loss_dict'].update({
                 'loss_label_' + name: weighted_label_loss,
                 'loss_sum_' + name: weighted_loss_sum,
                 'loss_sum_total_' + name: total_loss,
-            }
+            })
 
             tf.summary.histogram('loss_label_' + name, weighted_label_loss)
             tf.summary.scalar('loss_sum_' + name, weighted_loss_sum)
