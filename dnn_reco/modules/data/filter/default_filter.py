@@ -144,21 +144,21 @@ def general_filter(data_handler, input_data, config,  x_ic70, x_deepcore,
 
     # go through equal mask
     if 'filter_equal' in config:
-        for key, value in config['filter_equal']:
+        for key, value in config['filter_equal'].items():
             mask_true = np.logical_and(
                 mask_true,
                 misc_data[data_handler.misc_name_dict[key]] == value)
 
     # go through greater than mask
     if 'filter_greater_than' in config:
-        for key, value in config['filter_greater_than']:
+        for key, value in config['filter_greater_than'].items():
             mask_true = np.logical_and(
                 mask_true,
                 misc_data[data_handler.misc_name_dict[key]] > value)
 
     # go through less than mask
     if 'filter_less_than' in config:
-        for key, value in config['filter_less_than']:
+        for key, value in config['filter_less_than'].items():
             mask_true = np.logical_and(
                 mask_true,
                 misc_data[data_handler.misc_name_dict[key]] < value)
