@@ -134,7 +134,7 @@
 # Label settings
 # --------------
 # initialize label weights with this value
-'label_weight_initialization': 0.00001
+'label_weight_initialization': 0.0001
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
@@ -263,7 +263,7 @@
                   'loss_file': 'default_loss',
                   'loss_name': 'mse',
                   'l1_regularization': 0.,
-                  'l2_regularization': 0.00001,
+                  'l2_regularization': 0.00005,
                 },
   'gaussian_unc': {
                   'optimizer': 'AdamOptimizer',
@@ -272,7 +272,7 @@
                   'loss_file': 'default_loss',
                   'loss_name': 'gaussian_likelihood',
                   'l1_regularization': 0.,
-                  'l2_regularization': 0.00001,
+                  'l2_regularization': 0.00005,
                 },
 }
 
