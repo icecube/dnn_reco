@@ -115,7 +115,7 @@ class DataTransformer:
                                                 data_handler.label_shape[-1],
                                                 log_label_bins))
         if data_handler.misc_shape is not None:
-            if len(log_misc_bins) != data_handler.label_shape[-1]:
+            if len(log_misc_bins) != data_handler.misc_shape[-1]:
                 raise ValueError('{!r} != {!r}. Wrong log_bins: {!r}'.format(
                                                 len(log_misc_bins),
                                                 data_handler.misc_shape[-1],
