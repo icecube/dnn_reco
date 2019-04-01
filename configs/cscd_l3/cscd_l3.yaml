@@ -34,6 +34,17 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*Nu*/output/summaryV2_clipped/01000-01999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*Nu*/output/summaryV2_clipped/02000-02999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*Nu*/output/summaryV2_clipped/03000-03999/*.hdf5',
+
+    # MuonGun
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*MuonGun_low*/output/summaryV2_clipped/0*000-0*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*MuonGun_low*/output/summaryV2_clipped/1*000-1*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*MuonGun_low*/output/summaryV2_clipped/2*000-2*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*MuonGun_low*/output/summaryV2_clipped/3*000-3*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*MuonGun_low*/output/summaryV2_clipped/4*000-4*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*MuonGun_low*/output/summaryV2_clipped/5*000-5*999/*.hdf5',
+
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/cscd_l3/datasets/*MuonGun_medium*/output/summaryV2_clipped/0*000-0*999/*.hdf5',
+
   ]
 'validation_data_file' : [
     # NuGen
