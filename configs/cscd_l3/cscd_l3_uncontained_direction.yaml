@@ -194,7 +194,6 @@
 'trafo_log_label_bins' : {
                             'EnergyVisible': True,
                             'PrimaryEnergy': True,
-                            'leading_energy_rel_entry': True,
                             'Length': True,
                          }
 'trafo_log_misc_bins' : False
