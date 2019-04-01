@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'cscd_l3'
+'unique_name': 'cscd_l3_contained'
 
 #---------------------------
 # General settings
