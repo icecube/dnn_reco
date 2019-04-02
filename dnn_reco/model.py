@@ -702,9 +702,9 @@ class NNModel(object):
                 for name, index in self.data_handler.label_name_dict.items():
                     if updated_weights[index] > 0:
                         msg = '\tweight: {weight:2.3f},'
-                        msg += ' train: {train:2.3f}, val: {val:2.3f} [{name}'
-                        msg += ', mean: {mean_train:2.3f} {mean_val:2.3f}'
-                        msg += ', unc std: {unc_train:2.3f} {unc_val:2.3f} ]'
+                        msg += ' train: {train:2.3f} [{unc_train:1.2f}],'
+                        msg += 'val: {val:2.3f} [{unc_val:2.2f}] [{name}'
+                        msg += ', mean: {mean_train:2.3f} {mean_val:2.3f}]'
                         print(msg.format(
                             weight=updated_weights[index],
                             train=results_train['rmse_trafo'][index],
