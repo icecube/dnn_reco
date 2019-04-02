@@ -703,15 +703,24 @@ class NNModel(object):
                     if updated_weights[index] > 0:
                         msg = '\tweight: {weight:2.3f},'
                         msg += ' train: {train:2.3f}, val: {val:2.3f} [{name}'
-                        msg += ', mean: {mean_train:2.3f} {mean_val:2.3f}]'
+                        msg += ', mean: {mean_train:2.3f} {mean_val:2.3f}'
+                        msg += ', unc std: {unc_train:2.3f} {unc_val:2.3f} ]'
                         print(msg.format(
-                                    weight=updated_weights[index],
-                                    train=results_train['rmse_trafo'][index],
-                                    val=results_val['rmse_trafo'][index],
-                                    name=name,
-                                    mean_train=np.mean(y_true_train[:, index]),
-                                    mean_val=np.mean(y_true_val[:, index]),
-                                    ))
+                            weight=updated_weights[index],
+                            train=results_train['rmse_trafo'][index],
+                            val=results_val['rmse_trafo'][index],
+                            name=name,
+                            mean_train=np.mean(y_true_train[:, index]),
+                            mean_val=np.mean(y_true_val[:, index]),
+                            unc_train=np.std((results_train['y_pred'][:, index]
+                                              - y_true_train[:, index]) /
+                                             results_train['y_unc'][:, index],
+                                             ddof=1),
+                            unc_val=np.std((results_val['y_pred'][:, index]
+                                            - y_true_val[:, index]) /
+                                           results_val['y_unc'][:, index],
+                                           ddof=1),
+                            ))
 
                 # Call user defined evaluation method
                 if self.config['evaluation_file'] is not None:
