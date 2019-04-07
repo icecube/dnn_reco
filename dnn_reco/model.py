@@ -259,6 +259,36 @@ class NNModel(object):
         self.shared_objects['label_weight_config'] = label_weight_config
         self.shared_objects['non_zero_mask'] = label_weight_config > 0
 
+    def _create_tukey_vars(self):
+        """Create variables required for tukey loss
+        """
+        if self.config['label_scale_tukey']:
+            median_abs_dev = tf.Variable(
+                        np.ones(shape=self.data_handler.label_shape)*0.67449,
+                        name='median_abs_dev',
+                        trainable=False,
+                        dtype=self.config['tf_float_precision'])
+
+            self.shared_objects['new_median_abs_dev_values'] = tf.placeholder(
+                                        self.config['tf_float_precision'],
+                                        shape=self.data_handler.label_shape,
+                                        name='new_median_abs_dev_values')
+
+            tukey_decay = 0.05
+            self.shared_objects['assign_new_median_abs_dev_values'] = \
+                median_abs_dev.assign(
+                            median_abs_dev * (1. - tukey_decay) +
+                            self.shared_objects['new_median_abs_dev_values']
+                            * tukey_decay)
+
+        else:
+            median_abs_dev = tf.constant(
+                        np.ones(shape=self.data_handler.label_shape)*0.67449,
+                        shape=self.data_handler.label_shape,
+                        dtype=self.config['tf_float_precision'])
+
+        self.shared_objects['median_abs_dev'] = median_abs_dev
+
     def _create_label_weights(self):
         """Create label weights and update operation
         """
@@ -288,6 +318,7 @@ class NNModel(object):
                                     data_transformer=self.data_transformer,
                                     shared_objects=self.shared_objects)
 
+            self.shared_objects['y_diff_trafo'] = y_diff_trafo
             self.shared_objects['mse_values_trafo'] = tf.reduce_mean(
                                                     tf.square(y_diff_trafo), 0)
 
@@ -458,6 +489,9 @@ class NNModel(object):
 
         if self.is_training:
 
+            # create variables necessary for tukey loss
+            self._create_tukey_vars()
+
             # create label_weights and assign op
             self._create_label_weights()
 
@@ -595,6 +629,10 @@ class NNModel(object):
             train_ops['mse_values_trafo'] = \
                 self.shared_objects['mse_values_trafo']
 
+        # add op if tukey scaling is to be applied
+        if self.config['label_scale_tukey']:
+            train_ops['y_diff_trafo'] = self.shared_objects['y_diff_trafo']
+
         # ----------------
         # training loop
         # ----------------
@@ -605,6 +643,22 @@ class NNModel(object):
                                                 is_validation=False)
             train_result = self.sess.run(train_ops,
                                          feed_dict=feed_dict)
+
+            # -------------------------------------
+            # calculate variabels for tukey scaling
+            # -------------------------------------
+            if self.config['label_scale_tukey']:
+                batch_median_abs_dev = np.median(
+                                            np.abs(['y_diff_trafo']), axis=0)
+
+                # assign new label weight updates
+                feed_dict_assign = {
+                    self.shared_objects['new_median_abs_dev_values']:
+                        batch_median_abs_dev}
+
+                self.sess.run(
+                    self.shared_objects['assign_new_median_abs_dev_values'],
+                    feed_dict=feed_dict_assign)
 
             # --------------------------------------------
             # calculate online variabels for label weights

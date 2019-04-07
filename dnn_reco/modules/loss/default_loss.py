@@ -327,4 +327,21 @@ def tukey(config, data_handler, data_transformer, shared_objects,
         Shape: label_shape (same shape as labels)
 
     """
-    raise NotImplementedError()
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
+                                    config=config,
+                                    data_handler=data_handler,
+                                    data_transformer=data_transformer,
+                                    shared_objects=shared_objects)
+
+    y_diff_trafo_scaled = \
+        y_diff_trafo / (1.4826 * shared_objects['median_abs_dev'])
+
+    tukey_loss = tf.reduce_mean(tf.where(
+        tf.less(tf.abs(y_diff_trafo_scaled), c),
+        (c**2/6) * (1 - (1 - (y_diff_trafo_scaled/c)**2)**3),
+        tf.zeros_like(y_diff_trafo_scaled) + (c**2/6),
+        name='tukey_loss'), 0)
+
+    loss_utils.add_logging_info(data_handler, shared_objects)
+
+    return tukey_loss
