@@ -689,6 +689,10 @@ class NNModel(object):
                 results_val = self.sess.run(eval_dict, feed_dict=feed_dict_val)
                 y_true_train = feed_dict_train[self.shared_objects['y_true']]
                 y_true_val = feed_dict_val[self.shared_objects['y_true']]
+                y_true_trafo_train = self.data_transformer.transform(
+                                        y_true_trafo_train, data_type='label')
+                y_true_trafo_val = self.data_transformer.transform(
+                                        y_true_val, data_type='label')
 
                 self._train_writer.add_summary(
                                         results_train['merged_summary'], i)
@@ -705,11 +709,11 @@ class NNModel(object):
 
                         unc_pull_train = np.std(
                             (results_train['y_pred_trafo'][:, index]
-                             - y_true_train[:, index]) /
+                             - y_true_trafo_train[:, index]) /
                             results_train['y_unc_trafo'][:, index], ddof=1)
                         unc_pull_val = np.std(
                             (results_val['y_pred_trafo'][:, index]
-                             - y_true_val[:, index]) /
+                             - y_true_trafo_val[:, index]) /
                             results_val['y_unc_trafo'][:, index], ddof=1)
 
                         msg = '\tweight: {weight:2.3f},'
