@@ -654,7 +654,7 @@ class NNModel(object):
                 # assign new label weight updates
                 feed_dict_assign = {
                     self.shared_objects['new_median_abs_dev_values']:
-                        batch_median_abs_dev}
+                        np.clip(batch_median_abs_dev, 1e-6, float('inf'))}
 
                 self.sess.run(
                     self.shared_objects['assign_new_median_abs_dev_values'],
