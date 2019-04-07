@@ -690,7 +690,7 @@ class NNModel(object):
                 y_true_train = feed_dict_train[self.shared_objects['y_true']]
                 y_true_val = feed_dict_val[self.shared_objects['y_true']]
                 y_true_trafo_train = self.data_transformer.transform(
-                                        y_true_trafo_train, data_type='label')
+                                        y_true_train, data_type='label')
                 y_true_trafo_val = self.data_transformer.transform(
                                         y_true_val, data_type='label')
 
