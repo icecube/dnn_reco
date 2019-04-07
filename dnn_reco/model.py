@@ -274,7 +274,7 @@ class NNModel(object):
                                         shape=self.data_handler.label_shape,
                                         name='new_median_abs_dev_values')
 
-            tukey_decay = 0.05
+            tukey_decay = 0.001
             self.shared_objects['assign_new_median_abs_dev_values'] = \
                 median_abs_dev.assign(
                             median_abs_dev * (1. - tukey_decay) +

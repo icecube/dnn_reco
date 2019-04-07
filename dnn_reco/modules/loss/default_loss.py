@@ -302,6 +302,8 @@ def tukey(config, data_handler, data_transformer, shared_objects,
     has constant loss for very large residuals. This reduces the effect of
     outliers.
 
+    From Paper: 'Robust Optimization for Deep Regression'
+
     Parameters
     ----------
     config : dict
@@ -336,6 +338,7 @@ def tukey(config, data_handler, data_transformer, shared_objects,
     y_diff_trafo_scaled = \
         y_diff_trafo / (1.4826 * shared_objects['median_abs_dev'])
 
+    c = 4.6851
     tukey_loss = tf.reduce_mean(tf.where(
         tf.less(tf.abs(y_diff_trafo_scaled), c),
         (c**2/6) * (1 - (1 - (y_diff_trafo_scaled/c)**2)**3),
