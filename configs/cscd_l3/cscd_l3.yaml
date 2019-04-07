@@ -263,18 +263,18 @@
                   'optimizer_settings': {'learning_rate': 0.001,},
                   'vars' : ['pred'],
                   'loss_file': 'default_loss',
-                  'loss_name': 'mse',
+                  'loss_name': 'mse_and_cross_entropy',
                   'l1_regularization': 0.,
-                  'l2_regularization': 0.00005,
+                  'l2_regularization': 0.00001,
                 },
   'gaussian_unc': {
                   'optimizer': 'AdamOptimizer',
-                  'optimizer_settings': {'learning_rate': 0.001,},
+                  'optimizer_settings': {'learning_rate': 0.000001,},
                   'vars' : ['unc'],
                   'loss_file': 'default_loss',
                   'loss_name': 'gaussian_likelihood',
                   'l1_regularization': 0.,
-                  'l2_regularization': 0.00005,
+                  'l2_regularization': 0.00001,
                 },
 }
 
