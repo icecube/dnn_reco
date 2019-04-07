@@ -649,7 +649,7 @@ class NNModel(object):
             # -------------------------------------
             if self.config['label_scale_tukey']:
                 batch_median_abs_dev = np.median(
-                                            np.abs(['y_diff_trafo']), axis=0)
+                                np.abs(train_result['y_diff_trafo']), axis=0)
 
                 # assign new label weight updates
                 feed_dict_assign = {
