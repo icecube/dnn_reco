@@ -663,6 +663,7 @@ class NNModel(object):
                     'merged_summary': self._merged_summary,
                     'weights': self.shared_objects['label_weights_benchmark'],
                     'rmse_trafo': self.shared_objects['rmse_values_trafo'],
+                    'y_pred': self.shared_objects['y_pred'],
                     'y_pred_trafo': self.shared_objects['y_pred_trafo'],
                     'y_unc_trafo': self.shared_objects['y_unc_trafo'],
                 }
