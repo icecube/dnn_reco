@@ -145,7 +145,7 @@
 # Update label weights during training
 'label_update_weights': True
 # Scale median absolute residuals for tukey loss
-'label_scale_tukey': False
+'label_scale_tukey': True
 # Name of zenith direction label if it exists
 'label_zenith_key': PrimaryZenith
 # Name of azimuth direction label if it exists
@@ -236,18 +236,18 @@
                   'optimizer_settings': {'learning_rate': 0.001,},
                   'vars' : ['pred'],
                   'loss_file': 'default_loss',
-                  'loss_name': 'mse',
+                  'loss_name': 'tukey',
                   'l1_regularization': 0.,
-                  'l2_regularization': 0.000005,
+                  'l2_regularization': 0.000001,
                 },
   'gaussian_unc': {
                   'optimizer': 'AdamOptimizer',
-                  'optimizer_settings': {'learning_rate': 0.001,},
+                  'optimizer_settings': {'learning_rate': 0.000001,},
                   'vars' : ['unc'],
                   'loss_file': 'default_loss',
                   'loss_name': 'gaussian_likelihood',
                   'l1_regularization': 0.,
-                  'l2_regularization': 0.000005,
+                  'l2_regularization': 0.000001,
                 },
 }
 
