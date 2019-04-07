@@ -465,6 +465,8 @@ class DataTransformer:
             of the data mean to make sure that the transformed data is centered
             around zero. Usually this behaviour is desired. However, when
             transforming uncertainties, this might not be useful.
+            If false, it is assumed that uncertaintes are being transformed,
+            hence, the logarithm will not be applied.
 
         Returns
         -------
@@ -481,22 +483,23 @@ class DataTransformer:
             self._check_settings(data, data_type)
 
         # perform logarithm on bins
-        if np.all(self.trafo_model[log_name]):
-            # logarithm is applied to all bins: one operation
-            data = log_func(1.0 + data)
+        if bias_correction:
+            if np.all(self.trafo_model[log_name]):
+                # logarithm is applied to all bins: one operation
+                data = log_func(1.0 + data)
 
-        else:
-            # logarithm is only applied to some bins
-            if is_tf:
-                data_list = tf.unstack(data, axis=-1)
-                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
-                    if log_bin:
-                        data_list[bin_i] = log_func(1.0 + data_list[bin_i])
-                data = tf.stack(data_list, axis=-1)
             else:
-                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
-                    if log_bin:
-                        data[..., bin_i] = log_func(1.0 + data[..., bin_i])
+                # logarithm is only applied to some bins
+                if is_tf:
+                    data_list = tf.unstack(data, axis=-1)
+                    for bin_i, do_log in enumerate(self.trafo_model[log_name]):
+                        if do_log:
+                            data_list[bin_i] = log_func(1.0 + data_list[bin_i])
+                    data = tf.stack(data_list, axis=-1)
+                else:
+                    for bin_i, do_log in enumerate(self.trafo_model[log_name]):
+                        if do_log:
+                            data[..., bin_i] = log_func(1.0 + data[..., bin_i])
 
         # normalize data
         if self.trafo_model[normalize_name]:
@@ -529,6 +532,8 @@ class DataTransformer:
             of the data mean to make sure that the transformed data is centered
             around zero. Usually this behaviour is desired. However, when
             transforming uncertainties, this might not be useful.
+            If false, it is assumed that uncertaintes are being transformed,
+            hence, the exponential will not be applied.
 
         Returns
         -------
@@ -553,24 +558,25 @@ class DataTransformer:
                 data += self.trafo_model['{}_mean'.format(data_type.lower())]
 
         # undo logarithm on bins
-        if np.all(self.trafo_model[log_name]):
-            # logarithm is applied to all bins: one operation
-            data = exp_func(data) - 1.0
+        if bias_correction:
+            if np.all(self.trafo_model[log_name]):
+                # logarithm is applied to all bins: one operation
+                data = exp_func(data) - 1.0
 
-        else:
-            # logarithm is only applied to some bins
-            if is_tf:
-                data_list = tf.unstack(data, axis=-1)
-                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
-                    if log_bin:
-                        data_list[bin_i] = \
-                                tf.clip_by_value(data_list[bin_i], -60., 60.)
-                        data_list[bin_i] = exp_func(data_list[bin_i]) - 1.0
-                data = tf.stack(data_list, axis=-1)
             else:
-                for bin_i, log_bin in enumerate(self.trafo_model[log_name]):
-                    if log_bin:
-                        data[..., bin_i] = exp_func(data[..., bin_i]) - 1.0
+                # logarithm is only applied to some bins
+                if is_tf:
+                    data_list = tf.unstack(data, axis=-1)
+                    for bin_i, do_log in enumerate(self.trafo_model[log_name]):
+                        if do_log:
+                            data_list[bin_i] = \
+                                tf.clip_by_value(data_list[bin_i], -60., 60.)
+                            data_list[bin_i] = exp_func(data_list[bin_i]) - 1.0
+                    data = tf.stack(data_list, axis=-1)
+                else:
+                    for bin_i, do_log in enumerate(self.trafo_model[log_name]):
+                        if do_log:
+                            data[..., bin_i] = exp_func(data[..., bin_i]) - 1.0
 
         # cast back to original dtype
         if is_tf:

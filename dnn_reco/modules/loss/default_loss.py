@@ -34,6 +34,53 @@ All defined models must have the following signature:
 """
 
 
+def weighted_mse(config, data_handler, data_transformer, shared_objects,
+                 *args, **kwargs):
+    """Weighted mean squared error of transformed prediction and true values.
+
+    The MSE is weighted by the per event uncertainty estimate.
+
+    Parameters
+    ----------
+    config : dict
+        Dictionary containing all settings as read in from config file.
+    data_handler : :obj: of class DataHandler
+        An instance of the DataHandler class. The object is used to obtain
+        meta data.
+    data_transformer : :obj: of class DataTransformer
+        An instance of the DataTransformer class. The object is used to
+        transform data.
+    shared_objects : dict
+        A dictionary containg settings and objects that are shared and passed
+        on to sub modules.
+    *args
+        Variable length argument list.
+    **kwargs
+        Arbitrary keyword arguments.
+
+    Returns
+    -------
+    tf.Tensor
+        A tensorflow tensor containing the loss for each label.
+        Shape: label_shape (same shape as labels)
+
+    """
+
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
+                                    config=config,
+                                    data_handler=data_handler,
+                                    data_transformer=data_transformer,
+                                    shared_objects=shared_objects)
+
+    unc_trafo = tf.stop_gradient(shared_objects['y_unc_trafo'])
+    unc_trafo = tf.clip_by_value(unc_trafo, 1e-3, float('inf'))
+    mse_values_trafo = tf.reduce_mean(tf.square(y_diff_trafo / unc_trafo), 0)
+
+    loss_utils.add_logging_info(data_handler, shared_objects)
+
+    return mse_values_trafo
+
+
 def mse(config, data_handler, data_transformer, shared_objects,
         *args, **kwargs):
     """Mean squared error of transformed prediction and true values.
@@ -72,9 +119,12 @@ def mse(config, data_handler, data_transformer, shared_objects,
 
     mse_values_trafo = tf.reduce_mean(tf.square(y_diff_trafo), 0)
 
+    unc_diff = shared_objects['y_unc_trafo'] - tf.stop_gradient(y_diff_trafo)
+    mse_unc_values_trafo = tf.reduce_mean(unc_diff**2, 0)
+
     loss_utils.add_logging_info(data_handler, shared_objects)
 
-    return mse_values_trafo
+    return mse_values_trafo + mse_unc_values_trafo
 
 
 def abs(config, data_handler, data_transformer, shared_objects,
@@ -114,9 +164,12 @@ def abs(config, data_handler, data_transformer, shared_objects,
 
     abs_values_trafo = tf.reduce_mean(tf.abs(y_diff_trafo), 0)
 
+    unc_diff = shared_objects['y_unc_trafo'] - tf.stop_gradient(y_diff_trafo)
+    abs_unc_values_trafo = tf.reduce_mean(tf.abs(unc_diff), 0)
+
     loss_utils.add_logging_info(data_handler, shared_objects)
 
-    return abs_values_trafo
+    return abs_values_trafo + abs_unc_values_trafo
 
 
 def gaussian_likelihood(config, data_handler, data_transformer, shared_objects,
@@ -170,7 +223,11 @@ def gaussian_likelihood(config, data_handler, data_transformer, shared_objects,
 def mse_and_cross_entropy(config, data_handler, data_transformer,
                           shared_objects, *args, **kwargs):
     """Mean squared error of transformed prediction and true values.
-    Cross entropy loss for pid label variables (all labels starting with 'p_').
+    Cross entropy loss will be applied to labels for which logit tensors
+    are defined in shared_objects[logit_tensors]. These logit tensors must be
+    added to the shared_objects during building of the NN model.
+    This is necessary since using the logits directly is more numerically
+    stable than reverting the sigmoid function on the output of the model.
 
     Parameters
     ----------
@@ -197,7 +254,45 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
         Shape: label_shape (same shape as labels)
 
     """
-    raise NotImplementedError()
+
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
+                                    config=config,
+                                    data_handler=data_handler,
+                                    data_transformer=data_transformer,
+                                    shared_objects=shared_objects)
+
+    mse_values_trafo = tf.reduce_mean(tf.square(y_diff_trafo), 0)
+
+    logit_tensors = shared_objects['logit_tensors']
+
+    label_loss = []
+    for i, name in enumerate(data_handler.label_names):
+
+        # sanity check for correct ordering of labels
+        index = data_handler.get_label_index(name)
+        assert i == index, '{!r} != {!r}'.format(i, index)
+
+        # apply cross entropy if logits are provided
+        if name in logit_tensors:
+
+            assert name[0:2] == 'p_', \
+                'Are you sure {!r} is a classification label?'.format(name)
+
+            label_loss.append(tf.reduce_mean(
+                                tf.nn.sigmoid_cross_entropy_with_logits(
+                                        labels=shared_objects['y_true'][:, i],
+                                        logits=logit_tensors[name])))
+        else:
+            assert name[0:2] != 'p_', \
+                'Are you sure {!r} is not a classification label?'.format(name)
+
+            label_loss.append(mse_values_trafo[i])
+
+    label_loss = tf.stack(label_loss)
+
+    loss_utils.add_logging_info(data_handler, shared_objects)
+
+    return label_loss
 
 
 def tukey(config, data_handler, data_transformer, shared_objects,

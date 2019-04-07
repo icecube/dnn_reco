@@ -663,8 +663,8 @@ class NNModel(object):
                     'merged_summary': self._merged_summary,
                     'weights': self.shared_objects['label_weights_benchmark'],
                     'rmse_trafo': self.shared_objects['rmse_values_trafo'],
-                    'y_pred': self.shared_objects['y_pred'],
-                    'y_unc': self.shared_objects['y_unc'],
+                    'y_pred_trafo': self.shared_objects['y_pred_trafo'],
+                    'y_unc_trafo': self.shared_objects['y_unc_trafo'],
                 }
                 result_msg = ''
                 for k, loss in self.shared_objects['label_loss_dict'].items():
@@ -701,9 +701,19 @@ class NNModel(object):
                 # print info for each label
                 for name, index in self.data_handler.label_name_dict.items():
                     if updated_weights[index] > 0:
+
+                        unc_pull_train = np.std(
+                            (results_train['y_pred_trafo'][:, index]
+                             - y_true_train[:, index]) /
+                            results_train['y_unc_trafo'][:, index], ddof=1)
+                        unc_pull_val = np.std(
+                            (results_val['y_pred_trafo'][:, index]
+                             - y_true_val[:, index]) /
+                            results_val['y_unc_trafo'][:, index], ddof=1)
+
                         msg = '\tweight: {weight:2.3f},'
-                        msg += ' train: {train:2.3f} [{unc_train:1.2f}],'
-                        msg += 'val: {val:2.3f} [{unc_val:2.2f}] [{name}'
+                        msg += ' train: {train:2.3f} [{unc_pull_train:1.2f}],'
+                        msg += 'val: {val:2.3f} [{unc_pull_val:2.2f}] [{name}'
                         msg += ', mean: {mean_train:2.3f} {mean_val:2.3f}]'
                         print(msg.format(
                             weight=updated_weights[index],
@@ -712,14 +722,8 @@ class NNModel(object):
                             name=name,
                             mean_train=np.mean(y_true_train[:, index]),
                             mean_val=np.mean(y_true_val[:, index]),
-                            unc_train=np.std((results_train['y_pred'][:, index]
-                                              - y_true_train[:, index]) /
-                                             results_train['y_unc'][:, index],
-                                             ddof=1),
-                            unc_val=np.std((results_val['y_pred'][:, index]
-                                            - y_true_val[:, index]) /
-                                           results_val['y_unc'][:, index],
-                                           ddof=1),
+                            unc_pull_train=unc_pull_train,
+                            unc_pull_val=unc_pull_val,
                             ))
 
                 # Call user defined evaluation method
@@ -742,8 +746,8 @@ class NNModel(object):
             # save models
             # ----------------
             if i % self.config['save_frequency'] == 0:
-                self._save_training_config(i)
                 if self.config['model_save_model']:
+                    self._save_training_config(i)
                     self.saver.save(
                             sess=self.sess,
                             global_step=self._step_offset + i,

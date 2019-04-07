@@ -162,6 +162,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             self.non_zero_labels = [n for n, b in
                                     zip(self.data_handler.label_names,
                                         self.mask_labels) if b]
+            self.non_zero_log_bins = [l for l, b in zip(
+                                    self.data_transformer['log_label_bins'],
+                                    self.mask_labels) if b]
+
             self.mask_labels = np.expand_dims(self.mask_labels, axis=0)
 
     def Physics(self, frame):
@@ -183,12 +187,27 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         if self.data_handler.relative_time_keys:
             y_pred[self.mask_time] += self._container.global_time_offset.value
 
-        # Write I3Particle and prediction to frame
-        results = {name: float(value) for name, value in
-                   zip(self.non_zero_labels, y_pred[self.mask_labels])}
+        # Write prediction and uncertainty estimate to frame
+        results = {}
+        for name, pred, unc, log_label in zip(self.non_zero_labels,
+                                              y_pred[self.mask_labels]
+                                              y_unc[self.mask_labels],
+                                              self.non_zero_log_bins):
+            # save prediction
+            results[name] = float(pred)
+
+            # save uncertainty estimate
+            if log_label:
+                results[name + '_log_uncertainty'] = float(unc)
+            else:
+                results[name + '_uncertainty'] = float(unc)
+
+        # write time measurement to frame
         if self._measure_time:
             results['runtime_prediction'] = timeit.default_timer() - start_time
             results['runtime_preprocess'] = self._container.runtime.value
+
+        # write to frame
         frame[self._output_key] = dataclasses.I3MapStringDouble(results)
 
         # Create combined I3Particle

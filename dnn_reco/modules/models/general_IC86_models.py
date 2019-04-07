@@ -203,11 +203,19 @@ def general_model_IC86_opt4(is_training, config, data_handler,
             if k[0:2] == 'p_' and k not in config['label_pid_keys']:
                 raise ValueError('Did you forget about {!r}?'.format(k))
 
+        logit_tensors = {}
         for pid_key in config['label_pid_keys']:
             if pid_key in data_handler.label_names:
                 index_pid = data_handler.get_label_index(pid_key)
                 trafo_indices.append(index_pid)
+                logit_tensors[pid_key] = y_pred_list[index_pid]
                 y_pred_list[index_pid] = tf.sigmoid(y_pred_list[index_pid])
+
+        # save logit tensors. These will be needed if we want to use
+        # cross entropy as a loss function. Tensorflow's cross entropy
+        # functions use logits as input as opposed to sigmoid(logits) due
+        # to numerical stability.
+        shared_objects['logit_tensors'] = logit_tensors
 
         # put it back together
         y_pred = tf.stack(y_pred_list, axis=1)
@@ -251,6 +259,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                             **fc_unc_settings
                                             )
         y_unc_pred_trafo = uncertainty_layers[-1]
+        y_unc_pred_trafo = tf.abs(y_unc_pred_trafo) + 1e-3
 
     # -----------------------------------
     # print architecture
