@@ -171,6 +171,8 @@
 }
 # Update label weights during training
 'label_update_weights': True
+# Scale median absolute residuals for tukey loss
+'label_scale_tukey': False
 # Name of zenith direction label if it exists
 'label_zenith_key': PrimaryZenith
 # Name of azimuth direction label if it exists
