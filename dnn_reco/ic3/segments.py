@@ -19,6 +19,7 @@ def ApplyDNNRecos(
         models_dir='/data/user/mhuennefeld/DNN_reco/models/exported_models',
         cascade_key='MCCascade',
         measure_time=True,
+        num_cpus=1,
         ):
     """Apply DNN reco
 
@@ -45,6 +46,8 @@ def ApplyDNNRecos(
         'first_light_at_dom'.
     measure_time : bool, optional
         If True, the run-time will be measured.
+    num_cpus : int, optional
+        Number of CPU cores to use if CPUs are used instead of a GPU.
     """
     if isinstance(model_names, str):
         model_names = [model_names]
@@ -73,4 +76,5 @@ def ApplyDNNRecos(
                        DNNDataContainer=container,
                        OutputBaseName=output_key,
                        MeasureTime=measure_time,
+                       ParallelismThreads=num_cpus,
                        )
