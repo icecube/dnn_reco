@@ -190,7 +190,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # Write prediction and uncertainty estimate to frame
         results = {}
         for name, pred, unc, log_label in zip(self.non_zero_labels,
-                                              y_pred[self.mask_labels]
+                                              y_pred[self.mask_labels],
                                               y_unc[self.mask_labels],
                                               self.non_zero_log_bins):
             # save prediction
