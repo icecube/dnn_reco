@@ -162,9 +162,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             self.non_zero_labels = [n for n, b in
                                     zip(self.data_handler.label_names,
                                         self.mask_labels) if b]
-            self.non_zero_log_bins = [l for l, b in zip(
-                                    self.data_transformer['log_label_bins'],
-                                    self.mask_labels) if b]
+            self.non_zero_log_bins = \
+                [l for l, b in
+                 zip(self.data_transformer.trafo_model['log_label_bins'],
+                     self.mask_labels) if b]
 
             self.mask_labels = np.expand_dims(self.mask_labels, axis=0)
 
