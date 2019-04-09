@@ -119,7 +119,8 @@ def mse(config, data_handler, data_transformer, shared_objects,
 
     mse_values_trafo = tf.reduce_mean(tf.square(y_diff_trafo), 0)
 
-    unc_diff = shared_objects['y_unc_trafo'] - tf.stop_gradient(y_diff_trafo)
+    unc_diff = shared_objects['y_unc_trafo'] - \
+        tf.stop_gradient(tf.abs(y_diff_trafo))
     mse_unc_values_trafo = tf.reduce_mean(unc_diff**2, 0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
@@ -164,7 +165,8 @@ def abs(config, data_handler, data_transformer, shared_objects,
 
     abs_values_trafo = tf.reduce_mean(tf.abs(y_diff_trafo), 0)
 
-    unc_diff = shared_objects['y_unc_trafo'] - tf.stop_gradient(y_diff_trafo)
+    unc_diff = shared_objects['y_unc_trafo'] - \
+        tf.stop_gradient(tf.abs(y_diff_trafo))
     abs_unc_values_trafo = tf.reduce_mean(tf.abs(unc_diff), 0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
