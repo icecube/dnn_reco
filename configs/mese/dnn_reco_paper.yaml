@@ -7,22 +7,28 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'test_mese'
+'unique_name': 'dnn_reco_paper'
 
 #---------------------------
 # General settings
 #---------------------------
 'training_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/03000-03999/*.hdf5',
   ]
 'trafo_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/03000-03999/*.hdf5',
   ]
 'validation_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*04000.hdf5',
   ]
 'test_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/to_delete_test/test_dnn_reco/datasets/*/output/summaryV2_clipped/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*04000.hdf5',
   ]
 
 'tf_random_seed': 42
@@ -72,14 +78,29 @@
 # Label settings
 # --------------
 # initialize label weights with this value
-'label_weight_initialization': 1
+'label_weight_initialization': 0.0001
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
-  'EnergyVisible': 1,
-  'PrimaryDirectionX': 10,
-  'PrimaryDirectionY': 10,
-  'PrimaryDirectionZ': 10,
+  'EnergyVisible': 0.1,
+  'PrimaryEnergy': 0.1,
+  # 'VertexTime': 0,
+  # 'LengthInDetector': 0,
+  'PrimaryAzimuth': 1,
+  'PrimaryZenith': 1,
+  'PrimaryDirectionX': 3,
+  'PrimaryDirectionY': 3,
+  'PrimaryDirectionZ': 3,
+  # 'VertexX': 0,
+  # 'VertexY': 0,
+  # 'VertexZ': 0,
+  # 'p_starting': 0,
+  # 'p_starting_300m': 0,
+  # 'p_is_track': 0,
+  # 'p_entering': 0,
+  # 'p_entering_muon_single': 0,
+  # 'p_entering_muon_bundle': 0,
+  # 'p_outside_cascade': 0,
 }
 # Keys to use for I3Particle
 'label_particle_keys': {
@@ -128,7 +149,7 @@
 'num_training_iterations' : 100000000
 'validation_frequency' : 100
 'save_frequency' : 500
-'keep_probability_list' : [1.0, 1.0, 1.0, 1.0]
+'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
 'evaluation_file': default_evaluation
@@ -138,8 +159,8 @@
 # Trafo settings
 #---------------------------
 'trafo_num_jobs' : 25
-'trafo_num_batches' : 200
-'trafo_model_path' : '../data/trafo_models/test_mese_trafo_model.npy'
+'trafo_num_batches' : 1000
+'trafo_model_path' : '../data/trafo_models/dnn_reco_mese_pub_trafo_model.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : True
@@ -147,7 +168,6 @@
 'trafo_log_label_bins' : {
                             'EnergyVisible': True,
                             'PrimaryEnergy': True,
-                            'leading_energy_rel_entry': True,
                             'Length': True,
                          }
 'trafo_log_misc_bins' : False
@@ -192,13 +212,22 @@
                   'l1_regularization': 0.,
                   'l2_regularization': 0.00001,
                 },
+  # 'gaussian_unc': {
+  #                 'optimizer': 'AdamOptimizer',
+  #                 'optimizer_settings': {'learning_rate': 0.001,},
+  #                 'vars' : ['unc'],
+  #                 'loss_file': 'default_loss',
+  #                 'loss_name': 'gaussian_likelihood',
+  #                 'l1_regularization': 0.,
+  #                 'l2_regularization': 0.00001,
+  #               },
 }
 
 #----------------------
 # NN Model Architecture
 #----------------------
 'model_file' : 'general_IC86_models'
-'model_name' : 'general_model_IC86_opt4'
+'model_name' : 'general_model_IC86'
 'model_is_training' : True
 
 # 2D convolutional layer of upper DeepCore
@@ -276,21 +305,21 @@
 
 # Fully connected layer settings (Combine results from convolutions)
 'fc_settings': {
-    'fc_sizes': [300, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, False],
-    'activation_list': ['elu', ''],
+    'fc_sizes': [300, 100, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, True, False],
+    'activation_list': ['elu', 'elu', ''],
     'use_batch_normalisation_list': False,
-    'use_residual_list': [False, True],
+    'use_residual_list': [False, True, True],
     'max_out_size_list': ,
 }
 
 # Fully connected layer settings for uncertainty subnetwork
 'fc_unc_settings': {
-    'fc_sizes': [300, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, False],
-    'activation_list': ['elu', 'abs'],
+    'fc_sizes': [300, 300, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, True, False],
+    'activation_list': ['elu', 'elu', 'abs'],
     'use_batch_normalisation_list': False,
-    'use_residual_list': False,
+    'use_residual_list': [False, True, True],
     'max_out_size_list': ,
 }
 
