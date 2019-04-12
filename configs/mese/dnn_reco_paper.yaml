@@ -305,7 +305,7 @@
 
 # Fully connected layer settings (Combine results from convolutions)
 'fc_settings': {
-    'fc_sizes': [300, 100, -1], # last one will be overwritten with num labels
+    'fc_sizes': [300, 300, -1], # last one will be overwritten with num labels
     'use_dropout_list': [True, True, False],
     'activation_list': ['elu', 'elu', ''],
     'use_batch_normalisation_list': False,
