@@ -13,7 +13,6 @@
 # General settings
 #---------------------------
 'training_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/01000-01999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/02000-02999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/03000-03999/*.hdf5',
@@ -22,9 +21,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/06000-06999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/07000-07999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/08000-08999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/09000-09999/*.hdf5',
   ]
 'trafo_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/01000-01999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/02000-02999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/03000-03999/*.hdf5',
@@ -33,13 +32,13 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/06000-06999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/07000-07999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/08000-08999/*.hdf5',
-
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/09000-09999/*.hdf5',
   ]
 'validation_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/09000-09999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/*.hdf5',
   ]
 'test_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/09000-09999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/*.hdf5',
   ]
 
 'tf_random_seed': 42
