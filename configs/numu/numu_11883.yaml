@@ -203,7 +203,7 @@
 'trafo_model_path' : '../data/trafo_models/dnn_reco_11883_quality_trafo_model.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
-'trafo_normalize_misc_data' : True
+'trafo_normalize_misc_data' : False
 'trafo_log_dom_bins' : [True, True, True, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
                             'EnergyVisible': True,
