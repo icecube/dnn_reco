@@ -530,7 +530,7 @@ class DataHandler(object):
         file_counter_lock = multiprocessing.Lock()
 
         # create and randomly fill file_list queue
-        file_list_queue = multiprocessing.Queue(maxsize=0)
+        file_list_queue = multiprocessing.Manager().Queue(maxsize=0)
         number_of_files = 0
         if sample_randomly:
             np.random.shuffle(file_list)
