@@ -108,7 +108,7 @@
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
-  'LengthInDetector': 700,
+  'LabelsDeepLearning_LengthInDetector': 700,
 }
 # For events to pass filter, the following must be True: misc[key] < value
 'filter_less_than': {
