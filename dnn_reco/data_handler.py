@@ -65,8 +65,7 @@ class DataHandler(object):
         self._config = dict(config)
         self.num_bins = config['data_handler_num_bins']
 
-        # keep track of multiprocessing queues and processes
-        self._mp_queues = []
+        # keep track of multiprocessing processes
         self._mp_processes = []
 
         self.is_setup = False
@@ -550,9 +549,6 @@ class DataHandler(object):
         final_batch_queue = multiprocessing.Manager().Queue(
                                                     maxsize=batch_capacity)
 
-        self._mp_queues.extend([file_list_queue, data_batch_queue,
-                                final_batch_queue])
-
         def file_loader():
             """Helper Method to load files.
 
@@ -791,6 +787,3 @@ class DataHandler(object):
         time.sleep(1.)
         for process in self._mp_processes:
             process.join(timeout=1.0)
-
-        for queue in self._mp_queues:
-            queue.close()
