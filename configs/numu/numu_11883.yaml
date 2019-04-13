@@ -74,7 +74,7 @@
 'data_handler_misc_file': 'default_misc'
 'data_handler_misc_name': 'dummy_misc_loader'
 'data_handler_filter_file': 'default_filter'
-'data_handler_filter_name': 'dummy_filter'
+'data_handler_filter_name': 'general_filter'
 
 
 'data_handler_label_key': 'LabelsDeepLearning'
