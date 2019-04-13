@@ -84,6 +84,11 @@ def main(config_files):
     # kill multiprocessing queues and workers
     data_handler.kill()
 
+    print('\n=======================================')
+    print('= Successfully saved trafo model to:  =')
+    print('=======================================')
+    print('{!r}\n'.format(config['trafo_model_path']))
+
 
 if __name__ == '__main__':
     main()
