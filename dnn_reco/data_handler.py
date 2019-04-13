@@ -782,7 +782,7 @@ class DataHandler(object):
 
         return batch_iterator()
 
-    def kill():
+    def kill(self):
         """Kill Multiprocessing queues and workers
         """
         for process in self._mp_processes:
