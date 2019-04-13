@@ -4,6 +4,7 @@ import numpy as np
 import multiprocessing
 import glob
 import resource
+import time
 import timeit
 import os
 import ruamel.yaml as yaml
@@ -63,6 +64,10 @@ class DataHandler(object):
         # read input data
         self._config = dict(config)
         self.num_bins = config['data_handler_num_bins']
+
+        # keep track of multiprocessing queues and processes
+        self._mp_queues = []
+        self._mp_processes = []
 
         self.is_setup = False
 
@@ -545,6 +550,9 @@ class DataHandler(object):
         final_batch_queue = multiprocessing.Manager().Queue(
                                                     maxsize=batch_capacity)
 
+        self._mp_queues.extend([file_list_queue, data_batch_queue,
+                                final_batch_queue])
+
         def file_loader():
             """Helper Method to load files.
 
@@ -764,10 +772,25 @@ class DataHandler(object):
             process = multiprocessing.Process(target=file_loader, args=())
             process.daemon = True
             process.start()
+            self._mp_processes.append(process)
 
         process = multiprocessing.Process(target=data_queue_iterator,
                                           args=(sample_randomly,))
         process.daemon = True
         process.start()
+        self._mp_processes.append(process)
 
         return batch_iterator()
+
+    def kill():
+        """Kill Multiprocessing queues and workers
+        """
+        for process in self._mp_processes:
+            process.terminate()
+
+        time.sleep(1.)
+        for process in self._mp_processes:
+            process.join(timeout=1.0)
+
+        for queue in self._mp_queues:
+            queue.close()

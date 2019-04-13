@@ -81,6 +81,9 @@ def main(config_files):
         yaml.dump(config, yaml_file, default_flow_style=False)
     data_transformer.save_trafo_model(config['trafo_model_path'])
 
+    # kill multiprocessing queues and workers
+    data_handler.kill()
+
 
 if __name__ == '__main__':
     main()
