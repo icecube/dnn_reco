@@ -93,6 +93,7 @@
 #     'hdf key'_'column'
 'misc_load_dict': {
   'LabelsDeepLearning': 'LengthInDetector',
+  'CorsikaWeightMap': 'Multiplicity',
 }
 
 # --------------
@@ -104,6 +105,7 @@
 
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
+  'CorsikaWeightMap_Multiplicity': 1,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
@@ -249,7 +251,7 @@
                   'loss_file': 'default_loss',
                   'loss_name': 'mse',
                   'l1_regularization': 0.,
-                  'l2_regularization': 0.00001,
+                  'l2_regularization': 0.00000001,
                 },
   # 'gaussian_unc': {
   #                 'optimizer': 'AdamOptimizer',
