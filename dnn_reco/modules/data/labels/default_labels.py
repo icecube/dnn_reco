@@ -69,11 +69,15 @@ def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):
 
     with pd.HDFStore(input_data,  mode='r') as f:
         _labels = f[config['data_handler_label_key']]
+        time_offset = f[config['data_handler_time_offset_name']]['value']
 
     ignore_columns = ['Run', 'Event', 'SubEvent', 'SubEventStream', 'exists']
 
     if config['label_add_dir_vec']:
         ignore_columns.extend(['direction_x', 'direction_y', 'direction_z'])
+
+    if config['label_position_at_rel_time'] is not None:
+        ignore_columns.extend(['rel_pos_x', 'rel_pos_y', 'rel_pos_z'])
 
     if label_names is None:
         label_names = [n for n in _labels.keys().tolist()
@@ -101,58 +105,9 @@ def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):
         label_names.extend(['direction_x', 'direction_y', 'direction_z'])
         labels.extend([dir_x, dir_y, dir_z])
 
-    labels = np.array(labels, dtype=config['np_float_precision']).T
-
-    return labels, label_names
-
-
-def track_label_loader(input_data, config, label_names=None, *args, **kwargs):
-    """Loads general labels and has option to add position at a relative time
-    wrt the time range start.
-
-    Will load variables contained in the hdf5 field specified via
-    config['data_handler_label_key'].
-
-    Parameters
-    ----------
-    input_data : str
-            Path to input data file.
-    config : dict
-        Dictionary containing all settings as read in from config file.
-        Must contain:
-            'data_handler_label_key': str
-                The hdf5 key from which the labels will be loaded.
-            'label_add_dir_vec': bool
-                If true, the direction vector components will be calculated
-                on the fly and added to the labels. For this, the keys
-                'label_azimuth_key' and 'label_zenith_key' have to be provided.
-    label_names : None, optional
-        The names of the labels. This defines which labels to include as well
-        as the ordering.
-        If label_names is None, then all keys except event specificers will
-        be used.
-
-    *args
-        Variable length argument list.
-    **kwargs
-        Arbitrary keyword arguments.
-
-    Returns
-    -------
-    list of str
-        The names of the labels
-    """
-    labels, label_names = simple_label_loader(input_data=input_data,
-                                              config=config,
-                                              label_names=label_names,
-                                              *args, **kwargs)
-
-    with pd.HDFStore(input_data,  mode='r') as f:
-        _labels = f[config['data_handler_label_key']]
-        time_offset = f[config['data_handler_time_offset_name']]['value']
-
     # calculate position at relative time t (only makes sense for tracks)
-    if config['label_position_at_rel_time'] is not None:
+    if 'label_position_at_rel_time' in config and \
+            config['label_position_at_rel_time'] is not None:
         dir_x = _labels[config['label_dir_x_key']]
         dir_y = _labels[config['label_dir_y_key']]
         dir_z = _labels[config['label_dir_z_key']]
@@ -165,11 +120,10 @@ def track_label_loader(input_data, config, label_names=None, *args, **kwargs):
         y_at_t = _labels['VertexY'] + length * dir_y
         z_at_t = _labels['VertexZ'] + length * dir_z
 
-        rel_pos_labels = np.array([x_at_t, y_at_t, z_at_t],
-                                  dtype=config['np_float_precision']).T
-
         # add position at relative time to labels
         label_names.extend(['rel_pos_x', 'rel_pos_y', 'rel_pos_z'])
-        labels = np.concatenate((labels, rel_pos_labels), axis=1)
+        labels.extend([x_at_t, y_at_t, z_at_t])
+
+    labels = np.array(labels, dtype=config['np_float_precision']).T
 
     return labels, label_names
