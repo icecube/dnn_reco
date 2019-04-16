@@ -149,7 +149,7 @@ def track_label_loader(input_data, config, label_names=None, *args, **kwargs):
 
     with pd.HDFStore(input_data,  mode='r') as f:
         _labels = f[config['data_handler_label_key']]
-        time_offset = f[self._config['data_handler_time_offset_name']]['value']
+        time_offset = f[config['data_handler_time_offset_name']]['value']
 
     # calculate position at relative time t (only makes sense for tracks)
     if config['label_position_at_rel_time'] is not None:
