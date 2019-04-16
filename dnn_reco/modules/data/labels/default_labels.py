@@ -165,11 +165,11 @@ def track_label_loader(input_data, config, label_names=None, *args, **kwargs):
         y_at_t = _labels['VertexY'] + length * dir_y
         z_at_t = _labels['VertexZ'] + length * dir_z
 
-        # add position at relative time to labels
-        label_names.extend(['rel_pos_x', 'rel_pos_y', 'rel_pos_z'])
         rel_pos_labels = np.array([x_at_t, y_at_t, z_at_t],
                                   dtype=config['np_float_precision']).T
 
+        # add position at relative time to labels
+        label_names.extend(['rel_pos_x', 'rel_pos_y', 'rel_pos_z'])
         labels = np.concatenate((labels, rel_pos_labels), axis=1)
 
     return labels, label_names
