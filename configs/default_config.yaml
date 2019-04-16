@@ -104,6 +104,8 @@
 'label_dir_z_key': direction_z
 # Add direction vector components as labels
 'label_add_dir_vec': True
+# Add position at the provided relative time (relative to time range start)
+'label_position_at_rel_time':
 # Define pid keys. The labels defined here will be fors to range [0, 1]
 # (depends on the chosen neural network model)
 'label_pid_keys': [
