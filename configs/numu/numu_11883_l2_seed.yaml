@@ -204,7 +204,7 @@
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 1000
-'trafo_model_path' : '../data/trafo_models/dnn_reco_11883_quality_trafo_model.npy'
+'trafo_model_path' : '../data/trafo_models/dnn_reco_11883_l2_seed_trafo_model.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False
