@@ -1,5 +1,6 @@
 *.pyc
 .DS_Store
+build
 
 # exclude everything
 dnn_reco.egg-info/*
