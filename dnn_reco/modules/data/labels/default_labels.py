@@ -76,7 +76,8 @@ def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):
     if config['label_add_dir_vec']:
         ignore_columns.extend(['direction_x', 'direction_y', 'direction_z'])
 
-    if config['label_position_at_rel_time'] is not None:
+    if 'label_position_at_rel_time' in config and \
+            config['label_position_at_rel_time'] is not None:
         ignore_columns.extend(['rel_pos_x', 'rel_pos_y', 'rel_pos_z'])
 
     if label_names is None:
