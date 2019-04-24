@@ -21,7 +21,7 @@ components can be easily extendend and exchanged.
    :ref:`Get started and train your own Model<Getting Started>`
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    pages/about

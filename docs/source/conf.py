@@ -186,4 +186,6 @@ rst_prolog = """
 
 rst_epilog = """
 .. |dnn_reco| replace:: :mod:`DNN reco`
+.. |ic3_labels| replace:: :mod:`Ic3-labels`
+.. |ic3_data| replace:: :mod:`Ic3-data`
 """
