@@ -12,6 +12,9 @@ however, the framework is intended to be highly modularized such that all
 components can be easily extendend and exchanged.
 
 .. seealso::
+   :ref:`Start with the IceCube Bootcamp Tutorial<IceCube DNN Bootcamp>`
+
+.. seealso::
    :ref:`Learn more about the project<About the Project>`
 
 .. seealso::
@@ -27,6 +30,7 @@ components can be easily extendend and exchanged.
    pages/about
    pages/installation
    pages/tutorial
+   pages/bootcamp
    pages/config
    pages/documentation
    pages/code

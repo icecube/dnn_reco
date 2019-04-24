@@ -71,7 +71,8 @@ def correct_azimuth_residual(y_diff_trafo, config, data_handler,
         The residual tensor with corrected azimuth residual.
         Same shape and type as y_diff_trafo
     """
-    misc.print_warning('Correcting Azimuth for name pattern: {!r}'.format(
+    misc.print_warning(
+        'Correcting azimuth residuals for name pattern: {!r}'.format(
                                                                 name_pattern))
 
     # Assumes labels to be a vector, e.g. 1-dimensional

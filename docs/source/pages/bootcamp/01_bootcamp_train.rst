@@ -1,9 +1,10 @@
 .. IceCube DNN reconstruction
 
+.. _bootcamp_train:
 Train Model
 ***********
 
-Now that we have created our training data, we can move on to training the
+Now that we have installed |dnn_reco|, we can move on to training the
 neural network.
 We will have to perform two steps: create a data transformation model and then
 train the neural network.

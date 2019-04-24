@@ -37,17 +37,16 @@ The input data to our network will therefore consist of summary values
 calculated from the pulses of each DOM.
 The computed summary values for each DOM are:
 
-.. code-block:: python
 
-    1.) Total DOM charge
-    2.) Charge within 500ns of first pulse.
-    3.) Charge within 100ns of first pulse.
-    4.) Relative time of first pulse. (relative to total time offset)
-    5.) Charge weighted quantile with q = 0.2
-    6.) Charge weighted quantile with q = 0.5 (median)
-    7.) Relative time of last pulse. (relative to total time offset)
-    8.) Charge weighted mean pulse arrival time
-    9.) Charge weighted std of pulse arrival time
+    1. Total DOM charge
+    2. Charge within 500ns of first pulse.
+    3. Charge within 100ns of first pulse.
+    4. Relative time of first pulse. (relative to total time offset)
+    5. Charge weighted quantile with q = 0.2
+    6. Charge weighted quantile with q = 0.5 (median)
+    7. Relative time of last pulse. (relative to total time offset)
+    8. Charge weighted mean pulse arrival time
+    9. Charge weighted std of pulse arrival time
 
 The settings we will use to achieve this are:
 
