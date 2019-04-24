@@ -19,10 +19,10 @@
     '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_00000*.hdf5',
   ]
 'validation_data_file' : [
-    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_00001*.hdf5',
+    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/01000-01999/11883_*DOMPulseData_00001*.hdf5',
   ]
 'test_data_file' : [
-    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_00001*.hdf5',
+    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/01000-01999/11883_*DOMPulseData_00001*.hdf5',
   ]
 
 'tf_random_seed': 42

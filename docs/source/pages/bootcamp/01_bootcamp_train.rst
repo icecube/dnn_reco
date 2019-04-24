@@ -1,6 +1,7 @@
 .. IceCube DNN reconstruction
 
 .. _bootcamp_train:
+
 Train Model
 ***********
 
@@ -39,7 +40,7 @@ $DNN_HOME:
 
 .. code-block:: bash
 
-    sed -i -e 's,{insert_DNN_HOME},'"$DNN_HOME"',g' $CONFIG_DIR/getting_started.yaml
+    sed -i -e 's,{insert_DNN_HOME},/shared/dnn_reco_tutorial/,g' $CONFIG_DIR/getting_started.yaml
 
 
 Create Data Transformation Model

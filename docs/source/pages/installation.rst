@@ -43,7 +43,7 @@ In the following we will create a virtual environment with virtualenv.
 
     # Create virtualenv
     cd $DNN_HOME
-    virtualenv --no-site-packages dnn_reco_env
+    virtualenv --no-site-package dnn_reco_env
 
     # activate virtual environment
     source ${DNN_HOME}/dnn_reco_env/bin/activate
@@ -77,8 +77,8 @@ CUDA 8.0 available. You can use:
 .. code-block:: bash
 
     export CUDA_HOME=/data/user/mhuennefeld/software/condor_cuda3/cuda-8.0;
-    export PATH=$PATH:/data/user/mhuennefeld/software/condor_cuda3/cuda-8.0/bin
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/user/mhuennefeld/software/condor_cuda3/cuda-8.0/lib64
+    export PATH=$PATH:${CUDA_HOME}/bin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64
 
 
 Install DNN Reco
