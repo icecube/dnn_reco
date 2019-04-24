@@ -16,8 +16,8 @@ tutorial.
 
 .. code-block:: bash
 
-    # Define the directory, where we will store the configuration file
-    export CONFIG_DIR=$DNN_HOME/configs
+    # Define the directory, where we will store the training configuration file
+    export CONFIG_DIR=$DNN_HOME/configs/training
 
     # create the configuration directory
     mkdir --parents $CONFIG_DIR
@@ -26,7 +26,8 @@ tutorial.
     cp $DNN_HOME/repositories/dnn_reco/configs/tutorial/getting_started.yaml $CONFIG_DIR/
 
 We now need to edit the keys:
-`training_data_file`, `trafo_data_file`, 'validation_data_file', `test_data_file`,
+``training_data_file``, ``trafo_data_file``, ``validation_data_file``,
+``test_data_file``,
 so that they point to the paths of our training data.
 To train our model we are going to use the first 100 hdf5 files.
 The transformation model will be built by using the same files.
@@ -35,7 +36,7 @@ We can make these changes by hand or by executing the following commands:
 
 .. code-block:: bash
 
-    provide sed command
+    sed -i -e 's,{insert_DNN_HOME},'"$DNN_HOME"',g' getting_started.yaml
 
 
 Create Data Transformation Model

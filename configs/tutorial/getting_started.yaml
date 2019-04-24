@@ -13,16 +13,16 @@
 # General settings
 #---------------------------
 'training_data_file' : [
-    '{insert_path}/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000000*.hdf5',
+    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000000*.hdf5',
   ]
 'trafo_data_file' : [
-    '{insert_path}/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000000*.hdf5',
+    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000000*.hdf5',
   ]
 'validation_data_file' : [
-    '{insert_path}/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000001*.hdf5',
+    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000001*.hdf5',
   ]
 'test_data_file' : [
-    '{insert_path}/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000001*.hdf5',
+    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_000001*.hdf5',
   ]
 
 'tf_random_seed': 42
