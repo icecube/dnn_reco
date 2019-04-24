@@ -151,8 +151,8 @@ To process a single file, you can also directly execute the shell script:
     # process file number 0 (part of our training set)
     $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/00000-00999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00000000.sh
 
-    # process file number 100 (part of our validation set)
-    $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/00000-00999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00000100.sh
+    # process file number 1000 (part of our validation set)
+    $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/00000-00999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00001000.sh
 
 To test the rest of the tutorial, it is enough to process one file
 from the training and validation set.

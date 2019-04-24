@@ -11,7 +11,7 @@ In this tutorial we will learn how to:
 * :ref:`Monitor the training progress<Monitor Progress>`
 * :ref:`Export and apply our trained model to IceCube i3 files<Apply Model>`
 
-We will use NuMu NuGen files (first 110 files of dataset 11883) to train a
+We will use NuMu NuGen files (first 1010 files of dataset 11883) to train a
 deep convolutional neural network that will predict the energy of the muon as
 it enters the convex hull around the IceCube detector.
 

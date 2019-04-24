@@ -30,9 +30,9 @@ We now need to edit the keys:
 ``training_data_file``, ``trafo_data_file``, ``validation_data_file``,
 ``test_data_file``,
 so that they point to the paths of our training data.
-To train our model we are going to use the first 100 hdf5 files.
+To train our model we are going to use the first 1000 hdf5 files.
 The transformation model will be built by using the same files.
-Our validation and test data are files 100 to 109.
+Our validation and test data are files 1000 to 1009.
 We can make these changes by hand or by executing the following command which
 will replace the string '{insert_DNN_HOME}' with our environment variable
 $DNN_HOME:
