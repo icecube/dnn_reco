@@ -213,6 +213,10 @@ class NNModel(object):
                                 )
         nn_model = misc.load_class(class_string)
 
+        print('\n----------------------')
+        print('Now Building Model ...')
+        print('----------------------\n')
+
         y_pred_trafo, y_unc_trafo, model_vars_pred, model_vars_unc = nn_model(
                                         is_training=self.is_training,
                                         config=self.config,
@@ -240,7 +244,7 @@ class NNModel(object):
             tf.summary.histogram('y_pred_' + name, y_pred_list[i])
 
         # count number of trainable parameters
-        print('Number of free parameters in NN model: {}'.format(
+        print('Number of free parameters in NN model: {}\n'.format(
                     self.count_parameters(self.shared_objects['model_vars'])))
 
         # create saver

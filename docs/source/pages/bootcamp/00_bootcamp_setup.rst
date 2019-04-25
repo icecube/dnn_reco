@@ -14,10 +14,33 @@ Setup Environment
 
 To facilitate the installation process we will define and create necessary
 environment variables here.
+Unfortunately we can not use the local anaconda and icecube installation
+since the hdf5 version is slightly different than what we have available on
+NPX to create the training files.
+We will therefore clear environment variables and instead use a cvmfs
+python with the following slightly dirty hack:
 
 .. code-block:: bash
 
+    # -----------
+    # clear shell
+    # -----------
+    unset I3_SHELL
+    unset I3_SRC
+    unset I3_TESTDATA
+    unset I3_DATA
+    unset I3_BUILD
+    unset I3_PLATFORM
+
+    PATH=$(echo "$PATH" | sed -e 's|/opt/icetray/combo/build/bin:||')
+    LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH" | sed -e 's|/opt/icetray/combo/build/lib/tools:||')
+    LD_LIBRARY_PATH=$(echo "$LD_LIBRARY_PATH" | sed -e 's|/opt/icetray/combo/build/lib:||')
+    PYTHONPATH=$(echo "$PYTHONPATH" | sed -e 's|/opt/icetray/combo/build/lib:||')
+    # -----------
+
+    # Use python and icecube metaproject from cvmfs
     eval $(/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh)
+    source /shared/dnn_reco_tutorial/software/parasitic_icerec/build/env-shell.sh
 
     # use CUDA 10.0 (latest supported version by pip install tensorflow-gpu)
     export CUDA_HOME=/shared/dnn_reco_tutorial/cuda-10.0;
@@ -43,6 +66,8 @@ In the following we will create a virtual environment with virtualenv.
 
     # activate virtual environment
     source ${DNN_HOME}/dnn_reco_env/bin/activate
+
+..    # make sure h5py is not newly installed in virtual env (pip uninstall h5py)
 
 
 
@@ -76,6 +101,9 @@ We are now ready to install the necessary prerequisites and |dnn_reco|.
     pip install -e  ${DNN_HOME}/repositories/ic3-data
     pip install -e  ${DNN_HOME}/repositories/ic3-labels
     pip install -e  ${DNN_HOME}/repositories/dnn_reco
+
+    # uninstall h5py (problems with hdf5 version...)
+    pip uninstall h5py
 
 Verify Installation
 ===================

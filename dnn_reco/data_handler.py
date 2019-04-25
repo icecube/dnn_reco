@@ -430,8 +430,9 @@ class DataHandler(object):
         There are 3 levels:
 
             1) A number of 'num_jobs' workers load files from the file list
-               into memory and extract dom_responses and cascade_parameters.
-               The events (dom_responses, cascade_parameters) of the loaded
+               into memory and extract the DOM input data, labels, and misc
+               data if defined.
+               The events (input data, labels, misc data) of the loaded
                file is then queued onto a multiprocessing queue named
                'data_batch_queue'.
 
@@ -447,7 +448,7 @@ class DataHandler(object):
             3) The third level consists of the actual generator object.
                It pops elements off of the 'final_batch_queue' and yields
                these as the desired batches of
-               (dom_responses, cascade_parameters).
+               (input data, labels, misc data).
 
         Parameters
         ----------
