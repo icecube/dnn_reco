@@ -277,7 +277,7 @@
 'conv_upper_DeepCore_settings': {
     'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 7], [1, 7], [1, 7], [1, 5],
                          [1, 5], [1, 5], [1, 1], [1, 1]],
-    'num_filters_list': [200, 200, 200, 200, 200, 200, 200, 200],
+    'num_filters_list': [150, 150, 150, 150, 150, 150, 150, 150],
     'pooling_type_list': [False, False, 'max', False, False, 'max', False, False],
     'pooling_strides_list': [1, 1, 2, 1],
     'pooling_ksize_list': [1, 1, 2, 1],
@@ -293,8 +293,8 @@
 'conv_lower_DeepCore_settings': {
     'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9],
                          [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 1], [1, 1]],
-    'num_filters_list': [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,
-                         200, 200, 200],
+    'num_filters_list': [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,
+                         150, 150, 150],
     'pooling_type_list': [False, False, 'max',
                           False, False, 'max',
                           False, False, 'max',
@@ -312,12 +312,12 @@
 
 # 3D hexagonal convolution over main IceCube array (IC78)
 'conv_IC78_settings' : {
-    'filter_size_list': [[3, 0, 7], [3, 0, 7], [3, 0, 7], [3, 0, 7], [2, 0, 17],
-                         [3, 0, 7], [3, 0, 7], [2, 0, 17], [3, 0, 7], [2, 0, 5],
-                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5],
-                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [1, 0, 3], [1, 0, 1]],
-    'num_filters_list': [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,
-                         200, 200, 200, 200, 200, 200, 200],
+    'filter_size_list': [[2, 0, 3], [2, 0, 3], [1, 0, 15], [2, 0, 3], [1, 0, 15],
+                         [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
+                         [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
+                         [2, 0, 3], [2, 0, 3], [2, 0, 3], [1, 0, 3], [1, 0, 1]],
+    'num_filters_list': [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,
+                         150, 150, 150, 150, 150, 150, 150],
     'pooling_type_list': [False, False, 'max', False, False, False, False,
                           False,'max', False, False, False, False, False, 'max',
                           False, False, 'max', False, False],
