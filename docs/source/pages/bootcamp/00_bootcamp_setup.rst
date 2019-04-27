@@ -9,6 +9,8 @@ We will use https://hub.gzk.io/ for this tutorial.
 After you have logged in, we will open a terminal to
 setup the environment and to install |dnn_reco|.
 
+.. _bootcamp_setup_environment:
+
 Setup Environment
 =================
 
@@ -70,6 +72,7 @@ In the following we will create a virtual environment with virtualenv.
 ..    # make sure h5py is not newly installed in virtual env (pip uninstall h5py)
 
 
+.. _bootcamp_install_dnn_reco:
 
 Install DNN Reco
 ================
@@ -104,6 +107,8 @@ We are now ready to install the necessary prerequisites and |dnn_reco|.
 
     # uninstall h5py (problems with hdf5 version...)
     pip uninstall h5py
+
+.. _bootcamp_verify_installation:
 
 Verify Installation
 ===================

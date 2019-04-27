@@ -42,6 +42,7 @@ training data resides in (``/shared/dnn_reco_tutorial/trainin_data``):
 
     sed -i -e 's,{insert_DNN_HOME},/shared/dnn_reco_tutorial/,g' $CONFIG_DIR/getting_started.yaml
 
+.. _bootcamp_create_data_transformation_model:
 
 Create Data Transformation Model
 ================================
@@ -118,7 +119,7 @@ We are going to highlight a few options in the following:
 
 Once we are certain that we filled in the correct values, we can create
 the data transformation model.
-This step needs to process data as defined in the `trafo_data_file` key,
+This step needs to process data as defined in the ``trafo_data_file`` key,
 because the mean and standard deviation depend on the data.
 
 .. code-block:: bash
@@ -140,6 +141,7 @@ Upon succesful completion this should print:
 
 
 
+.. _bootcamp_train_neural_network_model:
 
 Train Neural Network Model
 ==========================
@@ -218,7 +220,8 @@ To start training we run:
     # In this case, we will run on GPU 0.
     CUDA_VISIBLE_DEVICES=0 python train_model.py $CONFIG_DIR/getting_started.yaml
 
-This will run indefinetely until we kill the process via ``ctrl + c``.
+This will run for ``num_training_iterations`` many iterations or
+ until we kill the process via ``ctrl + c``.
 The current model is saved every ``save_frequency`` (default value: 500)
 iterations, so you may abort and restart at any time.
 

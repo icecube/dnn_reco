@@ -1,5 +1,7 @@
 .. IceCube DNN reconstruction
 
+.. _create_training_data:
+
 Create Training Data
 ********************
 

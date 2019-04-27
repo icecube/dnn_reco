@@ -1,5 +1,7 @@
 .. IceCube DNN reconstruction
 
+.. _apply_model:
+
 Apply Model
 ***********
 

@@ -1,15 +1,17 @@
 .. IceCube DNN reconstruction
 
+.. _getting_started:
+
 Getting Started
 ***************
 
 In this tutorial we will learn how to:
 
 
-* :ref:`Create training data from IceCube i3 files<Create Training Data>`
-* :ref:`Train our neural network model<Train Model>`
-* :ref:`Monitor the training progress<Monitor Progress>`
-* :ref:`Export and apply our trained model to IceCube i3 files<Apply Model>`
+* :ref:`Create training data from IceCube i3 files<create_training_data>`
+* :ref:`Train our neural network model<train_model>`
+* :ref:`Monitor the training progress<monitor_progress>`
+* :ref:`Export and apply our trained model to IceCube i3 files<apply_model>`
 
 We will use NuMu NuGen files (first 1010 files of dataset 11883) to train a
 deep convolutional neural network that will predict the energy of the muon as
@@ -18,7 +20,7 @@ it enters the convex hull around the IceCube detector.
 figure of IceCube detecotr and muon entering it?
 figure of Energy Resolution?
 
-:ref:`Let's get started!<General Remarks>`
+:ref:`Let's get started!<general_remarks>`
 
 .. toctree::
    :maxdepth: 2

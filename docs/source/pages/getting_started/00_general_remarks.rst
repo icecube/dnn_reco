@@ -1,5 +1,7 @@
 .. IceCube DNN reconstruction
 
+.. _general_remarks:
+
 General Remarks
 ***************
 

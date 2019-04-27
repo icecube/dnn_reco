@@ -1,5 +1,7 @@
 .. IceCube DNN reconstruction
 
+.. _installation_and_requirements:
+
 Installation and Requirements
 *****************************
 
@@ -54,6 +56,8 @@ Install Prerequisites and DNN reco
 
 We are now ready to install the necessary prerequisites and |dnn_reco|.
 
+.. _install_tensorflow:
+
 Install Tensorflow
 ------------------
 
@@ -81,6 +85,8 @@ CUDA 8.0 available. You can use:
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64
 
 
+.. _install_dnn_reco:
+
 Install DNN Reco
 ----------------
 
@@ -106,6 +112,8 @@ Install DNN Reco
     pip install -e  ${DNN_HOME}/repositories/ic3-data
     pip install -e  ${DNN_HOME}/repositories/ic3-labels
     pip install -e  ${DNN_HOME}/repositories/dnn_reco
+
+.. _verify_installation:
 
 Verify Installation
 -------------------
