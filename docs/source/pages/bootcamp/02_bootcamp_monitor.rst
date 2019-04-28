@@ -1,6 +1,7 @@
 .. IceCube DNN reconstruction
 
 .. _bootcamp_monitor:
+
 Monitor Progress
 ****************
 
@@ -16,6 +17,8 @@ second terminal and executing:
 
     # to update every 3 seconds we can do
     watch -n 3 nvidia-smi
+
+.. figure:: ../figures/nvidia-smi.png
 
 If the GPU utilization is too low, this often means, that the neural network
 is not being fed data fast enough.
@@ -88,6 +91,8 @@ just add these with the standard functions from the ``tf.summary`` module
 in your custom modules.
 Variables that need to be logged are collected via ``tf.summary.merge_all()``
 before the training procedure starts.
+
+.. figure:: ../figures/tensorboard.png
 
 We can then use tensorboard to render these logs.
 

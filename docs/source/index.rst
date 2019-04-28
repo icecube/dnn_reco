@@ -11,6 +11,14 @@ The default neural network model is a deep convolutional neural network,
 however, the framework is intended to be highly modularized such that all
 components can be easily extendend and exchanged.
 
+.. figure:: pages/figures/BelowICL.jpg
+
+    Credit: IceCube/NSF
+
+..  ad image:: pages/figures/Machine-Learning.jpg
+    :align: center
+.. comment image:: pages/figures/nina-z-1209025-unsplash_cropped.jpg
+
 .. seealso::
    :ref:`Start with the IceCube Bootcamp Tutorial<IceCube DNN Bootcamp>`
 

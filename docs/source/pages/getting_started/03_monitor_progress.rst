@@ -18,7 +18,7 @@ second terminal and executing:
     # to update every 3 seconds we can do
     watch -n 3 nvidia-smi
 
-<<Figure of nvidia-smi output>>
+.. figure:: ../figures/nvidia-smi.png
 
 If the GPU utilization is too low, this often means, that the neural network
 is not being fed data fast enough.
@@ -92,7 +92,7 @@ in your custom modules.
 Variables that need to be logged are collected via ``tf.summary.merge_all()``
 before the training procedure starts.
 
-<<Figure of tensorboard>>
+.. figure:: ../figures/tensorboard.png
 
 We can then use tensorboard to render these logs.
 
