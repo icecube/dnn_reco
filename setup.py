@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-exec(compile(open('version.py', "rb").read(),
-             'version.py',
+exec(compile(open('dnn_reco/__init__.py', "rb").read(),
+             'dnn_reco/__init__.py',
              'exec'))
 
 setup(name='dnn_reco',
