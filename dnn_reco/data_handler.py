@@ -299,7 +299,8 @@ class DataHandler(object):
         for value_row, index_row in zip(bin_values.itertuples(),
                                         bin_indices.itertuples()):
             if value_row[1:5] != index_row[1:5]:
-                raise ValueError('Values and Indices not in same order!')
+                raise ValueError(
+                        'Event headers do not match! HDF5 version error?')
             string = index_row[6]
             dom = index_row[7] - 1
             index = eventIDDict[(index_row[1:5])]
