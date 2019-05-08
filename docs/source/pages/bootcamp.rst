@@ -16,10 +16,17 @@ We will use NuMu NuGen files (first 1010 files of dataset 11883) to train a
 deep convolutional neural network that will predict the energy of the muon as
 it enters the convex hull around the IceCube detector.
 
-figure of IceCube detecotr and muon entering it?
-figure of Energy Resolution?
-
 :ref:`Let's get started!<bootcamp_setup>`
+
+.. image:: figures/scatter_PrimaryMuonEnergyEntry_compare_BINS.png
+    :width: 49 %
+.. image:: figures/scatter_PrimaryMuonEnergyEntry_compare_DOMS.png
+    :width: 49 %
+
+.. image:: figures/scatter_PrimaryMuonEnergyEntry_compare_MuEx.png
+    :width: 49 %
+.. image:: figures/scatter_PrimaryMuonEnergyEntry_compare_DNN.png
+    :width: 49 %
 
 .. toctree::
    :maxdepth: 2

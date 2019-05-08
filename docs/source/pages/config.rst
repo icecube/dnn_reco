@@ -3,15 +3,11 @@
 Configuration Options
 *********************
 
-General information about modularity, scripts/steps to run
-
-Steering by one central config file
-
-List of all config options (ideally in a way so that they are searchable!)
-with references to corresponding code/module
-
-config files may contain more options and keys than specified here.
-
+The |dnn_reco|-framework uses a central configuration file to define
+the settings for the various steps.
+Configuration options used by the default models
+are described in the following.
+Configuration files may contain more options and keys than specified here.
 Any custom model may use and define options.
 
 General Settings
@@ -220,43 +216,88 @@ Label Settings
 ==============
 
 ``label_weight_initialization``:
-    f
+    A weighting can be applied to the labels to focus on certain labels
+    in the training process.
+    The loss is computed as a vector where each entry corresponds to the loss
+    for that given label.
+    This vector is then multiplied by the weights for each label.
+    The ``label_weight_initialization``-key defines the default weight for
+    the labels.
 
 ``label_weight_dict``:
-    f
+    A weighting can be applied to the labels to focus on certain labels
+    in the training process.
+    The loss is computed as a vector where each entry corresponds to the loss
+    for that given label.
+    This vector is then multiplied by the weights for each label.
+    The default weight for all labels is set to the specified value in
+    the ``label_weight_initialization``-key.
+    The ``label_weight_dict`` is a dictionary where you can define the weights
+    for certain labels.
+    The syntax is: {label_name: label_weight}.
 
 ``label_particle_keys``:
-    f
+    This defines which labels will be used to populate the I3Particle when
+    the model is being applied to new events.
+    Optional keys include:
+    `energy`, `time`, `length`, `dir_x`, `dir_y`, `dir_z`,
+    `pos_x`, `pos_y`, `pos_z`.
+    If the keys are not defined in the ``label_particle_keys`` dictionary,
+    the I3Particle will be populated with NaNs instead.
+    The I3Particle will be written to: {output_name}_I3Particle.
+    Additionally, a key with all labels with weights greater than zero will
+    be saved to: {output_name}.
+
 
 ``label_update_weights``:
-    f
+    If set to True,
+    this will update the label weights during the training process
+    to ensure that labels are learnt according to their difficulty.
+    The weights of each label will be scaled by the inverse RMSE
+    of that label, which is calculated with a moving average
+    over the past training iterations.
 
 ``label_scale_tukey``:
-    f
+    If set to True, the median absolute residuals that is used for
+    the tukey loss will be updated via a moving average over the last
+    training iterations.
+    This key is only relevant, if the chosen loss function is tukey.
 
 ``label_zenith_key``:
-    f
+    Specifies the name of the zenith direction label if it exists.
 
 ``label_azimuth_key``:
-    f
+    Specifies the name of the azimuth direction label if it exists.
 
 ``label_dir_x_key``:
-    f
+    Specifies the name of the direction vector x-component label if it exists.
 
 ``label_dir_y_key``:
-    f
+    Specifies the name of the direction vector y-component label if it exists.
 
 ``label_dir_z_key``:
-    f
+    Specifies the name of the direction vector z-component label if it exists.
 
 ``label_add_dir_vec``:
-    f
+    This key is used inside the ``simple_label_loader`` function.
+    If True, direction vector components will be calculated on the fly
+    from the given azimuth and zenith labels as specified in the
+    ``label_azimuth_key`` and ``label_zenith_key``, respectively.
+    These will be added as labels under the names:
+    `direction_x`, `direction_y`, `direction_z`.
 
 ``label_position_at_rel_time``:
-    f
+    This key is used inside the ``simple_label_loader`` function.
+    If True, the position at a certain time (relative to time offset of event)
+    based on the vertex and particle direction will be calculated on the fly
+    and added as labels under the names:
+    `rel_pos_x`, `rel_pos_y`, `rel_pos_z`.
+    The position is given as: vertex + dir * delta_t * c.
 
 ``label_pid_keys``:
-    f
+    This key is used by the default network architectures.
+    It defines a list of binary classification labels.
+    The labels specified in this list will be forced to the value range (0, 1).
 
 
 General Training Settings
@@ -343,43 +384,98 @@ NN Model Training
 =================
 
 ``model_checkpoint_path``:
-    f
+    The path to the checkpoint directory.
+    This is the directory to which the model will be saved and also where
+    it will be loaded from.
+    You can use other keys as variables in the string:
+    ``model_checkpoint_path = model_checkpoint_path.format(**config)``
+    will be applied.
 
 ``model_restore_model``:
-    f
+    If set to True, the model will be loaded if a previous model was saved
+    to the directory specified by the ``model_checkpoint_path``-key.
+    If set to False, the model will be re-iniatlized, e.g. training will
+    begin from scratch.
 
 ``model_save_model``:
-    f
+    If set to True, the model will be saved after every ``save_frequency``
+    training steps.
 
 ``model_optimizer_dict``:
-    f
+    This dictionary defines the different loss functions and optimizer settings
+    that will be applied during training.
+    Define a dictionary of dictionaries of optimizers here.
+    Each optimizer has to define the following fields:
+
+    ``optimizer``:
+        name of tf.train.Optimizer, e.g. 'AdamOptimizer'
+
+    ``optimizer_settings``:
+        a dictionary of settings for the optimizer
+
+    ``vars``:
+        str or list of str specifying the variables the optimizer is
+        adujusting. E.g. ['unc', 'pred'] to optimize weights of the
+        main prediction network and the uncertainty subnetwork.
+    ``loss_file``:
+        str or list of str, defines file of loss function
+    ``loss_name``:
+        str or list of str, defines name of loss function
+        If loss_file and loss_name are lists, they must have the same
+        length. In this case, a sum of each loss will be performed
+    ``l1_regularization``:
+        Regularization strength (lambda) for L1-Regularization
+    ``l2_regularization``:
+        Regularization strength (lambda) for L2-Regularization
+
+    This structure might seem a bit confusing, but it enables the use of
+    different tensorflow optimizer operations, which can each apply to
+    different weights of the network and wrt different loss functions.
 
 
 NN Model Architecture
 =====================
 
 ``model_file``:
-    f
+    The network architecture that will be used is defined by the
+    ``model_file`` and ``model_name`` keys.
+    The ``model_file`` defines the file that will be used in the
+    ``dnn_reco.modules.models`` dicetory.
+    Default: `general_IC86_models`
 
 ``model_name``:
-    f
+    The network architecture that will be used is defined by the
+    ``model_file`` and ``model_name`` keys.
+    The ``model_name`` defines the function that will be used to
+    create and buld the model.
+    Default: `general_model_IC86`
 
 ``model_is_training``:
-    f
+    A bool indicating whether the network is in training mode.
+    This is needed for certain layers such as batch normalisation.
+    Default: `True`
 
 ``conv_upper_DeepCore_settings``:
-    f
+    This key is used by the default architectures and defines the
+    convolutional layers over the upper DeepCore array.
 
 ``conv_lower_DeepCore_settings``:
-    f
+    This key is used by the default architectures and defines the
+    convolutional layers over the lower DeepCore array.
 
 ``conv_IC78_settings``:
-    f
+    This key is used by the default architectures and defines the
+    convolutional layers over the main IceCube array.
 
 ``fc_settings``:
-    f
+    This key is used by the default architectures and defines the
+    fully connected layers after the results of the different
+    conovlutional branches are flattened and combined.
 
 ``fc_unc_settings``:
-    f
+    This key is used by the default architectures and defines the
+    fully connected layers used for the uncertainty estimate.
+    The input of these layers are the combined and flattened results
+    of the different conovlutional branches.
 
 ....
