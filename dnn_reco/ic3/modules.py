@@ -6,6 +6,7 @@ import glob
 import numpy as np
 import tensorflow as tf
 import timeit
+from collections import deque
 
 from icecube import icetray, dataclasses
 import ruamel.yaml as yaml
@@ -105,7 +106,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                         self._container.config[k], data_config[k]))
 
         # create variables and frame buffer for batching
-        self._frame_buffer = []
+        self._frame_buffer = deque()
         self._pframe_counter = 0
         self._batch_event_index = 0
         self._x_ic78_batch = np.empty(
@@ -235,9 +236,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         write the results to the physics frame. All frames in the frame buffer
         will be pushed.
         """
-        print('In Finish Method')
-        print('length of frame buffer:', len(self._frame_buffer))
-
         if self._frame_buffer:
 
             # there is an incomplete batch of events that we need to complete
@@ -255,7 +253,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._pframe_counter = 0
 
         # push frames
-        for fr in self._frame_buffer:
+        while self._frame_buffer:
+            fr = self._frame_buffer.popleft()
 
             if fr.Stop == icetray.I3Frame.Physics:
 
