@@ -325,9 +325,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             else:
                 results[name + '_uncertainty'] = float(unc)
 
-        # write to frame
-        frame[self._output_key] = dataclasses.I3MapStringDouble(results)
-
         # Create combined I3Particle
         if 'label_particle_keys' in self.config:
             particle_keys = self.config['label_particle_keys']
@@ -370,3 +367,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 timeit.default_timer() - start_time
             results['runtime_preprocess'] = \
                 self._runtime_preprocess_batch[batch_event_index]
+
+        # write to frame
+        frame[self._output_key] = dataclasses.I3MapStringDouble(results)
