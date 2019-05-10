@@ -266,8 +266,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
             self.PushFrame(fr)
 
-        self._frame_buffer = []
-
     def _perform_prediction(self, size):
         """Perform the prediction for a batch of events.
 
