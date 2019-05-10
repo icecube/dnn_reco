@@ -224,31 +224,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
                 # we have now accumulated a full batch of events so
                 # that we can perform the prediction
-                self._perform_prediction(size=self.batch_size)
-
-                # push frames
-                for fr in self._frame_buffer:
-                    self.PushFrame(fr)
-
-                self._frame_buffer = []
-
-    def Physics(self, frame):
-        """Apply DNN reco on physics frames
-
-        Parameters
-        ----------
-        frame : I3Frame
-            The current physics frame.
-        """
-
-        # write results at current batch index to frame
-        self.write_to_frame(frame, self._batch_event_index)
-
-        # increase the batch event index
-        self._batch_event_index += 1
-
-        # push physics frame
-        self.PushFrame(frame)
+                self._process_frame_buffer()
 
     def Finish(self):
         """Run prediciton on last incomplete batch of events.
@@ -265,22 +241,33 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         if self._frame_buffer:
 
             # there is an incomplete batch of events that we need to complete
-            self._perform_prediction(size=len(self._frame_buffer))
+            self._process_frame_buffer()
 
-            # push frames
-            for fr in self._frame_buffer:
+    def _process_frame_buffer(self):
+        """Performs prediction for accumulated batch.
+        Then writes results to physics frames in frame buffer and eventually
+        pushes all of the frames in the order they came in.
+        """
+        self._perform_prediction(size=self._pframe_counter)
 
-                if fr.Stop == icetray.I3Frame.Physics:
+        # reset counters and indices
+        self._batch_event_index = 0
+        self._pframe_counter = 0
 
-                    # write results at current batch index to frame
-                    self.write_to_frame(fr, self._batch_event_index)
+        # push frames
+        for fr in self._frame_buffer:
 
-                    # increase the batch event index
-                    self._batch_event_index += 1
+            if fr.Stop == icetray.I3Frame.Physics:
 
-                self.PushFrame(fr)
+                # write results at current batch index to frame
+                self._write_to_frame(fr, self._batch_event_index)
 
-            self._frame_buffer = []
+                # increase the batch event index
+                self._batch_event_index += 1
+
+            self.PushFrame(fr)
+
+        self._frame_buffer = []
 
     def _perform_prediction(self, size):
         """Perform the prediction for a batch of events.
@@ -302,15 +289,11 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             mask = np.broadcast_to(self._mask_time, self.y_pred_batch.shape)
             self.y_pred_batch[mask] += self._t_offset_batch[:size]
 
-        # reset counters and indices
-        self._batch_event_index = 0
-        self._pframe_counter = 0
-
         if self._measure_time:
             self._runtime_prediction = \
                 (timeit.default_timer() - start_time) / size
 
-    def write_to_frame(self, frame, batch_event_index):
+    def _write_to_frame(self, frame, batch_event_index):
         """Writes the prediction results of the given batch event index to
         the frame.
 
