@@ -19,6 +19,7 @@ def ApplyDNNRecos(
         models_dir='/data/user/mhuennefeld/DNN_reco/models/exported_models',
         cascade_key='MCCascade',
         measure_time=True,
+        batch_size=1,
         num_cpus=1,
         ):
     """Apply DNN reco
@@ -46,6 +47,10 @@ def ApplyDNNRecos(
         'first_light_at_dom'.
     measure_time : bool, optional
         If True, the run-time will be measured.
+    batch_size : int, optional
+        The number of events to accumulate and pass through the network in
+        parallel. A higher batch size than 1 can usually improve recontruction
+        runtime, but will also increase the memory footprint.
     num_cpus : int, optional
         Number of CPU cores to use if CPUs are used instead of a GPU.
     """
@@ -76,5 +81,6 @@ def ApplyDNNRecos(
                        DNNDataContainer=container,
                        OutputBaseName=output_key,
                        MeasureTime=measure_time,
+                       BatchSize=batch_size,
                        ParallelismThreads=num_cpus,
                        )

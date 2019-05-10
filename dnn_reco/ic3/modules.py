@@ -25,6 +25,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
     Attributes
     ----------
+    batch_size : int, optional
+        The number of events to accumulate and pass through the network in
+        parallel. A higher batch size than 1 can usually improve recontruction
+        runtime, but will also increase the memory footprint.
     config : dict
         Dictionary with configuration settings
     data_handler : dnn_reco.data_handler.DataHanlder
@@ -50,6 +54,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.AddParameter("MeasureTime",
                           "If True, time for preprocessing and prediction will"
                           " be measured and printed", False)
+        self.AddParameter("BatchSize",
+                          "If True, time for preprocessing and prediction will"
+                          " be measured and printed", 1)
         self.AddParameter("ParallelismThreads",
                           "Tensorflow config option for 'intra_op_parallelism_"
                           "threads' and 'inter_op_parallelism_threads'"
@@ -69,6 +76,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._container = self.GetParameter('DNNDataContainer')
         self._output_key = self.GetParameter("OutputBaseName")
         self._measure_time = self.GetParameter("MeasureTime")
+        self.batch_size = self.GetParameter('BatchSize')
         self._parallelism_threads = self.GetParameter("ParallelismThreads")
 
         # read in and combine config files and set up
@@ -96,6 +104,17 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 raise ValueError('Settings do not match: {!r} != {!r}'.format(
                         self._container.config[k], data_config[k]))
 
+        # create variables and frame buffer for batching
+        self._frame_buffer = []
+        self._pframe_counter = 0
+        self._batch_event_index = 0
+        self._x_ic78_batch = np.empty(
+            [self.batch_size] + list(self._container.x_ic78.shape)[1:])
+        self._x_deepcore_batch = np.empty(
+            [self.batch_size] + list(self._container.x_deepcore.shape)[1:])
+        self._t_offset_batch = np.empty([self.batch_size])
+        self._runtime_preprocess_batch = np.empty([self.batch_size])
+
         # Create a new tensorflow graph and session for this instance of
         # dnn reco
         g = tf.Graph()
@@ -119,13 +138,13 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                     os.path.join(self._model_path, 'config_meta_data.yaml'))
 
             # Get time vars that need to be corrected by global time offset
-            self.mask_time = []
+            self._mask_time = []
             for i, name in enumerate(self.data_handler.label_names):
                 if name in self.data_handler.relative_time_keys:
-                    self.mask_time .append(True)
+                    self._mask_time.append(True)
                 else:
-                    self.mask_time .append(False)
-            self.mask_time = np.expand_dims(np.array(self.mask_time), axis=0)
+                    self._mask_time.append(False)
+            self._mask_time = np.expand_dims(np.array(self._mask_time), axis=0)
 
             # create data transformer
             self.data_transformer = DataTransformer(
@@ -157,17 +176,61 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             self.model.restore()
 
             # Get trained labels, e.g. labels with weights greater than zero
-            self.mask_labels = \
+            self._mask_labels = \
                 self.model.shared_objects['label_weight_config'] > 0
-            self.non_zero_labels = [n for n, b in
-                                    zip(self.data_handler.label_names,
-                                        self.mask_labels) if b]
-            self.non_zero_log_bins = \
+            self._non_zero_labels = [n for n, b in
+                                     zip(self.data_handler.label_names,
+                                         self._mask_labels) if b]
+            self._non_zero_log_bins = \
                 [l for l, b in
                  zip(self.data_transformer.trafo_model['log_label_bins'],
-                     self.mask_labels) if b]
+                     self._mask_labels) if b]
 
-            self.mask_labels = np.expand_dims(self.mask_labels, axis=0)
+    def Process(self):
+        """Process incoming frames.
+
+        Pop frames and put them in the frame buffer.
+        When a physics frame is popped, accumulate the input data to form
+        a batch of events. Once a full batch of physics events is accumulated,
+        perform the prediction and push the buffered frames.
+        The Physics method can then write the results to the physics frame
+        by using the results:
+            self.y_pred_batch, self.y_unc_batch
+            self._runtime_prediction, self._runtime_preprocess_batch
+        and the current event index self._batch_event_index
+        """
+        frame = self.PopFrame()
+
+        # put frame on buffer
+        self._frame_buffer.append(frame)
+
+        # check if the current frame is a physics frame
+        if frame.Stop == icetray.I3Frame.Physics:
+
+            # accumulate input data batch
+            self._x_ic78_batch[self._pframe_counter] = \
+                self._container.x_ic78[0]
+            self._x_deepcore_batch[self._pframe_counter] = \
+                self._container.x_deepcore[0]
+            self._t_offset_batch[self._pframe_counter] = \
+                self._container.global_time_offset.value
+            self._runtime_preprocess_batch[self._pframe_counter] = \
+                self._container.runtime.value
+
+            self._pframe_counter += 1
+
+            # check if we have a full batch of events
+            if self._pframe_counter == self.batch_size:
+
+                # we have now accumulated a full batch of events so
+                # that we can perform the prediction
+                self._perform_prediction(size=self.batch_size)
+
+                # push frames
+                for fr in self._frame_buffer:
+                    self.PushFrame(fr)
+
+                self._frame_buffer = []
 
     def Physics(self, frame):
         """Apply DNN reco on physics frames
@@ -177,23 +240,99 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         frame : I3Frame
             The current physics frame.
         """
+
+        # write results at current batch index to frame
+        self.write_to_frame(frame, self._batch_event_index)
+
+        # increase the batch event index
+        self._batch_event_index += 1
+
+        # push physics frame
+        self.PushFrame(frame)
+
+    def Finish(self):
+        """Run prediciton on last incomplete batch of events.
+
+        If there are still frames left in the frame buffer there is an
+        incomplete batch of events, that still needs to be passed through.
+        This method will run the prediction on the incomplete batch and then
+        write the results to the physics frame. All frames in the frame buffer
+        will be pushed.
+        """
+        print('In Finish Method')
+        print('length of frame buffer:', len(self._frame_buffer))
+
+        if self._frame_buffer:
+
+            # there is an incomplete batch of events that we need to complete
+            self._perform_prediction(size=len(self._frame_buffer))
+
+            # push frames
+            for fr in self._frame_buffer:
+
+                if fr.Stop == icetray.I3Frame.Physics:
+
+                    # write results at current batch index to frame
+                    self.write_to_frame(fr, self._batch_event_index)
+
+                    # increase the batch event index
+                    self._batch_event_index += 1
+
+                self.PushFrame(fr)
+
+            self._frame_buffer = []
+
+    def _perform_prediction(self, size):
+        """Perform the prediction for a batch of events.
+
+        Parameters
+        ----------
+        size : int
+            The size of the current batch.
+        """
         if self._measure_time:
             start_time = timeit.default_timer()
 
-        y_pred, y_unc = self.model.predict(
-                                    x_ic78=self._container.x_ic78,
-                                    x_deepcore=self._container.x_deepcore)
+        self.y_pred_batch, self.y_unc_batch = self.model.predict(
+                            x_ic78=self._x_ic78_batch[:size],
+                            x_deepcore=self._x_deepcore_batch[:size])
 
         # Fix time offset
         if self.data_handler.relative_time_keys:
-            y_pred[self.mask_time] += self._container.global_time_offset.value
+            mask = np.broadcast_to(self._mask_time, self.y_pred_batch.shape)
+            self.y_pred_batch[mask] += self._t_offset_batch[:size]
+
+        # reset counters and indices
+        self._batch_event_index = 0
+        self._pframe_counter = 0
+
+        if self._measure_time:
+            self._runtime_prediction = \
+                (timeit.default_timer() - start_time) / size
+
+    def write_to_frame(self, frame, batch_event_index):
+        """Writes the prediction results of the given batch event index to
+        the frame.
+
+        Parameters
+        ----------
+        frame : I3Frame
+            The physics frame to which the results should be written to.
+        batch_event_index : int
+            The batch event index. This defines which event in the batch is to
+            be written to the frame.
+        """
+        if self._measure_time:
+            start_time = timeit.default_timer()
 
         # Write prediction and uncertainty estimate to frame
         results = {}
-        for name, pred, unc, log_label in zip(self.non_zero_labels,
-                                              y_pred[self.mask_labels],
-                                              y_unc[self.mask_labels],
-                                              self.non_zero_log_bins):
+        for name, pred, unc, log_label in zip(
+                self._non_zero_labels,
+                self.y_pred_batch[batch_event_index][self._mask_labels],
+                self.y_unc_batch[batch_event_index][self._mask_labels],
+                self._non_zero_log_bins):
+
             # save prediction
             results[name] = float(pred)
 
@@ -202,11 +341,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 results[name + '_log_uncertainty'] = float(unc)
             else:
                 results[name + '_uncertainty'] = float(unc)
-
-        # write time measurement to frame
-        if self._measure_time:
-            results['runtime_prediction'] = timeit.default_timer() - start_time
-            results['runtime_preprocess'] = self._container.runtime.value
 
         # write to frame
         frame[self._output_key] = dataclasses.I3MapStringDouble(results)
@@ -217,28 +351,28 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
             particle = dataclasses.I3Particle()
             if 'energy' in particle_keys:
-                if particle_keys['energy'] in self.non_zero_labels:
+                if particle_keys['energy'] in self._non_zero_labels:
                     particle.energy = results[particle_keys['energy']]
             if 'time' in particle_keys:
-                if particle_keys['time'] in self.non_zero_labels:
+                if particle_keys['time'] in self._non_zero_labels:
                     particle.time = results[particle_keys['time']]
             if 'length' in particle_keys:
-                if particle_keys['length'] in self.non_zero_labels:
+                if particle_keys['length'] in self._non_zero_labels:
                     particle.length = results[particle_keys['length']]
             if 'dir_x' in particle_keys:
-                if particle_keys['dir_x'] in self.non_zero_labels:
+                if particle_keys['dir_x'] in self._non_zero_labels:
                     particle.dir = dataclasses.I3Direction(
                                             results[particle_keys['dir_x']],
                                             results[particle_keys['dir_y']],
                                             results[particle_keys['dir_z']])
             elif 'azimuth' in particle_keys:
-                if particle_keys['azimuth'] in self.non_zero_labels:
+                if particle_keys['azimuth'] in self._non_zero_labels:
                     particle.dir = dataclasses.I3Direction(
                                             results[particle_keys['azimuth']],
                                             results[particle_keys['zenith']])
 
             if 'pos_x' in particle_keys:
-                if particle_keys['pos_x'] in self.non_zero_labels:
+                if particle_keys['pos_x'] in self._non_zero_labels:
                     particle.pos = dataclasses.I3Position(
                                             results[particle_keys['pos_x']],
                                             results[particle_keys['pos_y']],
@@ -246,4 +380,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
             frame[self._output_key + '_I3Particle'] = particle
 
-        self.PushFrame(frame)
+        # write time measurement to frame
+        if self._measure_time:
+            results['runtime_prediction'] = self._runtime_prediction
+            results['runtime_write'] = \
+                timeit.default_timer() - start_time
+            results['runtime_preprocess'] = \
+                self._runtime_preprocess_batch[batch_event_index]
