@@ -100,7 +100,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             if not self._container.config[k] == data_config[k]:
                 raise ValueError('Settings do not match: {!r} != {!r}'.format(
                         self._container.config[k], data_config[k]))
-        if self._container
 
         # create variables and frame buffer for batching
         self._frame_buffer = deque()
