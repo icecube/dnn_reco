@@ -281,7 +281,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         if self.data_handler.relative_time_keys:
             mask = np.broadcast_to(self._mask_time, self.y_pred_batch.shape)
             self.y_pred_batch[mask] += \
-                self._containter.global_time_offset_batch[:size]
+                self._container.global_time_offset_batch[:size]
 
         if self._measure_time:
             self._runtime_prediction = \
