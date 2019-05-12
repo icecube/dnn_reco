@@ -105,12 +105,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._frame_buffer = deque()
         self._pframe_counter = 0
         self._batch_event_index = 0
-        # self._x_ic78_batch = np.empty(
-        #     [self.batch_size] + list(self._container.x_ic78.shape)[1:])
-        # self._x_deepcore_batch = np.empty(
-        #     [self.batch_size] + list(self._container.x_deepcore.shape)[1:])
-        # self._t_offset_batch = np.empty([self.batch_size])
-        # self._runtime_preprocess_batch = np.empty([self.batch_size])
 
         # Create a new tensorflow graph and session for this instance of
         # dnn reco
@@ -203,16 +197,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
         # check if the current frame is a physics frame
         if frame.Stop == icetray.I3Frame.Physics:
-
-            # # accumulate input data batch
-            # self._x_ic78_batch[self._pframe_counter] = \
-            #     self._container.x_ic78[0]
-            # self._x_deepcore_batch[self._pframe_counter] = \
-            #     self._container.x_deepcore[0]
-            # self._t_offset_batch[self._pframe_counter] = \
-            #     self._container.global_time_offset.value
-            # self._runtime_preprocess_batch[self._pframe_counter] = \
-            #     self._container.runtime.value
 
             self._pframe_counter += 1
 
