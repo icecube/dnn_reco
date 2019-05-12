@@ -8,6 +8,7 @@ data/*
 logs/*
 checkpoints/*
 configs/user/*
+tmp/*
 
 # exception to the rule
 !data/.gitkeep

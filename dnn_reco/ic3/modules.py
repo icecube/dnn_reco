@@ -55,9 +55,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.AddParameter("MeasureTime",
                           "If True, time for preprocessing and prediction will"
                           " be measured and printed", False)
-        self.AddParameter("BatchSize",
-                          "If True, time for preprocessing and prediction will"
-                          " be measured and printed", 1)
         self.AddParameter("ParallelismThreads",
                           "Tensorflow config option for 'intra_op_parallelism_"
                           "threads' and 'inter_op_parallelism_threads'"
@@ -77,7 +74,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._container = self.GetParameter('DNNDataContainer')
         self._output_key = self.GetParameter("OutputBaseName")
         self._measure_time = self.GetParameter("MeasureTime")
-        self.batch_size = self.GetParameter('BatchSize')
         self._parallelism_threads = self.GetParameter("ParallelismThreads")
 
         # read in and combine config files and set up
@@ -104,17 +100,18 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             if not self._container.config[k] == data_config[k]:
                 raise ValueError('Settings do not match: {!r} != {!r}'.format(
                         self._container.config[k], data_config[k]))
+        if self._container
 
         # create variables and frame buffer for batching
         self._frame_buffer = deque()
         self._pframe_counter = 0
         self._batch_event_index = 0
-        self._x_ic78_batch = np.empty(
-            [self.batch_size] + list(self._container.x_ic78.shape)[1:])
-        self._x_deepcore_batch = np.empty(
-            [self.batch_size] + list(self._container.x_deepcore.shape)[1:])
-        self._t_offset_batch = np.empty([self.batch_size])
-        self._runtime_preprocess_batch = np.empty([self.batch_size])
+        # self._x_ic78_batch = np.empty(
+        #     [self.batch_size] + list(self._container.x_ic78.shape)[1:])
+        # self._x_deepcore_batch = np.empty(
+        #     [self.batch_size] + list(self._container.x_deepcore.shape)[1:])
+        # self._t_offset_batch = np.empty([self.batch_size])
+        # self._runtime_preprocess_batch = np.empty([self.batch_size])
 
         # Create a new tensorflow graph and session for this instance of
         # dnn reco
@@ -208,20 +205,20 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # check if the current frame is a physics frame
         if frame.Stop == icetray.I3Frame.Physics:
 
-            # accumulate input data batch
-            self._x_ic78_batch[self._pframe_counter] = \
-                self._container.x_ic78[0]
-            self._x_deepcore_batch[self._pframe_counter] = \
-                self._container.x_deepcore[0]
-            self._t_offset_batch[self._pframe_counter] = \
-                self._container.global_time_offset.value
-            self._runtime_preprocess_batch[self._pframe_counter] = \
-                self._container.runtime.value
+            # # accumulate input data batch
+            # self._x_ic78_batch[self._pframe_counter] = \
+            #     self._container.x_ic78[0]
+            # self._x_deepcore_batch[self._pframe_counter] = \
+            #     self._container.x_deepcore[0]
+            # self._t_offset_batch[self._pframe_counter] = \
+            #     self._container.global_time_offset.value
+            # self._runtime_preprocess_batch[self._pframe_counter] = \
+            #     self._container.runtime.value
 
             self._pframe_counter += 1
 
             # check if we have a full batch of events
-            if self._pframe_counter == self.batch_size:
+            if self._pframe_counter == self._container.batch_size:
 
                 # we have now accumulated a full batch of events so
                 # that we can perform the prediction
@@ -278,13 +275,14 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             start_time = timeit.default_timer()
 
         self.y_pred_batch, self.y_unc_batch = self.model.predict(
-                            x_ic78=self._x_ic78_batch[:size],
-                            x_deepcore=self._x_deepcore_batch[:size])
+                            x_ic78=self._container.x_ic78[:size],
+                            x_deepcore=self._container.x_deepcore[:size])
 
         # Fix time offset
         if self.data_handler.relative_time_keys:
             mask = np.broadcast_to(self._mask_time, self.y_pred_batch.shape)
-            self.y_pred_batch[mask] += self._t_offset_batch[:size]
+            self.y_pred_batch[mask] += \
+                self._containter.global_time_offset_batch[:size]
 
         if self._measure_time:
             self._runtime_prediction = \

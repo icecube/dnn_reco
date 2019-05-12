@@ -61,7 +61,7 @@ def ApplyDNNRecos(
         output_keys = ['DeepLearningReco_{}'.format(m) for m in model_names]
 
     # create DNN data container object
-    container = DNNDataContainer()
+    container = DNNDataContainer(batch_size=batch_size)
 
     # configure container
     container.load_configuration(os.path.join(models_dir, model_names[0]))
@@ -81,6 +81,5 @@ def ApplyDNNRecos(
                        DNNDataContainer=container,
                        OutputBaseName=output_key,
                        MeasureTime=measure_time,
-                       BatchSize=batch_size,
                        ParallelismThreads=num_cpus,
                        )
