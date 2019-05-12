@@ -360,7 +360,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             results['runtime_write'] = \
                 timeit.default_timer() - start_time
             results['runtime_preprocess'] = \
-                self._runtime_preprocess_batch[batch_event_index]
+                self._container.runtime_batch[batch_event_index]
 
         # write to frame
         frame[self._output_key] = dataclasses.I3MapStringDouble(results)
