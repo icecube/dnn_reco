@@ -705,8 +705,6 @@ class NNModel(object):
                     self.sess.run(
                             self.shared_objects['assign_new_label_weights'],
                             feed_dict=feed_dict_assign)
-                    updated_weights = self.sess.run(
-                                        self.shared_objects['label_weights'])
 
                     # reset values
                     label_weight_n = 0.
@@ -717,6 +715,10 @@ class NNModel(object):
             # validate performance
             # ----------------
             if i % self.config['validation_frequency'] == 0:
+
+                updated_weights = self.sess.run(
+                                        self.shared_objects['label_weights'])
+
                 eval_dict = {
                     'merged_summary': self._merged_summary,
                     'weights': self.shared_objects['label_weights_benchmark'],
