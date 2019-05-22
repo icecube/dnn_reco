@@ -256,11 +256,11 @@ def pull_distribution_scale(config, data_handler, data_transformer,
         Shape: label_shape (same shape as labels)
 
     """
-    y_diff_trafo = loss_utils.get_y_diff_trafo(
+    y_diff_trafo = tf.stop_gradient(loss_utils.get_y_diff_trafo(
                                     config=config,
                                     data_handler=data_handler,
                                     data_transformer=data_transformer,
-                                    shared_objects=shared_objects)
+                                    shared_objects=shared_objects))
 
     # small float to prevent division by zero
     eps = 1e-6
