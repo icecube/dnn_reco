@@ -222,6 +222,64 @@ def gaussian_likelihood(config, data_handler, data_transformer, shared_objects,
     return loss
 
 
+def pull_distribution_scale(config, data_handler, data_transformer,
+                            shared_objects, *args, **kwargs):
+    """This loss penalized the standard deviation of the pull distribution.
+
+    This is meant to run for a few steps with very high batch size at the very
+    end of the training procedure of a model in order to correct the scale
+    of the uncertainty estimates such that the pull distribution has a
+    standard deviation of 1.
+
+    Parameters
+    ----------
+    config : dict
+        Dictionary containing all settings as read in from config file.
+    data_handler : :obj: of class DataHandler
+        An instance of the DataHandler class. The object is used to obtain
+        meta data.
+    data_transformer : :obj: of class DataTransformer
+        An instance of the DataTransformer class. The object is used to
+        transform data.
+    shared_objects : dict
+        A dictionary containg settings and objects that are shared and passed
+        on to sub modules.
+    *args
+        Variable length argument list.
+    **kwargs
+        Arbitrary keyword arguments.
+
+    Returns
+    -------
+    tf.Tensor
+        A tensorflow tensor containing the loss for each label.
+        Shape: label_shape (same shape as labels)
+
+    """
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
+                                    config=config,
+                                    data_handler=data_handler,
+                                    data_transformer=data_transformer,
+                                    shared_objects=shared_objects)
+
+    # small float to prevent division by zero
+    eps = 1e-6
+
+    # uncertainty estimate on prediction
+    unc = tf.clip_by_value(shared_objects['y_unc_trafo'], eps, float('inf'))
+
+    pull = y_diff_trafo / unc
+
+    # get variance
+    mean, var = tf.nn.moments(pull, axes=[0])
+
+    loss = (var - 1.)**2
+
+    loss_utils.add_logging_info(data_handler, shared_objects)
+
+    return loss
+
+
 def mse_and_cross_entropy(config, data_handler, data_transformer,
                           shared_objects, *args, **kwargs):
     """Mean squared error of transformed prediction and true values.
