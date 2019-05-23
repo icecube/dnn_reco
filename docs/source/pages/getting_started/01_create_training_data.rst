@@ -146,15 +146,23 @@ Make sure to write the DAGMan files to condor scratch.
 If you created DAGMan files, you then start the DAGMan by executing the ``start_dagman.sh`` script.
 Alternatively, you can process the job files locally with the script ``process_local.py``.
 Check ``--help`` for options.
-To process a single file, you can also directly execute the shell script:
+To process a single file, you can also directly execute the shell script in a fresh shell:
 
 .. code-block:: bash
+
+    # Open a new terminal with a fresh shell without loading an icecube
+    # environment. Redefine our $DNN_HOME variable.
+    export DNN_HOME=/data/user/${USER}/DNN_tutorial
 
     # process file number 0 (part of our training set)
     $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/00000-00999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00000000.sh
 
     # process file number 1000 (part of our validation set)
-    $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/00000-00999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00001000.sh
+    $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/01000-01999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00001000.sh
+
+.. note::
+    Make sure to open a fresh shell without loading an icecube environment to execute the job shell scripts. The shell scripts are set up such that they will load an icecube environment. Hence, if you already have
+    one loaded in current shell, it will cause problems.
 
 To test the rest of the tutorial, it is enough to process one file
 from the training and validation set.

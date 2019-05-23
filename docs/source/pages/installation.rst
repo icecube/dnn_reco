@@ -31,6 +31,10 @@ environment variables here.
     # create directories
     mkdir --parents $DNN_HOME
 
+    # load icecube environment
+    eval $(/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh)
+    source /cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/RHEL_7_x86_64/metaprojects/simulation/V06-01-01/env-shell.sh
+
 Set up a Python Virtual Environment
 ===================================
 

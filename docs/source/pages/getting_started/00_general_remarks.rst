@@ -24,6 +24,16 @@ created during the installation steps (see :ref:`Installation and Requirements`)
     # Create environment variable if it doesn't already exist
     export DNN_HOME=/data/user/${USER}/DNN_tutorial
 
+    # load icecube environment if not already loaded
+    eval $(/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh)
+    source /cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/RHEL_7_x86_64/metaprojects/simulation/V06-01-01/env-shell.sh
+
     # Activate virtual environment if not already activated
     source ${DNN_HOME}/dnn_reco_env/bin/activate
 
+.. note::
+    It is important to first load the icecube environment and then
+    activate the virtual environment. If done the other way around, the
+    environment variables defined by the virtual environment will be
+    overwritten by the icecube env-shell.sh. As a result, a different
+    python version will be used than the one from the virtual environment.

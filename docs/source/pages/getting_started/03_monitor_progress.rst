@@ -100,12 +100,9 @@ We can then use tensorboard to render these logs.
 
     # If we run tensorboard remotely we must provide a port and make sure
     # to forward this port in the ssh connection
-    tensorboard --logdir= --port 7475
+    tensorboard --logdir=PATH/TO/MY/LOGS --port 7475
 
 If the port forwading is correctly set up, you can then point your browser to
 to the appropriate address.
 More info on tensorboard is provided here:
 https://www.tensorflow.org/guide/summaries_and_tensorboard.
-
-
-..  figure of Tensorboard training curve

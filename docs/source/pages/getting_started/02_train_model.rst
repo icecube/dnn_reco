@@ -129,6 +129,17 @@ because the mean and standard deviation depend on the data.
     # create the transformation Model
     python create_trafo_model.py $CONFIG_DIR/getting_started.yaml
 
+.. note::
+
+    If you only created one training file you will not have enough training
+    data to generate 100 batches of 32 events. As a result, the above will
+    fail with a ``StopIteration`` error. You will either have to process a
+    few more training data files, or lower the number of batches that you
+    would like to use to create the transformation model. You can do this
+    by setting the ``trafo_num_batches`` key in
+    ``$CONFIG_DIR/getting_started.yaml``
+    to a lower value such as 20.
+
 Upon succesful completion this should print:
 
 .. code-block:: php
@@ -219,7 +230,7 @@ To start training we run:
     CUDA_VISIBLE_DEVICES=0 python train_model.py $CONFIG_DIR/getting_started.yaml
 
 This will run for ``num_training_iterations`` many iterations or
- until we kill the process via ``ctrl + c``.
+until we kill the process via ``ctrl + c``.
 The current model is saved every ``save_frequency`` (default value: 500)
 iterations, so you may abort and restart at any time.
 
