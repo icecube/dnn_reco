@@ -254,22 +254,28 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         size : int
             The size of the current batch.
         """
-        if self._measure_time:
-            start_time = timeit.default_timer()
+        if size > 0:
+            if self._measure_time:
+                start_time = timeit.default_timer()
 
-        self.y_pred_batch, self.y_unc_batch = self.model.predict(
-                            x_ic78=self._container.x_ic78[:size],
-                            x_deepcore=self._container.x_deepcore[:size])
+            self.y_pred_batch, self.y_unc_batch = self.model.predict(
+                                x_ic78=self._container.x_ic78[:size],
+                                x_deepcore=self._container.x_deepcore[:size])
 
-        # Fix time offset
-        if self.data_handler.relative_time_keys:
-            mask = np.broadcast_to(self._mask_time, self.y_pred_batch.shape)
-            self.y_pred_batch[mask] += \
-                self._container.global_time_offset_batch[:size]
+            # Fix time offset
+            if self.data_handler.relative_time_keys:
+                mask = np.broadcast_to(self._mask_time,
+                                       self.y_pred_batch.shape)
+                self.y_pred_batch[mask] += \
+                    self._container.global_time_offset_batch[:size]
 
-        if self._measure_time:
-            self._runtime_prediction = \
-                (timeit.default_timer() - start_time) / size
+            if self._measure_time:
+                self._runtime_prediction = \
+                    (timeit.default_timer() - start_time) / size
+        else:
+            self.y_pred_batch = None
+            self.y_unc_batch = None
+            self._runtime_prediction = None
 
     def _write_to_frame(self, frame, batch_event_index):
         """Writes the prediction results of the given batch event index to
