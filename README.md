@@ -21,6 +21,6 @@ IceCube DNN reconstruction
     # Once the model is trained, we can export it, so that it can be used to reconstruct IceCube events with the provided I3Module
     python export_model.py /PATH/TO/MY/YAML/CONFIG/FILE -s /PATH/TO/CONFIG/FILE/USED/TO/CREATE/TRAINING/DATA -o OUTPUT/Directory
 
-    # More documentation coming soon ...
+    # More documentation can be found here: https://icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/
    
 
