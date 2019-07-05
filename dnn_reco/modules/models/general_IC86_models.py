@@ -165,39 +165,52 @@ def general_model_IC86(is_training, config, data_handler,
         # -----------------------------------
         assert len(y_pred_trafo_orig.get_shape().as_list()) == 2
 
-        index_dir_x = data_handler.get_label_index(config['label_dir_x_key'])
-        index_dir_y = data_handler.get_label_index(config['label_dir_y_key'])
-        index_dir_z = data_handler.get_label_index(config['label_dir_z_key'])
-        index_zenith = data_handler.get_label_index(config['label_zenith_key'])
-        index_azimuth = data_handler.get_label_index(
-                                                config['label_azimuth_key'])
-
-        trafo_indices = [index_dir_x, index_dir_y, index_dir_z,
-                         index_azimuth, index_zenith]
-
         # transform back
         y_pred = data_transformer.inverse_transform(y_pred_trafo_orig,
                                                     data_type='label')
-
         y_pred_list = tf.unstack(y_pred, axis=1)
 
-        norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
-                       y_pred_list[index_dir_y]**2 +
-                       y_pred_list[index_dir_z]**2)
+        if 'model_enforce_direction_norm' not in config:
+            # backward compatibility
+            enforce_direction_norm = True
+        else:
+            enforce_direction_norm = config['model_enforce_direction_norm']
 
-        y_pred_list[index_dir_x] /= norm
-        y_pred_list[index_dir_y] /= norm
-        y_pred_list[index_dir_z] /= norm
+        if enforce_direction_norm:
 
-        # calculate zenith
-        y_pred_list[index_zenith] = tf.acos(tf.clip_by_value(
-                                                    -y_pred_list[index_dir_z],
-                                                    -1, 1))
+            index_dir_x = \
+                data_handler.get_label_index(config['label_dir_x_key'])
+            index_dir_y = \
+                data_handler.get_label_index(config['label_dir_y_key'])
+            index_dir_z = \
+                data_handler.get_label_index(config['label_dir_z_key'])
+            index_zenith = \
+                data_handler.get_label_index(config['label_zenith_key'])
+            index_azimuth = \
+                data_handler.get_label_index(config['label_azimuth_key'])
 
-        # calculate azimuth
-        y_pred_list[index_azimuth] = (tf.atan2(-y_pred_list[index_dir_y],
-                                               -y_pred_list[index_dir_x])
-                                      + 2 * np.pi) % (2 * np.pi)
+            trafo_indices = [index_dir_x, index_dir_y, index_dir_z,
+                             index_azimuth, index_zenith]
+
+            norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
+                           y_pred_list[index_dir_y]**2 +
+                           y_pred_list[index_dir_z]**2)
+
+            y_pred_list[index_dir_x] /= norm
+            y_pred_list[index_dir_y] /= norm
+            y_pred_list[index_dir_z] /= norm
+
+            # calculate zenith
+            y_pred_list[index_zenith] = tf.acos(tf.clip_by_value(
+                                                        -y_pred_list[index_dir_z],
+                                                        -1, 1))
+
+            # calculate azimuth
+            y_pred_list[index_azimuth] = (tf.atan2(-y_pred_list[index_dir_y],
+                                                   -y_pred_list[index_dir_x])
+                                          + 2 * np.pi) % (2 * np.pi)
+        else:
+            trafo_indices = []
 
         # limit PID variables to range 0 to 1
 
@@ -406,39 +419,52 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         # -----------------------------------
         assert len(y_pred_trafo_orig.get_shape().as_list()) == 2
 
-        index_dir_x = data_handler.get_label_index(config['label_dir_x_key'])
-        index_dir_y = data_handler.get_label_index(config['label_dir_y_key'])
-        index_dir_z = data_handler.get_label_index(config['label_dir_z_key'])
-        index_zenith = data_handler.get_label_index(config['label_zenith_key'])
-        index_azimuth = data_handler.get_label_index(
-                                                config['label_azimuth_key'])
-
-        trafo_indices = [index_dir_x, index_dir_y, index_dir_z,
-                         index_azimuth, index_zenith]
-
         # transform back
         y_pred = data_transformer.inverse_transform(y_pred_trafo_orig,
                                                     data_type='label')
-
         y_pred_list = tf.unstack(y_pred, axis=1)
 
-        norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
-                       y_pred_list[index_dir_y]**2 +
-                       y_pred_list[index_dir_z]**2)
+        if 'model_enforce_direction_norm' not in config:
+            # backward compatibility
+            enforce_direction_norm = True
+        else:
+            enforce_direction_norm = config['model_enforce_direction_norm']
 
-        y_pred_list[index_dir_x] /= norm
-        y_pred_list[index_dir_y] /= norm
-        y_pred_list[index_dir_z] /= norm
+        if enforce_direction_norm:
 
-        # calculate zenith
-        y_pred_list[index_zenith] = tf.acos(tf.clip_by_value(
-                                                    -y_pred_list[index_dir_z],
-                                                    -1, 1))
+            index_dir_x = \
+                data_handler.get_label_index(config['label_dir_x_key'])
+            index_dir_y = \
+                data_handler.get_label_index(config['label_dir_y_key'])
+            index_dir_z = \
+                data_handler.get_label_index(config['label_dir_z_key'])
+            index_zenith = \
+                data_handler.get_label_index(config['label_zenith_key'])
+            index_azimuth = \
+                data_handler.get_label_index(config['label_azimuth_key'])
 
-        # calculate azimuth
-        y_pred_list[index_azimuth] = (tf.atan2(-y_pred_list[index_dir_y],
-                                               -y_pred_list[index_dir_x])
-                                      + 2 * np.pi) % (2 * np.pi)
+            trafo_indices = [index_dir_x, index_dir_y, index_dir_z,
+                             index_azimuth, index_zenith]
+
+            norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
+                           y_pred_list[index_dir_y]**2 +
+                           y_pred_list[index_dir_z]**2)
+
+            y_pred_list[index_dir_x] /= norm
+            y_pred_list[index_dir_y] /= norm
+            y_pred_list[index_dir_z] /= norm
+
+            # calculate zenith
+            y_pred_list[index_zenith] = tf.acos(tf.clip_by_value(
+                                                        -y_pred_list[index_dir_z],
+                                                        -1, 1))
+
+            # calculate azimuth
+            y_pred_list[index_azimuth] = (tf.atan2(-y_pred_list[index_dir_y],
+                                                   -y_pred_list[index_dir_x])
+                                          + 2 * np.pi) % (2 * np.pi)
+        else:
+            trafo_indices = []
 
         # limit PID variables to range 0 to 1
 
