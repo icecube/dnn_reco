@@ -94,8 +94,11 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
     # create list of misc names
     if misc_names is None:
         misc_names = []
-        for key, col in config['misc_load_dict'].items():
-            misc_names.append(key + '_' + col)
+        for key, col_list in config['misc_load_dict'].items():
+            if not isinstance(col_list, list):
+                col_list = [col_list]
+            for col in col_list:
+                misc_names.append(key + '_' + col)
         misc_names = sorted(misc_names)
 
     if len(misc_names) == 0:
