@@ -102,9 +102,12 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
         misc_values = None
     else:
         misc_dict = {}
-        for key, col in config['misc_load_dict'].items():
-            with pd.HDFStore(input_data,  mode='r') as f:
-                misc_dict[key + '_' + col] = f[key][col]
+        for key, col_list in config['misc_load_dict'].items():
+            if not isinstance(col_list, list):
+                col_list = [col_list]
+            for col in col_list:
+                with pd.HDFStore(input_data,  mode='r') as f:
+                    misc_dict[key + '_' + col] = f[key][col]
 
         misc_values = [misc_dict[k] for k in misc_names]
         misc_values = np.array(misc_values,
