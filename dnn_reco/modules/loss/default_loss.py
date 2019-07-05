@@ -334,18 +334,11 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
 
         # apply cross entropy if logits are provided
         if name in logit_tensors:
-
-            assert name[0:2] == 'p_', \
-                'Are you sure {!r} is a classification label?'.format(name)
-
             label_loss.append(tf.reduce_mean(
                                 tf.nn.sigmoid_cross_entropy_with_logits(
                                         labels=shared_objects['y_true'][:, i],
                                         logits=logit_tensors[name])))
         else:
-            assert name[0:2] != 'p_', \
-                'Are you sure {!r} is not a classification label?'.format(name)
-
             label_loss.append(mse_values_trafo[i])
 
     label_loss = tf.stack(label_loss)
