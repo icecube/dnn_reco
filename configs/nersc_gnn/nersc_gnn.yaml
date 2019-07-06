@@ -170,6 +170,18 @@
     'is_signal',
 ]
 
+# ---------------------
+# Event weight settings
+# ---------------------
+'event_weight_file': 'nersc_gnn_event_weights'
+'event_weight_name': 'nersc_gnn_weight'
+# Number of processed NuGen runs/files in 'training_data_file' file list glob
+# [used to get correct normalization]
+'nersc_gnn_weight_num_nugen_files': 113522
+# Number of processed Corsika runs/files in 'training_data_file' file list glob
+#  [used to get correct normalization]
+'nersc_gnn_weight_num_corsika_files': 11076
+
 #---------------------------
 # General Training settings
 #---------------------------

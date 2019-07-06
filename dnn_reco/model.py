@@ -343,6 +343,25 @@ class NNModel(object):
         misc.print_warning('Total Benchmark should be: {:3.3f}'.format(
                             sum(self.shared_objects['label_weight_config'])))
 
+    def _create_event_weights(self):
+        """Create event weights
+        """
+        if ('event_weight_file' in self.config and
+                self.config['event_weight_file'] is not None):
+
+            # get event weight function
+            class_string = 'dnn_reco.modules.data.event_weights.{}.{}'.format(
+                self.config['event_weight_file'],
+                self.config['event_weight_name'])
+            event_weight_function = misc.load_class(class_string)
+
+            # compute loss
+            self.shared_objects['event_weights'] = event_weight_function(
+                                    config=self.config,
+                                    data_handler=self.data_handler,
+                                    data_transformer=self.data_transformer,
+                                    shared_objects=self.shared_objects)
+
     def _get_optimizers_and_loss(self):
         """Get optimizers and loss terms as defined in config.
 
@@ -498,6 +517,8 @@ class NNModel(object):
 
             # create label_weights and assign op
             self._create_label_weights()
+
+            self._create_event_weights()
 
             self._get_optimizers_and_loss()
 
