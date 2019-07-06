@@ -362,7 +362,7 @@ class NNModel(object):
                                     data_transformer=self.data_transformer,
                                     shared_objects=self.shared_objects)
 
-            shape = shared_objects['event_weights'].get_shape().as_list()
+            shape = self.shared_objects['event_weights'].get_shape().as_list()
             assert len(shape) == 2 and shape[1] == 1, \
                 'Expected shape [-1, 1] but got {!r}'.format(shape)
 
