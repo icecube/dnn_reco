@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import tensorflow as tf
 
 from dnn_reco import misc
+from dnn_reco.modules.loss.utils import loss_utils
 
 """
 All defined models must have the following signature:
