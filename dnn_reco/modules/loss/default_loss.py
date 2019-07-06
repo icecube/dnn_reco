@@ -382,7 +382,7 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
                                         logits=logit_tensors[name])
             if 'event_weights' in shared_objects:
                 label_loss.append(
-                    tf.reduce_sum(loss_i * weights, 0) / weight_sum)
+                    tf.reduce_sum(loss_i * weights[:, 0], 0) / weight_sum[0])
             else:
                 label_loss.append(tf.reduce_mean(loss_i))
         else:
