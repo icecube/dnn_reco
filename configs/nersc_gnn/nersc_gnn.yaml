@@ -29,6 +29,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/0*000-0*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/1*000-1*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/2*000-2*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/3*000-3*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/4*000-4*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/5*000-5*999/*.hdf5',
   ]
 'trafo_data_file' : [
     # NuGen
@@ -47,17 +50,20 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/0*000-0*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/1*000-1*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/2*000-2*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/3*000-3*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/4*000-4*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/5*000-5*999/*.hdf5',
   ]
 'validation_data_file' : [
     # NuGen
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/NuGen/11374/clsim*/output/summaryV2_clipped/19000-19999/*.hdf5',
 
     # Corsika
-    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/3*000-3*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/6*000-6*999/*.hdf5',
   ]
 'test_data_file' : [
     '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/NuGen/11374/clsim*/output/summaryV2_clipped/19000-19999/*00000*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/3*000-3*999/*3000*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/nersc_gnn/datasets/corsika/11057/output/summaryV2_clipped/6*000-6*999/*6000*.hdf5',
   ]
 
 'tf_random_seed': 42
@@ -183,7 +189,7 @@
 'nersc_gnn_weight_num_nugen_files': 113522
 # Number of processed Corsika runs/files in 'training_data_file' file list glob
 #  [used to get correct normalization]
-'nersc_gnn_weight_num_corsika_files': 11076
+'nersc_gnn_weight_num_corsika_files': 24489
 
 #---------------------------
 # General Training settings
