@@ -333,6 +333,9 @@ class DataHandler(object):
             smoothing = self._config['label_pid_smooth_labels']
             for key, i in self.label_name_dict.items():
                 if key in self._config['label_pid_keys']:
+                    assert ((labels[:, i] >= 0.).all()
+                            and (labels[:, i] <= 1.).all()), \
+                        'Value range outside of [0, 1] for {!r}'.format(key)
                     labels[:, i] = \
                         labels[:, i] * (1 - smoothing) + smoothing / 2.
 
