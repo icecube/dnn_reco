@@ -259,6 +259,9 @@
   #               },
 }
 
+# if cross entropy is used, this will define the label_smoothing strength
+'model_cross_entropy_label_smoothing': .1
+
 #----------------------
 # NN Model Architecture
 #----------------------

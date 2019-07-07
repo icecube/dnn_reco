@@ -359,6 +359,11 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
 
     loss_event = tf.square(y_diff_trafo)
 
+    if 'model_cross_entropy_label_smoothing' in config:
+        label_smoothing = config['model_cross_entropy_label_smoothing']
+    else:
+        label_smoothing = 0.
+
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
         weight_sum = tf.reduce_sum(weights, axis=0)
@@ -379,7 +384,8 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
         if name in logit_tensors:
             loss_i = tf.nn.sigmoid_cross_entropy_with_logits(
                                         labels=shared_objects['y_true'][:, i],
-                                        logits=logit_tensors[name])
+                                        logits=logit_tensors[name],
+                                        label_smoothing=label_smoothing)
             if 'event_weights' in shared_objects:
                 label_loss.append(
                     tf.reduce_sum(loss_i * weights[:, 0], 0) / weight_sum[0])
