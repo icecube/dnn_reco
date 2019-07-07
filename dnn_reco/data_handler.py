@@ -328,6 +328,14 @@ class DataHandler(object):
                                  label_names=self.label_names)
         assert list(labels.shape) == [size] + self.label_shape
 
+        # perform label smoothing if provided in config
+        if 'label_pid_smooth_labels' in self._config:
+            smoothing = self._config['label_pid_smooth_labels']
+            for key, i in self.label_name_dict.items():
+                if key in self._config['label_pid_keys']:
+                    labels[:, i] = \
+                        labels[:, i] * (1 - smoothing) + smoothing / 2.
+
         # -------------------
         # read in misc values
         # -------------------
