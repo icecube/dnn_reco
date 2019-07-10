@@ -7,7 +7,7 @@ Monitor Progress
 
 In this section we will cover how you can monitor the training process.
 It is often crucial to keep an eye on the GPU utilization and the training
-curves as these cant hint at possible culprits.
+curves as these can hint at possible culprits.
 We can check the GPU utilization of the training procedure by opening a
 second terminal and executing:
 

@@ -395,6 +395,95 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
     return label_loss
 
 
+def mse_and_average_precision(config, data_handler, data_transformer,
+                              shared_objects, *args, **kwargs):
+    """Mean squared error of transformed prediction and true values.
+    Average precision loss will be applied to labels for which logit tensors
+    are defined in shared_objects[logit_tensors]. These logit tensors must be
+    added to the shared_objects during building of the NN model.
+    This is necessary since using the logits directly is more numerically
+    stable than reverting the sigmoid function on the output of the model.
+
+    Parameters
+    ----------
+    config : dict
+        Dictionary containing all settings as read in from config file.
+    data_handler : :obj: of class DataHandler
+        An instance of the DataHandler class. The object is used to obtain
+        meta data.
+    data_transformer : :obj: of class DataTransformer
+        An instance of the DataTransformer class. The object is used to
+        transform data.
+    shared_objects : dict
+        A dictionary containg settings and objects that are shared and passed
+        on to sub modules.
+    *args
+        Variable length argument list.
+    **kwargs
+        Arbitrary keyword arguments.
+
+    Returns
+    -------
+    tf.Tensor
+        A tensorflow tensor containing the loss for each label.
+        Shape: label_shape (same shape as labels)
+
+    """
+
+    y_diff_trafo = loss_utils.get_y_diff_trafo(
+                                    config=config,
+                                    data_handler=data_handler,
+                                    data_transformer=data_transformer,
+                                    shared_objects=shared_objects)
+
+    loss_event = tf.square(y_diff_trafo)
+
+    if 'event_weights' in shared_objects:
+        weights = shared_objects['event_weights']
+        weight_sum = tf.reduce_sum(weights, axis=0)
+        mse_values_trafo = tf.reduce_sum(loss_event * weights, 0) / weight_sum
+    else:
+        mse_values_trafo = tf.reduce_mean(loss_event, 0)
+
+    logit_tensors = shared_objects['logit_tensors']
+
+    label_loss = []
+    for i, name in enumerate(data_handler.label_names):
+
+        # sanity check for correct ordering of labels
+        index = data_handler.get_label_index(name)
+        assert i == index, '{!r} != {!r}'.format(i, index)
+
+        # calculate average precision if logits are provided
+        if name in logit_tensors:
+
+            labels_i = tf.expand_dims(shared_objects['y_true'][:, i], axis=-1)
+            predictions_i = tf.expand_dims(logit_tensors[name], axis=-1)
+            labels_i = tf.cast(tf.round(labels_i), tf.int64)
+
+            if 'event_weights' in shared_objects:
+                loss_i = tf.metrics.average_precision_at_k(
+                                        labels=labels_i,
+                                        predictions=predictions_i,
+                                        k=1,
+                                        weights=weights[:, 0])
+            else:
+                loss_i = tf.metrics.average_precision_at_k(
+                                        labels=labels_i,
+                                        predictions=predictions_i,
+                                        k=1)
+            loss_i = tf.cast(loss_i, config['tf_float_precision'])
+            label_loss.append(tf.reduce_mean(loss_i))
+        else:
+            label_loss.append(mse_values_trafo[i])
+
+    label_loss = tf.stack(label_loss)
+
+    loss_utils.add_logging_info(data_handler, shared_objects)
+
+    return label_loss
+
+
 def tukey(config, data_handler, data_transformer, shared_objects,
           *args, **kwargs):
     """Tukey loss of transformed prediction and true values.
