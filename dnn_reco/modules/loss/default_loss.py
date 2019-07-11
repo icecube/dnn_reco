@@ -395,14 +395,22 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
     return label_loss
 
 
-def mse_and_average_precision(config, data_handler, data_transformer,
-                              shared_objects, *args, **kwargs):
+def mse_and_weighted_cross_entropy(config, data_handler, data_transformer,
+                                   shared_objects, *args, **kwargs):
     """Mean squared error of transformed prediction and true values.
-    Average precision loss will be applied to labels for which logit tensors
-    are defined in shared_objects[logit_tensors]. These logit tensors must be
-    added to the shared_objects during building of the NN model.
-    This is necessary since using the logits directly is more numerically
-    stable than reverting the sigmoid function on the output of the model.
+    Weighted cross entroy loss will be applied to labels for which logit
+    tensors are defined in shared_objects[logit_tensors].
+    These logit tensors must be added to the shared_objects during building
+    of the NN model. This is necessary since using the logits directly is
+    more numerically stable than reverting the sigmoid function on the
+    output of the model.
+
+    Events will be weighted according to how many signal events
+    [pid value == 1] have a lower classification score. This aims to ignore
+    abundant background events in a highly imbalanced classification task.
+    Generally we only care about correctly modeling the signal region near 1.
+    Hence, here we downweight the background region which is defined to be
+    at smaller classification scores than the signal events.
 
     Parameters
     ----------
@@ -444,6 +452,7 @@ def mse_and_average_precision(config, data_handler, data_transformer,
         mse_values_trafo = tf.reduce_sum(loss_event * weights, 0) / weight_sum
     else:
         mse_values_trafo = tf.reduce_mean(loss_event, 0)
+        weights = tf.expand_dims(tf.ones_like(loss_event[:, 0]), axis=-1)
 
     logit_tensors = shared_objects['logit_tensors']
 
@@ -457,23 +466,35 @@ def mse_and_average_precision(config, data_handler, data_transformer,
         # calculate average precision if logits are provided
         if name in logit_tensors:
 
-            labels_i = tf.expand_dims(shared_objects['y_true'][:, i], axis=-1)
-            predictions_i = tf.expand_dims(logit_tensors[name], axis=-1)
-            labels_i = tf.cast(tf.round(labels_i), tf.int64)
+            labels_i = shared_objects['y_true'][:, i]
+            predictions_i = logit_tensors[name]
+            loss_i = tf.nn.sigmoid_cross_entropy_with_logits(
+                                        labels=labels_i,
+                                        logits=predictions_i)
 
-            if 'event_weights' in shared_objects:
-                loss_i = tf.metrics.average_precision_at_k(
-                                        labels=labels_i,
-                                        predictions=predictions_i,
-                                        k=1,
-                                        weights=weights[:, 0])
-            else:
-                loss_i = tf.metrics.average_precision_at_k(
-                                        labels=labels_i,
-                                        predictions=predictions_i,
-                                        k=1)
-            loss_i = tf.cast(loss_i, config['tf_float_precision'])
-            label_loss.append(tf.reduce_mean(loss_i))
+            # ------------------------------
+            # compute weights for each event
+            # ------------------------------
+            labels_i_rounded = tf.round(labels_i)
+
+            # Here we assume that background class has value 0 and signal 1
+            signal_weights = weights[:, 0] * labels_i_rounded
+
+            # sort events according to the classification score
+            sorted_indices = tf.argsort(predictions_i)
+            signal_weights_sorted = tf.gather(signal_weights, sorted_indices)
+            weights_sorted = tf.gather(weights[:, 0], sorted_indices)
+            loss_i_sorted = tf.gather(loss_i, sorted_indices)
+
+            loss_weight = tf.stop_gradient(tf.cumsum(signal_weights_sorted))
+
+            # and now multiply event weight on top
+            loss_weight *= weights_sorted
+
+            label_loss.append(
+                    tf.reduce_sum(loss_i_sorted * loss_weight, 0) /
+                    tf.reduce_sum(loss_weight))
+            # ------------------------------
         else:
             label_loss.append(mse_values_trafo[i])
 
