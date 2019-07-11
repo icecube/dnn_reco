@@ -475,13 +475,13 @@ def mse_and_weighted_cross_entropy(config, data_handler, data_transformer,
             # ------------------------------
             # compute weights for each event
             # ------------------------------
-            labels_i_rounded = tf.round(labels_i)
-
             # Here we assume that background class has value 0 and signal 1
-            signal_weights = weights[:, 0] * labels_i_rounded
+            signal_weights = tf.where(labels_i > 0.5,
+                                      weights[:, 0],
+                                      tf.zeros_like(weights[:, 0]))
 
             # sort events according to the classification score
-            sorted_indices = tf.argsort(predictions_i)
+            sorted_indices = tf.contrib.framework.argsort(predictions_i)
             signal_weights_sorted = tf.gather(signal_weights, sorted_indices)
             weights_sorted = tf.gather(weights[:, 0], sorted_indices)
             loss_i_sorted = tf.gather(loss_i, sorted_indices)
@@ -491,9 +491,10 @@ def mse_and_weighted_cross_entropy(config, data_handler, data_transformer,
             # and now multiply event weight on top
             loss_weight *= weights_sorted
 
+            eps = 1e-6
             label_loss.append(
                     tf.reduce_sum(loss_i_sorted * loss_weight, 0) /
-                    tf.reduce_sum(loss_weight))
+                    (tf.reduce_sum(loss_weight) + eps))
             # ------------------------------
         else:
             label_loss.append(mse_values_trafo[i])
