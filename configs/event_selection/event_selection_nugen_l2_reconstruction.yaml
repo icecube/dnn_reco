@@ -107,7 +107,7 @@
 # These values will then be added to the misc values under the name:
 #     'hdf key'_'column'
 'misc_load_dict': {
-  'CscdL3_Cont_Tag': 'value',
+  # 'CscdL3_Cont_Tag': 'value',
   'CscdL3': 'value',
 }
 
