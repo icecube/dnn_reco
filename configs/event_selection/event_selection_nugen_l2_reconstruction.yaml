@@ -172,15 +172,15 @@
 # Scale median absolute residuals for tukey loss
 'label_scale_tukey': False
 # Name of zenith direction label if it exists
-'label_zenith_key':
+'label_zenith_key': PrimaryZenith
 # Name of azimuth direction label if it exists
-'label_azimuth_key':
+'label_azimuth_key': PrimaryAzimuth
 # Name of direction vector x-component label if it exists
-'label_dir_x_key':
+'label_dir_x_key': PrimaryDirectionX
 # Name of direction vector x-component label if it exists
-'label_dir_y_key':
+'label_dir_y_key': PrimaryDirectionY
 # Name of direction vector x-component label if it exists
-'label_dir_z_key':
+'label_dir_z_key': PrimaryDirectionZ
 # Add direction vector components as labels
 'label_add_dir_vec': False
 # Add position at the provided relative time (relative to time range start)
