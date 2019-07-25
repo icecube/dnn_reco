@@ -18,16 +18,16 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/2/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/3/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/4/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/5/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/6/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/7/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/8/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/9/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/20/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/21/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/22/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/23/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/24/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/5/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/6/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/7/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/8/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/9/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/20/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/21/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/22/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/23/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/24/*.hdf5',
 
   ]
 'trafo_data_file' : [
@@ -36,23 +36,25 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/2/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/3/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/4/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/5/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/6/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/7/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/8/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/9/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/20/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/21/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/22/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/23/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/24/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/5/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/6/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/7/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/8/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/9/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/20/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/21/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/22/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/23/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/24/*.hdf5',
   ]
 'validation_data_file' : [
     # NuGen
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/25/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/low_energy/IC86_2013/l2/5/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/25/*.hdf5',
   ]
 'test_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013/l2/25/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/low_energy/IC86_2013/l2/5/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013/l2/25/*.hdf5',
   ]
 
 'tf_random_seed': 42
