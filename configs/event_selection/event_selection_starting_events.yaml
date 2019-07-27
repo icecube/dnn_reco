@@ -148,7 +148,7 @@
 'num_jobs' : 15
 'file_capacity' : 5
 'batch_capacity' : 200
-'num_add_files' : 50
+'num_add_files' : 30
 'num_repetitions' : 3
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
