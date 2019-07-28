@@ -145,10 +145,10 @@
 
 'tf_random_seed': 42
 'float_precision': float32
-'num_jobs' : 15
-'file_capacity' : 5
+'num_jobs' : 12
+'file_capacity' : 2
 'batch_capacity' : 200
-'num_add_files' : 30
+'num_add_files' : 10
 'num_repetitions' : 3
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
