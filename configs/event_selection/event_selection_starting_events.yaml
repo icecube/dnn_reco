@@ -29,6 +29,17 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/23/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/24/*.hdf5',
 
+    # Corsika - 11057
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/0*000-0*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/1*000-1*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/2*000-2*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/3*000-3*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/4*000-4*999/*.hdf5',
+
+    # Corsika - 11058
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11058/0*000-0*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11058/1*000-1*999/*.hdf5',
+
     # MuonGun - High
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/*_energy/IC86_2013/l2/1/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/*_energy/IC86_2013/l2/2/*.hdf5',
@@ -83,6 +94,17 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/22/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/23/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/24/*.hdf5',
+
+    # Corsika - 11057
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/0*000-0*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/1*000-1*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/2*000-2*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/3*000-3*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/4*000-4*999/*.hdf5',
+
+    # Corsika - 11058
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11058/0*000-0*999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11058/1*000-1*999/*.hdf5',
 
     # MuonGun - High
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/*_energy/IC86_2013/l2/1/*.hdf5',
@@ -211,6 +233,7 @@
 
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
+  'LabelsDeepLearning_p_outside_cascade': False,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
