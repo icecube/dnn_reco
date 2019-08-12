@@ -110,12 +110,30 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
             if not isinstance(col_list, list):
                 col_list = [col_list]
             for col in col_list:
+
+                # special handling for FilterMask keys
+                # FilterMask columns often have the year appended, e.g. _12
+                # Here, we map a filter_name_12 to filter_name
                 if key == 'FilterMask' or key == 'QFilterMask':
                     with h5py.File(input_data, 'r') as f:
-                        misc_dict[key + '_' + col] = f[key][col][:, 1]
+                        _mask = f[key][:]
+                    for filter_name in _mask.dtype.fields.keys():
+                        if col in filter_name:
+                            misc_dict[key + '_' + col] = _mask[col][:, 1]
+
+                # Standard hdf5 keys
                 else:
-                    with pd.HDFStore(input_data,  mode='r') as f:
-                        misc_dict[key + '_' + col] = f[key][col]
+                    try:
+                        with pd.HDFStore(input_data,  mode='r') as f:
+                            misc_dict[key + '_' + col] = f[key][col]
+
+                    except KeyError as e:
+                        # check if a fill value is defined
+                        if key + '_' + col in config['misc_fill_values']:
+                            misc_dict[key + '_' + col] = \
+                                config['misc_fill_values'][key + '_' + col]
+                        else:
+                            raise e
 
         misc_values = [misc_dict[k] for k in misc_names]
         misc_values = np.array(misc_values,

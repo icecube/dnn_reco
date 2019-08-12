@@ -29,6 +29,16 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/23/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/24/*.hdf5',
 
+    # Very high energy NuGen (10 PeV - 1 EeV)
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/03000-03999/*.hdf5',
+
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/0*000-0*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/1*000-1*999/*.hdf5',
@@ -77,6 +87,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/8*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/9*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/100/*.hdf5',
+
+    # Additional MuonGun at CscdL3
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/12*/0.99_eff/00*000-00*999/*.hdf5',
   ]
 'trafo_data_file' : [
     # NuGen
@@ -95,6 +108,16 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/23/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/24/*.hdf5',
 
+    # Very high energy NuGen (10 PeV - 1 EeV)
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/03000-03999/*.hdf5',
+
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/0*000-0*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/1*000-1*999/*.hdf5',
@@ -143,6 +166,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/8*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/9*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/100/*.hdf5',
+
+    # Additional MuonGun at CscdL3
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/12*/0.99_eff/00*000-00*999/*.hdf5',
   ]
 'validation_data_file' : [
     # NuGen
@@ -168,7 +194,7 @@
 'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 12
-'file_capacity' : 2
+'file_capacity' : 5
 'batch_capacity' : 200
 'num_add_files' : 10
 'num_repetitions' : 3
@@ -220,8 +246,44 @@
   'CscdL3_Cont_Tag': 'value',
   'CscdL3': 'value',
   'LabelsDeepLearning': 'p_outside_cascade',
+  'LabelsDeepLearning': 'p_starting_300m',
   'LabelsDeepLearning_m60': 'p_outside_cascade',
   'LabelsDeepLearning_p60': 'p_outside_cascade',
+  'FilterMask': ['MuonFilter', 'CascadeFilter'],
+  'weights': ['GaisserH4a_atmod12_SIBYLL',  # MuonGun
+              'GaisserH4a_atmod12_DPMJET_C',  # MuonGun
+              'GaisserH3aWeight',  # Corsika
+              'GaisserH4aWeight',  # Corsika
+              'honda2006_gaisserH4a_elbert_conv_NNFlux', # NuGen conv
+              'honda2006_gaisserH3a_elbert_conv_NNFlux', # NuGen conv
+              'aachen_flux_8yr', # NuGen astro
+              'cscd_hans', # NuGen astro
+              'mese_flux', # NuGen astro
+              'hese_flux', # NuGen astro
+              'hese6', # NuGen astro
+              'sarcevic_std_gaisserH3a_elbert_prompt_NNFlux',  # NuGen prompt
+              'sarcevic_std_gaisserH4a_elbert_prompt_NNFlux',  # NuGen prompt
+              'sarcevic_std_gaisserH4a_elbert_prompt_NNFlux',  # NuGen prompt
+             ]
+}
+
+# Define a fill value for key column pairs that do not exist.
+# If key column pair does not exist in file and no fill value is provided,
+# an error will be thrown.
+'misc_fill_values': {
+  'weights_GaisserH4a_atmod12_SIBYLL': 0.,  # MuonGun
+  'weights_GaisserH4a_atmod12_DPMJET_C': 0.,  # MuonGun
+  'weights_GaisserH4aWeight': 0.,  # Corsika
+  'weights_honda2006_gaisserH4a_elbert_conv_NNFlux': 0., # NuGen conv
+  'weights_honda2006_gaisserH3a_elbert_conv_NNFlux': 0., # NuGen conv
+  'weights_aachen_flux_8yr': 0., # NuGen astro
+  'weights_cscd_hans': 0., # NuGen astro
+  'weights_mese_flux': 0., # NuGen astro
+  'weights_hese_flux': 0., # NuGen astro
+  'weights_hese6': 0., # NuGen astro
+  'weights_sarcevic_std_gaisserH3a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
+  'weights_sarcevic_std_gaisserH4a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
+  'weights_sarcevic_std_gaisserH4a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
 }
 
 # --------------
@@ -234,6 +296,7 @@
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
   'LabelsDeepLearning_p_outside_cascade': False,
+  'FilterMask_CascadeFilter': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
@@ -318,14 +381,20 @@
 # ---------------------
 # Event weight settings
 # ---------------------
-# 'event_weight_file': 'nersc_gnn_event_weights'
-# 'event_weight_name': 'nersc_gnn_weight'
-# # Number of processed NuGen runs/files in 'training_data_file' file list glob
-# # [used to get correct normalization]
-# 'nersc_gnn_weight_num_nugen_files': 113522
-# # Number of processed Corsika runs/files in 'training_data_file' file list glob
-# #  [used to get correct normalization]
-# 'nersc_gnn_weight_num_corsika_files': 24489
+'event_weight_file': 'event_weights'
+'event_weight_name': 'event_selection_weight'
+
+# weights to accumulate for Corsika, NuGen, and MuonGun
+'event_weights_corsika_keys': ['weights_GaisserH4aWeight']
+'event_weights_muongun_keys': ['weights_GaisserH4a_atmod12_SIBYLL',
+                               'weights_GaisserH4a_atmod12_DPMJET_C']
+'event_weights_nugen_keys': ['weights_aachen_flux_8yr']
+# Number of processed  runs/files in 'training_data_file' file list glob
+# [used to get normalization of Corsika, MuonGun, and NuGen]
+# Note: normalization here is not correct, just there to get intraclass weights
+'event_weights_num_corsika_files': 32098  # ~ 32098 files
+'event_weights_num_muongun_files': 174771 # ~ 174771 files
+'event_weights_num_nugen_files': 176  # ~ 176000 files
 
 #---------------------------
 # General Training settings
@@ -344,10 +413,10 @@
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 10000
-'trafo_model_path' : '../data/trafo_models/dnn_reco_event_selection_starting_events.npy'
+'trafo_model_path' : '../data/trafo_models/dnn_reco_event_selection_starting_events_01.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
-'trafo_normalize_misc_data' : True
+'trafo_normalize_misc_data' : False
 'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
                          }

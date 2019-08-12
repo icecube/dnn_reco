@@ -29,6 +29,16 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/23/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/24/*.hdf5',
 
+    # Very high energy NuGen (10 PeV - 1 EeV)
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/03000-03999/*.hdf5',
+
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/0*000-0*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/1*000-1*999/*.hdf5',
@@ -77,6 +87,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/8*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/9*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/100/*.hdf5',
+
+    # Additional MuonGun at CscdL3
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/12*/0.99_eff/00*000-00*999/*.hdf5',
   ]
 'trafo_data_file' : [
     # NuGen
@@ -95,6 +108,16 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/23/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/medium_energy/IC86_2013*/l2/24/*.hdf5',
 
+    # Very high energy NuGen (10 PeV - 1 EeV)
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/11*/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/12139/*/03000-03999/*.hdf5',
+
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/0*000-0*999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/Corsika/11057/1*000-1*999/*.hdf5',
@@ -143,6 +166,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/8*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/9*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/low_energy/IC86_2013/l2/100/*.hdf5',
+
+    # Additional MuonGun at CscdL3
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/12*/0.99_eff/00*000-00*999/*.hdf5',
   ]
 'validation_data_file' : [
     # NuGen
