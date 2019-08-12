@@ -17,7 +17,7 @@ setup(
     url='https://icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/index.html',
     packages=['dnn_reco'],
     install_requires=['numpy', 'pandas', 'click', 'ruamel.yaml', 'tables',
-                      'gitpython', 'tfscripts',
+                      'gitpython', 'tfscripts', 'h5py',
                       ],
     dependency_links=[
       'git+https://github.com/mhuen/TFScripts.git@master#egg=tfscripts-0.0.1',
