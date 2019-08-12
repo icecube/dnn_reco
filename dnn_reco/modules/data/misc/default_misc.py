@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import h5py
 import pandas as pd
 import numpy as np
 """
@@ -109,8 +110,12 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
             if not isinstance(col_list, list):
                 col_list = [col_list]
             for col in col_list:
-                with pd.HDFStore(input_data,  mode='r') as f:
-                    misc_dict[key + '_' + col] = f[key][col]
+                if key == 'FilterMask' or key == 'QFilterMask':
+                    with h5py.File(input_data, 'r') as f:
+                        misc_dict[key + '_' + col] = f[key][col][:, 1]
+                else:
+                    with pd.HDFStore(input_data,  mode='r') as f:
+                        misc_dict[key + '_' + col] = f[key][col]
 
         misc_values = [misc_dict[k] for k in misc_names]
         misc_values = np.array(misc_values,
