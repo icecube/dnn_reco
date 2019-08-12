@@ -263,7 +263,6 @@
               'hese6', # NuGen astro
               'sarcevic_std_gaisserH3a_elbert_prompt_NNFlux',  # NuGen prompt
               'sarcevic_std_gaisserH4a_elbert_prompt_NNFlux',  # NuGen prompt
-              'sarcevic_std_gaisserH4a_elbert_prompt_NNFlux',  # NuGen prompt
              ]
 }
 
@@ -273,6 +272,7 @@
 'misc_fill_values': {
   'weights_GaisserH4a_atmod12_SIBYLL': 0.,  # MuonGun
   'weights_GaisserH4a_atmod12_DPMJET_C': 0.,  # MuonGun
+  'weights_GaisserH3aWeight': 0.,  # Corsika
   'weights_GaisserH4aWeight': 0.,  # Corsika
   'weights_honda2006_gaisserH4a_elbert_conv_NNFlux': 0., # NuGen conv
   'weights_honda2006_gaisserH3a_elbert_conv_NNFlux': 0., # NuGen conv
@@ -282,7 +282,6 @@
   'weights_hese_flux': 0., # NuGen astro
   'weights_hese6': 0., # NuGen astro
   'weights_sarcevic_std_gaisserH3a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
-  'weights_sarcevic_std_gaisserH4a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
   'weights_sarcevic_std_gaisserH4a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
 }
 

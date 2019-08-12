@@ -105,6 +105,9 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
     if len(misc_names) == 0:
         misc_values = None
     else:
+        with pd.HDFStore(input_data,  mode='r') as f:
+            num_events = len(f[self._config['data_handler_time_offset_name']])
+
         misc_dict = {}
         for key, col_list in config['misc_load_dict'].items():
             if not isinstance(col_list, list):
@@ -119,19 +122,21 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
                         _mask = f[key][:]
                     for filter_name in _mask.dtype.fields.keys():
                         if col in filter_name:
-                            misc_dict[key + '_' + col] = _mask[col][:, 1]
+                            misc_dict[key + '_' + col] = \
+                                _mask[filter_name][:, 1]
 
                 # Standard hdf5 keys
                 else:
                     try:
                         with pd.HDFStore(input_data,  mode='r') as f:
-                            misc_dict[key + '_' + col] = f[key][col]
+                            misc_dict[key + '_' + col] = f[key][col].values
 
                     except KeyError as e:
                         # check if a fill value is defined
                         if key + '_' + col in config['misc_fill_values']:
-                            misc_dict[key + '_' + col] = \
-                                config['misc_fill_values'][key + '_' + col]
+                            misc_dict[key + '_' + col] = np.tile(
+                                config['misc_fill_values'][key + '_' + col],
+                                num_events)
                         else:
                             raise e
 
