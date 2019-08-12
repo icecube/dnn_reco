@@ -106,7 +106,7 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
         misc_values = None
     else:
         with pd.HDFStore(input_data,  mode='r') as f:
-            num_events = len(f[self._config['data_handler_time_offset_name']])
+            num_events = len(f[config['data_handler_time_offset_name']])
 
         misc_dict = {}
         for key, col_list in config['misc_load_dict'].items():
