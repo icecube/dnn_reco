@@ -69,7 +69,7 @@ def ApplyDNNRecos(
     # set up container
     container.set_up()
 
-    tray.AddModule(DNNContainerHandler, 'DNNContainerHandler',
+    tray.AddModule(DNNContainerHandler, 'DNNContainerHandler_' + name,
                    DNNDataContainer=container,
                    PulseKey=pulse_key,
                    CascadeKey=cascade_key,
