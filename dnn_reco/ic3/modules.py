@@ -96,6 +96,14 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         cfg_file = os.path.join(self._model_path, 'config_data_settings.yaml')
         with open(cfg_file, 'r') as stream:
             data_config = yaml.safe_load(stream)
+
+        # Backwards compatibility for older exported models which did not
+        # include this setting. In this case the separated format, e.g.
+        # icecube array + deepcore array is used as opposed to the string-dom
+        # format: [batch, 86, 60, num_bins]
+        if 'is_str_dom_format' not in data_config:
+            data_config['is_str_dom_format'] = False
+
         for k in self._container.config:
             if not self._container.config[k] == data_config[k]:
                 raise ValueError('Settings do not match: {!r} != {!r}'.format(
