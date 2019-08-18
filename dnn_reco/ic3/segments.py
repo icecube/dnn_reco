@@ -72,8 +72,7 @@ def ApplyDNNRecos(
     tray.AddModule(DNNContainerHandler, 'DNNContainerHandler_' + name,
                    DNNDataContainer=container,
                    PulseKey=pulse_key,
-                   CascadeKey=cascade_key,
-                   If=lambda f: pulse_key in f)
+                   CascadeKey=cascade_key)
 
     for model_name, output_key in zip(model_names, output_keys):
         tray.AddModule(DeepLearningReco, 'DeepLearningReco_' + model_name,
