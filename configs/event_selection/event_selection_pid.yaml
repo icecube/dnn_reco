@@ -249,12 +249,12 @@
                          'p_starting_300m',
                          'p_starting_cc',
                          'p_starting_nc',
-                     ]
+                     ],
   'LabelsDeepLearning_m60': 'p_outside_cascade',
   'LabelsDeepLearning_p60': ['p_outside_cascade',
                              'p_starting_cc',
                              'p_starting_nc',
-                         ]
+                         ],
   'FilterMask': ['MuonFilter', 'CascadeFilter'],
   'weights': ['GaisserH4a_atmod12_SIBYLL',  # MuonGun
               'GaisserH4a_atmod12_DPMJET_C',  # MuonGun
