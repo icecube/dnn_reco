@@ -95,7 +95,7 @@ class DataHandler(object):
         """
         if isinstance(test_input_data, list):
             self.test_input_data = []
-            for input_pattern in test_input_data:
+            for input_pattern in test_input_data[:3]:
                 self.test_input_data.extend(glob.glob(input_pattern))
         else:
             self.test_input_data = glob.glob(test_input_data)
