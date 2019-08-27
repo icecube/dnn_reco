@@ -296,6 +296,7 @@
 'filter_equal': {
   'LabelsDeepLearning_p_starting_300m': True,
   'LabelsDeepLearning_p60_p_starting_cc_mu': False,
+  'LabelsDeepLearning_p60_p_starting_cc_e': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
