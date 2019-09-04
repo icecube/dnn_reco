@@ -420,6 +420,7 @@
 'trafo_normalize_misc_data' : False
 'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
+                            'LengthInDetector': True,
                          }
 'trafo_log_misc_bins' : False
 'trafo_treat_doms_equally' : True
