@@ -104,30 +104,32 @@ def eval_direction(feed_dict_train, feed_dict_val, results_train, results_val,
         index_dir_y = data_handler.get_label_index(config['label_dir_y_key'])
         index_dir_z = data_handler.get_label_index(config['label_dir_z_key'])
 
-        vec1_train = np.concatenate([y_true_train[:, index_dir_x],
-                                     y_true_train[:, index_dir_y],
-                                     y_true_train[:, index_dir_z],
-                                     ], axis=1)
-        vec2_train = np.concatenate([y_pred_train[:, index_dir_x],
-                                     y_pred_train[:, index_dir_y],
-                                     y_pred_train[:, index_dir_z],
-                                     ], axis=1)
-        vec1_val = np.concatenate([y_true_val[:, index_dir_x],
-                                   y_true_val[:, index_dir_y],
-                                   y_true_val[:, index_dir_z],
-                                   ], axis=1)
-        vec2_val = np.concatenate([y_pred_val[:, index_dir_x],
-                                   y_pred_val[:, index_dir_y],
-                                   y_pred_val[:, index_dir_z],
-                                   ], axis=1)
+        vec1_train = np.stack([y_true_train[:, index_dir_x],
+                               y_true_train[:, index_dir_y],
+                               y_true_train[:, index_dir_z],
+                               ], axis=1)
+        vec2_train = np.stack([y_pred_train[:, index_dir_x],
+                               y_pred_train[:, index_dir_y],
+                               y_pred_train[:, index_dir_z],
+                               ], axis=1)
+        vec1_val = np.stack([y_true_val[:, index_dir_x],
+                             y_true_val[:, index_dir_y],
+                             y_true_val[:, index_dir_z],
+                             ], axis=1)
+        vec2_val = np.stack([y_pred_val[:, index_dir_x],
+                             y_pred_val[:, index_dir_y],
+                             y_pred_val[:, index_dir_z],
+                             ], axis=1)
         angle_dir_train = get_angle(vec1_train, vec2_train)
         angle_dir_val = get_angle(vec1_val, vec2_val)
 
         print('\t[Train]      {}: mean {:3.1f}, median {:3.1f}'.format(
-            'Over Direction Vector',
+            'Opening Angle',
             np.mean(np.rad2deg(angle_dir_train)),
-            np.median(np.rad2deg(angle_dir_train))))
-        print('\t[Validation] {}: mean {:3.1f}, median {:3.1f}'.format(
-            'Over Direction Vector',
+            np.median(np.rad2deg(angle_dir_train)),
+            'Over Direction Vector'))
+        print('\t[Validation] {}: mean {:3.1f}, median {:3.1f} [{}]'.format(
+            'Opening Angle',
             np.mean(np.rad2deg(angle_dir_val)),
-            np.median(np.rad2deg(angle_dir_val))))
+            np.median(np.rad2deg(angle_dir_val)),
+            'Over Direction Vector'))
