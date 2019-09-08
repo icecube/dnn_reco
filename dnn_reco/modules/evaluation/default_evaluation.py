@@ -79,6 +79,8 @@ def eval_direction(feed_dict_train, feed_dict_val, results_train, results_val,
 
     y_pred_train = results_train['y_pred']
     y_pred_val = results_val['y_pred']
+    y_unc_train = results_train['y_unc']
+    y_unc_val = results_val['y_unc']
 
     index_azimuth = data_handler.get_label_index(config['label_azimuth_key'])
     index_zenith = data_handler.get_label_index(config['label_zenith_key'])
@@ -133,3 +135,64 @@ def eval_direction(feed_dict_train, feed_dict_val, results_train, results_val,
             np.mean(np.rad2deg(angle_dir_val)),
             np.median(np.rad2deg(angle_dir_val)),
             'Over Direction Vector'))
+
+        # Test weighted corection: [very much beta version]
+        def get_weighted_normed_dir_vector(dir_x, dir_y, dir_z,
+                                           dir_x_unc, dir_y_unc, dir_z_unc):
+
+            # get direction of normalization scaling
+            d1 = dir_x * dir_x_unc
+            d2 = dir_y * dir_y_unc
+            d3 = dir_z * dir_z_unc
+            norm = np.sqrt(d1**2 + d2**2 + d3**2)
+            d1 /= norm
+            d2 /= norm
+            d3 /= norm
+
+            # calculate scaling length
+            p = d1*dir_x + d2*dir_y + d3*dir_z
+            q = dir_x**2 + dir_y**2 + dir_z**2 - 1
+            L = -p + np.sqrt(p**2 - q)
+
+            # calculate normed direction vector
+            dir_x_new = L * d1 + dir_x
+            dir_y_new = L * d2 + dir_y
+            dir_z_new = L * d3 + dir_z
+
+            # print(np.sqrt(dir_x_new**2 + dir_y_new**2 + dir_z_new**2))
+
+            return dir_x_new, dir_y_new, dir_z_new
+
+        test_dir_vector_scaling = False
+        if test_dir_vector_scaling:
+
+            vec2_train = np.stack(get_weighted_normed_dir_vector(
+                                    dir_x=y_pred_train[:, index_dir_x],
+                                    dir_y=y_pred_train[:, index_dir_y],
+                                    dir_z=y_pred_train[:, index_dir_z],
+                                    dir_x_unc=y_unc_train[:, index_dir_x],
+                                    dir_y_unc=y_unc_train[:, index_dir_y],
+                                    dir_z_unc=y_unc_train[:, index_dir_z]),
+                                  axis=1)
+            vec2_val = np.stack(get_weighted_normed_dir_vector(
+                                    dir_x=y_pred_val[:, index_dir_x],
+                                    dir_y=y_pred_val[:, index_dir_y],
+                                    dir_z=y_pred_val[:, index_dir_z],
+                                    dir_x_unc=y_unc_val[:, index_dir_x],
+                                    dir_y_unc=y_unc_val[:, index_dir_y],
+                                    dir_z_unc=y_unc_val[:, index_dir_z]),
+                                axis=1)
+
+            angle_dir_train = get_angle(vec1_train, vec2_train)
+            angle_dir_val = get_angle(vec1_val, vec2_val)
+
+            print('\t[Train]      {}: mean {:3.1f}, median {:3.1f} [{}]'.format(
+                'Opening Angle',
+                np.mean(np.rad2deg(angle_dir_train)),
+                np.median(np.rad2deg(angle_dir_train)),
+                'Weighted dir vector'))
+            print('\t[Validation] {}: mean {:3.1f}, median {:3.1f} [{}]'.format(
+                'Opening Angle',
+                np.mean(np.rad2deg(angle_dir_val)),
+                np.median(np.rad2deg(angle_dir_val)),
+                'Weighted dir vector'))
