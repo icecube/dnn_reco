@@ -123,7 +123,7 @@ def eval_direction(feed_dict_train, feed_dict_val, results_train, results_val,
         angle_dir_train = get_angle(vec1_train, vec2_train)
         angle_dir_val = get_angle(vec1_val, vec2_val)
 
-        print('\t[Train]      {}: mean {:3.1f}, median {:3.1f}'.format(
+        print('\t[Train]      {}: mean {:3.1f}, median {:3.1f} [{}]'.format(
             'Opening Angle',
             np.mean(np.rad2deg(angle_dir_train)),
             np.median(np.rad2deg(angle_dir_train)),
