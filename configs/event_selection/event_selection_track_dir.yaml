@@ -245,7 +245,8 @@
 'misc_load_dict': {
   'CscdL3_Cont_Tag': 'value',
   'CscdL3': 'value',
-  'LabelsDeepLearning': ['p_outside_cascade', 'p_starting_300m', 'Length'],
+  'LabelsDeepLearning': ['p_outside_cascade', 'p_starting_300m', 'Length',
+                         'EnergyVisible', 'TotalDepositedEnergy'],
   'LabelsDeepLearning_m60': 'p_outside_cascade',
   'LabelsDeepLearning_p60': ['p_outside_cascade', 'p_starting_cc_e',
                              'LengthInDetector', 'p_starting_cc_mu'],
