@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import numpy as np
+import tensorflow as tf
 
 
 def get_angle_deviation(azimuth1, zenith1, azimuth2, zenith2):
@@ -27,6 +28,33 @@ def get_angle_deviation(azimuth1, zenith1, azimuth2, zenith2):
                 np.cos(zenith1) * np.cos(zenith2))
     cos_dist = np.clip(cos_dist, -1., 1.)
     return np.arccos(cos_dist)
+
+
+def tf_get_angle_deviation(azimuth1, zenith1, azimuth2, zenith2):
+    """Get opening angle of two vectors defined by (azimuth, zenith)
+
+    Parameters
+    ----------
+    azimuth1 : numpy.ndarray or float
+        Azimuth of vector 1 in rad.
+    zenith1 : numpy.ndarray or float
+        Zenith of vector 1 in rad.
+    azimuth2 : numpy.ndarray or float
+        Azimuth of vector 2 in rad.
+    zenith2 : numpy.ndarray or float
+        Zenith of vector 2 in rad.
+
+    Returns
+    -------
+    numpy.ndarray or float
+        The opening angle in rad between the vector 1 and 2.
+        Same shape as input vectors.
+    """
+    cos_dist = (tf.cos(azimuth1 - azimuth2) *
+                tf.sin(zenith1) * tf.sin(zenith2) +
+                tf.cos(zenith1) * tf.cos(zenith2))
+    cos_dist = tf.clip_by_value(cos_dist, -1., 1.)
+    return tf.acos(cos_dist)
 
 
 def get_angle(vec1, vec2, dtype=np.float64):

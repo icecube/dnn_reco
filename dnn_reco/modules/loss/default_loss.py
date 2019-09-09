@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import tensorflow as tf
 
 from dnn_reco import misc
+from dnn_reco import utils
 from dnn_reco.modules.loss.utils import loss_utils
 
 """
@@ -566,3 +567,136 @@ def tukey(config, data_handler, data_transformer, shared_objects,
     loss_utils.add_logging_info(data_handler, shared_objects)
 
     return tukey_loss
+
+
+def opening_angle(config, data_handler, data_transformer, shared_objects,
+                  *args, **kwargs):
+    """Error of opening angle between true and predicted angle.
+
+    The MSE of the opening angle will be predicted as uncertainty.
+    This loss only applies to label_azimuth_key and label_zenith_key!
+
+    Parameters
+    ----------
+    config : dict
+        Dictionary containing all settings as read in from config file.
+    data_handler : :obj: of class DataHandler
+        An instance of the DataHandler class. The object is used to obtain
+        meta data.
+    data_transformer : :obj: of class DataTransformer
+        An instance of the DataTransformer class. The object is used to
+        transform data.
+    shared_objects : dict
+        A dictionary containg settings and objects that are shared and passed
+        on to sub modules.
+    *args
+        Variable length argument list.
+    **kwargs
+        Arbitrary keyword arguments.
+
+    Returns
+    -------
+    tf.Tensor
+        A tensorflow tensor containing the loss for each label.
+        Shape: label_shape (same shape as labels)
+
+    """
+
+    azimuth_true = shared_objects['y_true'][:, label_azimuth_key]
+    zenith_true = shared_objects['y_true'][:, label_azimuth_key]
+
+    azimuth_pred = shared_objects['y_pred'][:, label_zenith_key]
+    zenith_pred = shared_objects['y_pred'][:, label_zenith_key]
+
+    azimuth_unc = shared_objects['y_unc'][:, label_zenith_key]
+    zenith_unc = shared_objects['y_unc'][:, label_zenith_key]
+
+    angle = utils.tf_get_angle_deviation(azimuth1=azimuth_true,
+                                         zenith1=zenith_true,
+                                         azimuth2=azimuth_pred,
+                                         zenith2=zenith_pred)
+
+    # use zenith true here, even though it will hae to be predicted value
+    sigma = tf.sqrt(zenith_unc**2 + azimuth_unc**2 * tf.sin(zenith_true)**2)
+    sigma /= np.sqrt(2)
+
+    unc_diff = tf.stop_gradient(angle) - sigma
+
+    if 'event_weights' in shared_objects:
+        weights = shared_objects['event_weights']
+        weight_sum = tf.reduce_sum(weights, axis=0)
+        loss_angle = tf.reduce_sum(angle * weights, 0) / weight_sum
+        loss_unc = tf.reduce_sum(unc_diff**2 * weights, 0) / weight_sum
+    else:
+        loss_angle = tf.reduce_mean(angle, 0)
+        loss_unc = tf.reduce_mean(unc_diff**2, 0)
+
+    loss_utils.add_logging_info(data_handler, shared_objects)
+
+    return loss_angle + loss_unc
+
+
+def opening_angle_raleigh(config, data_handler, data_transformer,
+                          shared_objects, *args, **kwargs):
+    """Raleigh loss of opening angle between true and predicted angle.
+
+    This loss only applies to label_azimuth_key and label_zenith_key!
+
+    Parameters
+    ----------
+    config : dict
+        Dictionary containing all settings as read in from config file.
+    data_handler : :obj: of class DataHandler
+        An instance of the DataHandler class. The object is used to obtain
+        meta data.
+    data_transformer : :obj: of class DataTransformer
+        An instance of the DataTransformer class. The object is used to
+        transform data.
+    shared_objects : dict
+        A dictionary containg settings and objects that are shared and passed
+        on to sub modules.
+    *args
+        Variable length argument list.
+    **kwargs
+        Arbitrary keyword arguments.
+
+    Returns
+    -------
+    tf.Tensor
+        A tensorflow tensor containing the loss for each label.
+        Shape: label_shape (same shape as labels)
+
+    """
+
+    azimuth_true = shared_objects['y_true'][:, label_azimuth_key]
+    zenith_true = shared_objects['y_true'][:, label_azimuth_key]
+
+    azimuth_pred = shared_objects['y_pred'][:, label_zenith_key]
+    zenith_pred = shared_objects['y_pred'][:, label_zenith_key]
+
+    azimuth_unc = shared_objects['y_unc'][:, label_zenith_key]
+    zenith_unc = shared_objects['y_unc'][:, label_zenith_key]
+
+    angle = utils.tf_get_angle_deviation(azimuth1=azimuth_true,
+                                         zenith1=zenith_true,
+                                         azimuth2=azimuth_pred,
+                                         zenith2=zenith_pred)
+
+    # use zenith true here, even though it will hae to be predicted value
+    sigma = tf.sqrt(zenith_unc**2 + azimuth_unc**2 * tf.sin(zenith_true)**2)
+    sigma /= np.sqrt(2)
+
+    raleigh = (angle / sigma)**2 + 4*tf.log(sigma) - 2 tf.log(angle)
+
+    if 'event_weights' in shared_objects:
+        weights = shared_objects['event_weights']
+        weight_sum = tf.reduce_sum(weights, axis=0)
+        loss_angle = tf.reduce_sum(angle * weights, 0) / weight_sum
+        raleigh_loss = tf.reduce_sum(raleigh * weights, 0) / weight_sum
+    else:
+        loss_angle = tf.reduce_mean(angle, 0)
+        raleigh_loss = tf.reduce_mean(raleigh, 0)
+
+    loss_utils.add_logging_info(data_handler, shared_objects)
+
+    return loss_angle + raleigh_loss
