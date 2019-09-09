@@ -601,15 +601,17 @@ def opening_angle(config, data_handler, data_transformer, shared_objects,
         Shape: label_shape (same shape as labels)
 
     """
+    index_azimuth = data_handler.get_label_index(config['label_azimuth_key'])
+    index_zenith = data_handler.get_label_index(config['label_zenith_key'])
 
-    azimuth_true = shared_objects['y_true'][:, config['label_azimuth_key']]
-    zenith_true = shared_objects['y_true'][:, config['label_azimuth_key']]
+    azimuth_true = shared_objects['y_true'][:, index_azimuth]
+    zenith_true = shared_objects['y_true'][:, index_zenith]
 
-    azimuth_pred = shared_objects['y_pred'][:, config['label_zenith_key']]
-    zenith_pred = shared_objects['y_pred'][:, config['label_zenith_key']]
+    azimuth_pred = shared_objects['y_pred'][:, index_azimuth]
+    zenith_pred = shared_objects['y_pred'][:, index_zenith]
 
-    azimuth_unc = shared_objects['y_unc'][:, config['label_zenith_key']]
-    zenith_unc = shared_objects['y_unc'][:, config['label_zenith_key']]
+    azimuth_unc = shared_objects['y_unc'][:, index_azimuth]
+    zenith_unc = shared_objects['y_unc'][:, index_zenith]
 
     angle = utils.tf_get_angle_deviation(azimuth1=azimuth_true,
                                          zenith1=zenith_true,
@@ -668,14 +670,17 @@ def opening_angle_raleigh(config, data_handler, data_transformer,
 
     """
 
-    azimuth_true = shared_objects['y_true'][:, config['label_azimuth_key']]
-    zenith_true = shared_objects['y_true'][:, config['label_azimuth_key']]
+    index_azimuth = data_handler.get_label_index(config['label_azimuth_key'])
+    index_zenith = data_handler.get_label_index(config['label_zenith_key'])
 
-    azimuth_pred = shared_objects['y_pred'][:, config['label_zenith_key']]
-    zenith_pred = shared_objects['y_pred'][:, config['label_zenith_key']]
+    azimuth_true = shared_objects['y_true'][:, index_azimuth]
+    zenith_true = shared_objects['y_true'][:, index_zenith]
 
-    azimuth_unc = shared_objects['y_unc'][:, config['label_zenith_key']]
-    zenith_unc = shared_objects['y_unc'][:, config['label_zenith_key']]
+    azimuth_pred = shared_objects['y_pred'][:, index_azimuth]
+    zenith_pred = shared_objects['y_pred'][:, index_zenith]
+
+    azimuth_unc = shared_objects['y_unc'][:, index_azimuth]
+    zenith_unc = shared_objects['y_unc'][:, index_zenith]
 
     angle = utils.tf_get_angle_deviation(azimuth1=azimuth_true,
                                          zenith1=zenith_true,
@@ -685,6 +690,10 @@ def opening_angle_raleigh(config, data_handler, data_transformer,
     # use zenith true here, even though it will hae to be predicted value
     sigma = tf.sqrt(zenith_unc**2 + azimuth_unc**2 * tf.sin(zenith_true)**2)
     sigma /= np.sqrt(2)
+
+    # small float to prevent division by zero
+    eps = 1e-6
+    sigma = tf.clip_by_value(sigma, eps, float('inf'))
 
     raleigh = (angle / sigma)**2 + 4*tf.log(sigma) - 2*tf.log(angle)
 
