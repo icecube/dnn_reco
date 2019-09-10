@@ -478,15 +478,23 @@ class NNModel(object):
             gvs = optimizer.compute_gradients(total_loss, var_list=var_list)
 
             # remove nans in gradients and replace these with zeros
-            remove_nan_gradients = False
+            if 'remove_nan_gradients' in opt_config:
+                remove_nan_gradients = opt_config['remove_nan_gradients']
+            else:
+                remove_nan_gradients = False
             if remove_nan_gradients:
                 gvs = [(tf.where(tf.is_nan(grad), tf.zeros_like(grad), grad),
                         var) for grad, var in gvs if grad is not None]
 
-            clip_gradients = False
-            if clip_gradients:
-                capped_gvs = [(tf.clip_by_value(grad, -1., 1.), var)
-                              for grad, var in gvs]
+            if 'clip_gradients_value' in opt_config:
+                clip_gradients_value = opt_config['clip_gradients_value']
+            else:
+                clip_gradients_value = None
+            if clip_gradients_value is not None:
+                gradients, variables = zip(*gvs)
+                gradients, _ = tf.clip_by_global_norm(gradients,
+                                                      clip_gradients_value)
+                capped_gvs = zip(gradients, variables)
             else:
                 capped_gvs = gvs
             optimizer_ops.append(optimizer.apply_gradients(capped_gvs))
