@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import tensorflow as tf
+import numpy as np
 
 from dnn_reco import misc
 from dnn_reco import utils
@@ -633,9 +634,21 @@ def opening_angle(config, data_handler, data_transformer, shared_objects,
         loss_angle = tf.reduce_mean(angle, 0)
         loss_unc = tf.reduce_mean(unc_diff**2, 0)
 
+    loss = loss_angle + loss_unc
+    zeros = tf.zeros_like(azimuth_true)
+
+    loss_all_list = []
+    for label in data_handler.label_names:
+        if label in [config['label_azimuth_key'], config['label_zenith_key']]:
+            loss_all_list.append(loss)
+        else:
+            loss_all_list.append(zeros)
+
+    loss_all = tf.stack(loss_all_list, axis=1)
+
     loss_utils.add_logging_info(data_handler, shared_objects)
 
-    return loss_angle + loss_unc
+    return loss_all
 
 
 def opening_angle_raleigh(config, data_handler, data_transformer,
@@ -706,6 +719,18 @@ def opening_angle_raleigh(config, data_handler, data_transformer,
         loss_angle = tf.reduce_mean(angle, 0)
         raleigh_loss = tf.reduce_mean(raleigh, 0)
 
+    loss = loss_angle + raleigh_loss
+    zeros = tf.zeros_like(azimuth_true)
+
+    loss_all_list = []
+    for label in data_handler.label_names:
+        if label in [config['label_azimuth_key'], config['label_zenith_key']]:
+            loss_all_list.append(loss)
+        else:
+            loss_all_list.append(zeros)
+
+    loss_all = tf.stack(loss_all_list, axis=1)
+
     loss_utils.add_logging_info(data_handler, shared_objects)
 
-    return loss_angle + raleigh_loss
+    return loss_all
