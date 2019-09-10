@@ -635,7 +635,7 @@ def opening_angle(config, data_handler, data_transformer, shared_objects,
         loss_unc = tf.reduce_mean(unc_diff**2, 0)
 
     loss = loss_angle + loss_unc
-    zeros = tf.zeros_like(azimuth_true)
+    zeros = tf.zeros_like(loss)
 
     loss_all_list = []
     for label in data_handler.label_names:
@@ -644,7 +644,7 @@ def opening_angle(config, data_handler, data_transformer, shared_objects,
         else:
             loss_all_list.append(zeros)
 
-    loss_all = tf.stack(loss_all_list, axis=1)
+    loss_all = tf.stack(loss_all_list, axis=0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
 
@@ -720,7 +720,7 @@ def opening_angle_raleigh(config, data_handler, data_transformer,
         raleigh_loss = tf.reduce_mean(raleigh, 0)
 
     loss = loss_angle + raleigh_loss
-    zeros = tf.zeros_like(azimuth_true)
+    zeros = tf.zeros_like(loss)
 
     loss_all_list = []
     for label in data_handler.label_names:
@@ -729,7 +729,7 @@ def opening_angle_raleigh(config, data_handler, data_transformer,
         else:
             loss_all_list.append(zeros)
 
-    loss_all = tf.stack(loss_all_list, axis=1)
+    loss_all = tf.stack(loss_all_list, axis=0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
 
