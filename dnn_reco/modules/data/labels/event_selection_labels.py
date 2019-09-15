@@ -71,7 +71,7 @@ def upgoing_tracks(input_data, config, label_names=None, *args, **kwargs):
     """
 
     with pd.HDFStore(input_data,  mode='r') as f:
-        _labels = f['LabelsDeepLearning_p60']
+        _labels = f[config['data_handler_label_key']]
         _primary = f['MCPrimary']
 
     mask = _labels['PrimaryZenith'] > np.deg2rad(85)

@@ -13,6 +13,18 @@
 # General settings
 #---------------------------
 'training_data_file' : [
+
+    # NuGen - 11883
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/03000-03999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/04000-04999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/05000-05999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/06000-06999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/07000-07999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/08000-08999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/NuMu/11883/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/09000-09999/*.hdf5',
+
     # NuGen
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013*/l2/1*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013*/l2/2/*.hdf5',
@@ -92,6 +104,7 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/MuonGun/12*/0.99_eff/00*000-00*999/*.hdf5',
   ]
 'trafo_data_file' : [
+
     # NuGen
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013*/l2/1*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/NuGen/Nu*/*_energy/IC86_2013*/l2/2/*.hdf5',
@@ -243,11 +256,11 @@
 # These values will then be added to the misc values under the name:
 #     'hdf key'_'column'
 'misc_load_dict': {
-  'CscdL3_Cont_Tag': 'value',
-  'CscdL3': 'value',
+  # 'CscdL3_Cont_Tag': 'value',
+  # 'CscdL3': 'value',
   'LabelsDeepLearning': ['p_outside_cascade', 'p_starting_300m'],
-  'LabelsDeepLearning_m60': 'p_outside_cascade',
-  'LabelsDeepLearning_p60': 'p_outside_cascade',
+  # 'LabelsDeepLearning_m60': 'p_outside_cascade',
+  # 'LabelsDeepLearning_p60': 'p_outside_cascade',
   'FilterMask': ['MuonFilter', 'CascadeFilter'],
   'weights': ['GaisserH4a_atmod12_SIBYLL',  # MuonGun
               'GaisserH4a_atmod12_DPMJET_C',  # MuonGun
@@ -380,8 +393,8 @@
 # ---------------------
 # Event weight settings
 # ---------------------
-'event_weight_file': 'event_weights'
-'event_weight_name': 'event_selection_weight'
+'event_weight_file': #'event_weights'
+'event_weight_name': #'event_selection_weight'
 
 # weights to accumulate for Corsika, NuGen, and MuonGun
 'event_weights_corsika_keys': ['weights_GaisserH4aWeight']
@@ -404,8 +417,8 @@
 'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
-'evaluation_file': default_evaluation
-'evaluation_name': eval_direction
+'evaluation_file': #default_evaluation
+'evaluation_name': #eval_direction
 
 #---------------------------
 # Trafo settings
@@ -482,7 +495,7 @@
 'model_file' : 'general_IC86_models'
 'model_name' : 'general_model_IC86_opt4'
 'model_is_training' : True
-'model_enforce_direction_norm': True
+'model_enforce_direction_norm': False
 
 # 2D convolutional layer of upper DeepCore
 'conv_upper_DeepCore_settings': {
