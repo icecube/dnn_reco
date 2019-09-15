@@ -293,8 +293,6 @@
 
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
-  'LabelsDeepLearning_p_outside_cascade': False,
-  'FilterMask_CascadeFilter': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
