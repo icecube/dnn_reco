@@ -73,7 +73,7 @@
     # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*04000.hdf5',
   ]
 'test_data_file' : [
-    '/net/big-tank/POOL/users/mhuennefeld/data/Cascades/HESE/datasets/NuGen_new/cascade*_Nu*_high_energy_*/output/summaryV2_clipped/02000-02999/*.hdf5',
+    #'/net/big-tank/POOL/users/mhuennefeld/data/Cascades/HESE/datasets/NuGen_new/cascade*_Nu*_high_energy_*/output/summaryV2_clipped/02000-02999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/Cascades/HESE/datasets/NuGen_new/cascade*_Nu*_medium_energy_*/output/summaryV2_clipped/04000-04999/*.hdf5',
 
     # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/publication/MESE/datasets/*/output/summaryV2_clipped/04000-04999/*04000.hdf5',
