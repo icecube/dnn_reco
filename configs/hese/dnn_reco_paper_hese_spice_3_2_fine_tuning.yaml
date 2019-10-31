@@ -159,7 +159,7 @@
 # Label settings
 # --------------
 # initialize label weights with this value
-'label_weight_initialization': 0.0001
+'label_weight_initialization': 0.0
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
