@@ -463,6 +463,8 @@
                   'loss_name': 'mse',
                   'l1_regularization': 0.,
                   'l2_regularization': 0.,
+                  'clip_gradients_value': ,
+                  'remove_nan_gradients': False,
                 },
   # 'gaussian_unc': {
   #                 'optimizer': 'AdamOptimizer',
@@ -472,6 +474,8 @@
   #                 'loss_name': 'gaussian_likelihood',
   #                 'l1_regularization': 0.,
   #                 'l2_regularization': 0.00001,
+  #                 'clip_gradients_value': ,
+  #                 'remove_nan_gradients': False,
   #               },
 }
 
