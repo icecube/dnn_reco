@@ -180,6 +180,7 @@ class SetupManager:
                         'DOM_init_values': 0.0,
                         'trafo_norm_constant': 1e-6,
                         'data_handler_nan_fill_value': None,
+                        'data_handler_num_splits': None,
                      }
 
     def __init__(self, config_files):

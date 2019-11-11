@@ -46,6 +46,7 @@ def main(config_files):
                         num_jobs=config['num_jobs'],
                         num_add_files=config['num_add_files'],
                         num_repetitions=config['num_repetitions'],
+                        num_splits=config['data_handler_num_splits'],
                         init_values=config['DOM_init_values'],
                         nan_fill_value=config['data_handler_nan_fill_value'],
                         )
@@ -60,6 +61,7 @@ def main(config_files):
                         num_jobs=1,
                         num_add_files=0,
                         num_repetitions=1,
+                        num_splits=config['data_handler_num_splits'],
                         init_values=config['DOM_init_values'],
                         nan_fill_value=config['data_handler_nan_fill_value'],
                         )
