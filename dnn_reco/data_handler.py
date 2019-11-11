@@ -639,7 +639,8 @@ class DataHandler(object):
                                 # (Multiprocessing queue can only handle
                                 #  a certain size)
                                 split_indices_list = np.array_split(
-                                        np.arange(x_ic78.shape[0]), num_splits)
+                                        np.arange(icecube_data[0].shape[0]),
+                                        num_splits)
 
                                 for split_indices in split_indices_list:
 
