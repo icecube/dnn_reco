@@ -230,7 +230,7 @@ class DataHandler(object):
         ----------
         input_data : str
             Path to input data file.
-        nan_fill_value : int, optional
+        nan_fill_value : float, optional
             Fill value for nan values in loaded data.
             Entries with nan values will be replaced by this value.
             If None, no replacement will be performed.
@@ -408,8 +408,25 @@ class DataHandler(object):
                 if self.misc_data_exists:
                     misc_data = misc_data[mask]
         else:
-            x_ic78[~np.isfinite(x_ic78)] = nan_fill_value
-            x_deepcore[~np.isfinite(x_deepcore)] = nan_fill_value
+
+            # Raise Error if NaNs found in input data.
+            # This should never be the case!
+            mask = np.isfinite(np.sum(x_ic78, axis=(1, 2, 3, 4)))
+            mask = np.logical_and(
+                mask, np.isfinite(np.sum(x_deepcore, axis=(1, 2, 3))))
+            if not mask.all():
+                raise ValueError('Found NaN values in input data!')
+
+            # Fixing NaNs in labels and misc data is ok, but warn about this
+            mask = np.isfinite(np.sum(labels,
+                                      axis=tuple(range(1, labels.ndim))))
+            if self.misc_data_exists:
+                mask = np.logical_and(mask, np.isfinite(
+                    np.sum(misc_data, axis=tuple(range(1, misc_data.ndim)))))
+            if not mask.all():
+                misc.print_warning('Found NaNs in labels and/or misc data. ' +
+                                   'Replacing NaNs in {} events'.format(
+                                                len(mask) - np.sum(mask)))
             labels[~np.isfinite(labels)] = nan_fill_value
             if self.misc_data_exists:
                 misc_data[~np.isfinite(misc_data)] = nan_fill_value
@@ -434,6 +451,7 @@ class DataHandler(object):
                             num_repetitions=1,
                             init_values=0.,
                             num_splits=None,
+                            nan_fill_value=None,
                             verbose=False,
                             *args, **kwargs
                             ):
@@ -505,6 +523,10 @@ class DataHandler(object):
             num_splits chunks of about equal size. This can be useful when
             the input files contain a lot of events, since the multiprocessing
             queue can not handle elements of arbitrary size.
+        nan_fill_value : float, optional
+            Fill value for nan values in loaded data.
+            Entries with nan values will be replaced by this value.
+            If None, no replacement will be performed.
         verbose : bool, optional
             If True, verbose output with additional information on queues.
         *args
@@ -519,6 +541,11 @@ class DataHandler(object):
             np.ndarry, np.ndarray
                 dom_responses: [batch_size, x_dim, y_dim, z_dim, num_bins]
                 cascade_parameters: [batch_size, num_cascade_parameters]
+
+        Raises
+        ------
+        ValueError
+            Description
         """
         if not self.is_setup:
             raise ValueError('DataHandler needs to be set up first!')
@@ -597,7 +624,8 @@ class DataHandler(object):
                                              data_batch_queue.qsize()))
                         icecube_data = self.read_icecube_data(
                                     input_data=file,
-                                    init_values=init_values)
+                                    init_values=init_values,
+                                    nan_fill_value=nan_fill_value)
 
                         if icecube_data is not None:
 

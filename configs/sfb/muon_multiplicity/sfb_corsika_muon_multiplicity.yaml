@@ -44,9 +44,9 @@
 'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 12
-'file_capacity' : 100
+'file_capacity' : 20
 'batch_capacity' : 200
-'num_add_files' : 200
+'num_add_files' : 50
 'num_repetitions' : 3
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
@@ -77,6 +77,8 @@
 
 
 'data_handler_label_key': 'LabelsDeepLearning'
+# Replace NaNs in labels or misc data. Warning: use with caution!
+'data_handler_nan_fill_value': 0.
 
 
 # must be a list of keys or empty list

@@ -37,30 +37,32 @@ def main(config_files):
 
     # Create Data iterators for training and validation data
     train_data_generator = data_handler.get_batch_generator(
-                                    input_data=config['training_data_file'],
-                                    batch_size=config['batch_size'],
-                                    sample_randomly=True,
-                                    pick_random_files_forever=True,
-                                    file_capacity=config['file_capacity'],
-                                    batch_capacity=config['batch_capacity'],
-                                    num_jobs=config['num_jobs'],
-                                    num_add_files=config['num_add_files'],
-                                    num_repetitions=config['num_repetitions'],
-                                    init_values=config['DOM_init_values'],
-                                    )
+                        input_data=config['training_data_file'],
+                        batch_size=config['batch_size'],
+                        sample_randomly=True,
+                        pick_random_files_forever=True,
+                        file_capacity=config['file_capacity'],
+                        batch_capacity=config['batch_capacity'],
+                        num_jobs=config['num_jobs'],
+                        num_add_files=config['num_add_files'],
+                        num_repetitions=config['num_repetitions'],
+                        init_values=config['DOM_init_values'],
+                        nan_fill_value=config['data_handler_nan_fill_value'],
+                        )
 
     val_data_generator = data_handler.get_batch_generator(
-                                    input_data=config['validation_data_file'],
-                                    batch_size=config['batch_size'],
-                                    sample_randomly=True,
-                                    pick_random_files_forever=True,
-                                    file_capacity=1,
-                                    batch_capacity=5,
-                                    num_jobs=1,
-                                    num_add_files=0,
-                                    num_repetitions=1,
-                                    init_values=config['DOM_init_values'],
-                                    )
+                        input_data=config['validation_data_file'],
+                        batch_size=config['batch_size'],
+                        sample_randomly=True,
+                        pick_random_files_forever=True,
+                        file_capacity=1,
+                        batch_capacity=5,
+                        num_jobs=1,
+                        num_add_files=0,
+                        num_repetitions=1,
+                        init_values=config['DOM_init_values'],
+                        nan_fill_value=config['data_handler_nan_fill_value'],
+                        )
 
     # create data transformer
     data_transformer = DataTransformer(

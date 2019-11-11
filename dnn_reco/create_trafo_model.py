@@ -44,6 +44,7 @@ def main(config_files):
                 'num_add_files': 0,
                 'num_repetitions': 1,
                 'init_values': config['DOM_init_values'],
+                'nan_fill_value': config['data_handler_nan_fill_value'],
             }
     trafo_data_generator = data_handler.get_batch_generator(**settings_trafo)
 
