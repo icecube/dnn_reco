@@ -43,7 +43,7 @@
 
 'tf_random_seed': 42
 'float_precision': float32
-'num_jobs' : 15
+'num_jobs' : 12
 'file_capacity' : 100
 'batch_capacity' : 200
 'num_add_files' : 200
@@ -198,7 +198,7 @@
 #---------------------------
 # Trafo settings
 #---------------------------
-'trafo_num_jobs' : 25
+'trafo_num_jobs' : 12
 'trafo_num_batches' : 1000
 'trafo_model_path' : '../data/trafo_models/dnn_reco_sfb_corsika_muon_multiplicity.npy'
 'trafo_normalize_dom_data' : True
