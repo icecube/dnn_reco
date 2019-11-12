@@ -43,10 +43,10 @@
 
 'tf_random_seed': 42
 'float_precision': float32
-'num_jobs' : 8
-'file_capacity' : 2
+'num_jobs' : 5
+'file_capacity' : 1
 'batch_capacity' : 200
-'num_add_files' : 50
+'num_add_files' : 5
 'num_repetitions' : 3
 'data_handler_num_splits': 10
 
