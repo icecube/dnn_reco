@@ -74,9 +74,8 @@ class DNN_LLH(object):
         random_seed : int, optional
             Random seed for sampling.
         """
-        self.dir_x = dir_x
-        self.dir_y = dir_y
-        self.dir_z = dir_z
+        self.dir_x, self.dir_y, self.dir_z = \
+            self.normalize_dir(dir_x, dir_y, dir_z)
         self.unc_x = unc_x
         self.unc_y = unc_y
         self.unc_z = unc_z
@@ -160,8 +159,13 @@ class DNN_LLH(object):
         # normalize
         dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
 
-        zenith = np.arccos(np.clip(-dir_z, -1, 1))
-        azimuth = (np.arctan2(-dir_y, -dir_x) + 2 * np.pi) % (2 * np.pi)
+        if with_flip:
+            dir_x = -dir_x
+            dir_y = -dir_y
+            dir_z = -dir_z
+
+        zenith = np.arccos(np.clip(dir_z, -1, 1))
+        azimuth = (np.arctan2(dir_y, dir_x) + 2 * np.pi) % (2 * np.pi)
 
         return zenith, azimuth
 
