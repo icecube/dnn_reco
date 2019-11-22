@@ -5,6 +5,8 @@ import numpy as np
 import healpy as hp
 from uncertainties import unumpy
 from scipy.stats import multivariate_normal
+from scipy.optimize import minimize
+from tqdm import tqdm
 
 
 class DNN_LLH_Base(object):
@@ -35,7 +37,7 @@ class DNN_LLH_Base(object):
     """
 
     def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 random_seed=42):
+                 random_seed=42, weighted_normalization=True):
         """Initialize DNN LLH object.
 
         Parameters
@@ -60,12 +62,18 @@ class DNN_LLH_Base(object):
             This is the output of the DNN reco for the estimated uncertainty.
         random_seed : int, optional
             Random seed for sampling.
+        weighted_normalization : bool, optional
+            If True the normalization vectors get normalized according to the
+            uncertainty on each of its components.
+            If False, the vectors get scaled by their norm to obtain unit
+            vectors.
 
         Deleted Parameters
         ------------------
         nside : int, optional
             Description
         """
+        self.weighted_normalization = weighted_normalization
         self.unc_x = unc_x
         self.unc_y = unc_y
         self.unc_z = unc_z
@@ -249,8 +257,48 @@ class DNN_LLH_Base(object):
         np.array, np.array, np.array
             The normalized direction vector components.
         """
-        norm = np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)
-        return dir_x/norm, dir_y/norm, dir_z/norm
+
+        # Scale vectors according to uncertainty of components
+        if self.weighted_normalization:
+
+            if isinstance(dir_z, float):
+                was_float = True
+                dir_x = [dir_x]
+                dir_y = [dir_y]
+                dir_z = [dir_z]
+            else:
+                was_float = False
+
+            dir_x_n = []
+            dir_y_n = []
+            dir_z_n = []
+            # for dx, dy, dz in tqdm(zip(dir_x, dir_y, dir_z)):
+            for dx, dy, dz in zip(dir_x, dir_y, dir_z):
+
+                def cost(dir_normed):
+                    x, y, z = dir_normed
+                    c = ((x - dx) / self.unc_x)**2
+                    c += ((y - dy) / self.unc_y)**2
+                    c += ((z - dz) / self.unc_z)**2
+                    return c
+
+                cons = ({'type': 'eq', 'fun': lambda x:  np.linalg.norm(x) - 1})
+
+                x0 = [dx, dy, dz]
+                result = minimize(cost, x0, constraints=cons)
+                dir_x_n.append(result.x[0])
+                dir_y_n.append(result.x[1])
+                dir_z_n.append(result.x[2])
+
+            if was_float:
+                return dir_x_n[0], dir_y_n[0], dir_z_n[0]
+            else:
+                return np.array(dir_x_n), np.array(dir_y_n), np.array(dir_z_n)
+
+        # Naive scaling: create unit vector by dividing by norm
+        else:
+            norm = np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)
+            return dir_x/norm, dir_y/norm, dir_z/norm
 
     def cdf(self, zenith, azimuth):
         """Calculate cumulative probability for given zenith/azimuth pairs.

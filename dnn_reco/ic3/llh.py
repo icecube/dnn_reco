@@ -61,7 +61,8 @@ class DNN_LLH_normalized(DNN_LLH_Base):
     """
 
     def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 nside=256, random_seed=42):
+                 nside=256, random_seed=42, scale_unc=True,
+                 weighted_normalization=True):
         """Initialize DNN LLH object.
 
         Parameters
@@ -88,36 +89,70 @@ class DNN_LLH_normalized(DNN_LLH_Base):
             Description
         random_seed : int, optional
             Random seed for sampling.
+        scale_unc : bool, optional
+            Due to the normalization of the direction vectors, the components
+            of the vector are correlated, hence the actual spread in sampled
+            direction vectors shrinks. The nn model predicts the Gaussian
+            Likelihood of the normalized vectors (if normalization is included)
+            in network model. In this case, the uncertainties of the
+            direction vector components can be scaled to account for this
+            correlation.
+            If set to True, the uncertainties will be scaled.
+        weighted_normalization : bool, optional
+            If True the normalization vectors get normalized according to the
+            uncertainty on each of its components.
+            If False, the vectors get scaled by their norm to obtain unit
+            vectors.
         """
 
         # call init from base class
         DNN_LLH_Base.__init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                              random_seed)
+                              random_seed, weighted_normalization)
 
-        # compute pdf for each pixel
-        self.nside = nside
-        self.npix = hp.nside2npix(nside)
-        self.dir_x_s, self.dir_y_s, self.dir_z_s = \
-            hp.pix2vec(nside, range(self.npix))
+        def _setup(nside):
+            # compute pdf for each pixel
+            self.nside = nside
+            self.npix = hp.nside2npix(nside)
+            self.dir_x_s, self.dir_y_s, self.dir_z_s = \
+                hp.pix2vec(nside, range(self.npix))
 
-        self.neg_llh_values = -self.log_prob_dir(
-            self.dir_x_s, self.dir_y_s, self.dir_z_s)
+            self.neg_llh_values = -self.log_prob_dir(
+                self.dir_x_s, self.dir_y_s, self.dir_z_s)
 
-        # sort directions according to neg llh
-        sorted_indices = np.argsort(self.neg_llh_values)
-        self.dir_x_s = self.dir_x_s[sorted_indices]
-        self.dir_y_s = self.dir_y_s[sorted_indices]
-        self.dir_z_s = self.dir_z_s[sorted_indices]
-        self.neg_llh_values = self.neg_llh_values[sorted_indices]
+            # sort directions according to neg llh
+            sorted_indices = np.argsort(self.neg_llh_values)
+            self.dir_x_s = self.dir_x_s[sorted_indices]
+            self.dir_y_s = self.dir_y_s[sorted_indices]
+            self.dir_z_s = self.dir_z_s[sorted_indices]
+            self.neg_llh_values = self.neg_llh_values[sorted_indices]
 
-        # get zenith and azimuth
-        self.zenith_s, self.azimuth_s = self.get_zenith_azimuth(
-                        self.dir_x_s, self.dir_y_s, self.dir_z_s)
+            # get zenith and azimuth
+            self.zenith_s, self.azimuth_s = self.get_zenith_azimuth(
+                            self.dir_x_s, self.dir_y_s, self.dir_z_s)
 
-        # get normalized probabilities and cdf
-        prob = np.exp(-self.neg_llh_values)
-        self.prob_values = prob / np.sum(prob)
-        self.cdf_values = np.cumsum(self.prob_values)
+            # get normalized probabilities and cdf
+            prob = np.exp(-self.neg_llh_values)
+            self.prob_values = prob / np.sum(prob)
+            self.cdf_values = np.cumsum(self.prob_values)
+
+        # -------------------------
+        # scale up unc if necessary
+        # -------------------------
+        self.scale_unc = scale_unc
+
+        if self.scale_unc:
+            # set up once to be able to perform scaling
+            _setup(nside=32)
+
+            dir_x_s, dir_y_s, dir_z_s = self.sample_dir(1000)
+            # print('scaling x by:', self.unc_x / np.std(dir_x_s))
+            # print('scaling y by:', self.unc_y / np.std(dir_y_s))
+            # print('scaling z by:', self.unc_z / np.std(dir_z_s))
+            self.unc_x *= self.unc_x / np.std(dir_x_s)
+            self.unc_y *= self.unc_y / np.std(dir_y_s)
+            self.unc_z *= self.unc_z / np.std(dir_z_s)
+        # -------------------------
+        _setup(nside=nside)
 
     def log_prob_dir(self, dir_x, dir_y, dir_z):
         """Calculate the log probability for given direction vectors.
@@ -279,7 +314,8 @@ class DNN_LLH(DNN_LLH_Base):
     """
 
     def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 propagate_errors=False, num_samples=1000000, random_seed=42):
+                 propagate_errors=False, num_samples=1000000, random_seed=42,
+                 scale_unc=True, weighted_normalization=True):
         """Initialize DNN LLH object.
 
         Parameters
@@ -309,12 +345,27 @@ class DNN_LLH(DNN_LLH_Base):
             The more samples, the more accurate, but also slower.
         random_seed : int, optional
             Random seed for sampling.
+        scale_unc : bool, optional
+            Due to the normalization of the direction vectors, the components
+            of the vector are correlated, hence the actual spread in sampled
+            direction vectors shrinks. The nn model predicts the Gaussian
+            Likelihood of the normalized vectors (if normalization is included)
+            in network model. In this case, the uncertainties of the
+            direction vector components can be scaled to account for this
+            correlation.
+            If set to True, the uncertainties will be scaled.
+        weighted_normalization : bool, optional
+            If True the normalization vectors get normalized according to the
+            uncertainty on each of its components.
+            If False, the vectors get scaled by their norm to obtain unit
+            vectors.
         """
 
         # call init from base class
         DNN_LLH_Base.__init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                              random_seed)
+                              random_seed, weighted_normalization)
 
+        self._num_samples = num_samples
         self.propagate_errors = propagate_errors
         if self.propagate_errors:
             # propagate errors
@@ -343,7 +394,24 @@ class DNN_LLH(DNN_LLH_Base):
             self.dir_x, self.dir_y, self.dir_z = \
                 self.normalize_dir(dir_x, dir_y, dir_z)
 
-        self._num_samples = num_samples
+        # -------------------------
+        # scale up unc if necessary
+        # -------------------------
+        self.scale_unc = scale_unc
+
+        if self.scale_unc:
+            def _scale():
+                dir_x_s, dir_y_s, dir_z_s = self.sample_dir(
+                                                min(self._num_samples, 1000))
+                # print('scaling x by:', self.unc_x / np.std(dir_x_s))
+                # print('scaling y by:', self.unc_y / np.std(dir_y_s))
+                # print('scaling z by:', self.unc_z / np.std(dir_z_s))
+                self.unc_x *= self.unc_x / np.std(dir_x_s)
+                self.unc_y *= self.unc_y / np.std(dir_y_s)
+                self.unc_z *= self.unc_z / np.std(dir_z_s)
+            _scale()
+        # -------------------------
+
         self.zenith, self.azimuth = self.get_zenith_azimuth(
                                         self.dir_x, self.dir_y, self.dir_z)
         # sample contours
