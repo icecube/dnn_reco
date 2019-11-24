@@ -140,7 +140,8 @@ class DNN_LLH_Base(object):
             The zeniths and azimuth angles in radians.
         """
         # normalize
-        dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
+        if not self.is_normalized(dir_x, dir_y, dir_z):
+            dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
 
         if with_flip:
             dir_x = -dir_x
@@ -240,6 +241,26 @@ class DNN_LLH_Base(object):
         """
         raise NotImplementedError
 
+    def is_normalized(self, dir_x, dir_y, dir_z):
+        """Checks if a direction vector is normalized.
+
+        Parameters
+        ----------
+        dir_x : np.array
+            The direction vector x component.
+        dir_y : np.array
+            The direction vector y component.
+        dir_z : np.array
+            The direction vector z component.
+
+        Returns
+        -------
+        bool
+            True, if the direction vector is normalized
+        """
+        norm = np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)
+        return np.allclose(norm, 1.)
+
     def normalize_dir(self, dir_x, dir_y, dir_z):
         """Normalize a direction vector to a unit vector.
 
@@ -263,37 +284,41 @@ class DNN_LLH_Base(object):
 
             if isinstance(dir_z, float):
                 was_float = True
+                norm_list = [np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)]
                 dir_x = [dir_x]
                 dir_y = [dir_y]
                 dir_z = [dir_z]
             else:
                 was_float = False
+                norm_list = np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)
 
-            dir_x_n = []
-            dir_y_n = []
-            dir_z_n = []
-            # for dx, dy, dz in tqdm(zip(dir_x, dir_y, dir_z)):
-            for dx, dy, dz in zip(dir_x, dir_y, dir_z):
+            # define constraint
+            cons = ({'type': 'eq', 'fun': lambda x:  np.linalg.norm(x) - 1})
 
-                def cost(dir_normed):
-                    x, y, z = dir_normed
-                    c = ((x - dx) / self.unc_x)**2
-                    c += ((y - dy) / self.unc_y)**2
-                    c += ((z - dz) / self.unc_z)**2
-                    return c
+            # define cost function
+            def cost(dir_normed, dx, dy, dz):
+                x, y, z = dir_normed
+                c = ((x - dx) / self.unc_x)**2
+                c += ((y - dy) / self.unc_y)**2
+                c += ((z - dz) / self.unc_z)**2
+                return c
 
-                cons = ({'type': 'eq', 'fun': lambda x:  np.linalg.norm(x) - 1})
+            def minimize_vector(dx, dy, dz, norm):
+                x0 = [dx/norm, dy/norm, dz/norm]
+                result = minimize(cost, x0, args=(dx, dy, dz),
+                                  constraints=cons, options={'ftol': 1e-04})
+                return result.x
 
-                x0 = [dx, dy, dz]
-                result = minimize(cost, x0, constraints=cons)
-                dir_x_n.append(result.x[0])
-                dir_y_n.append(result.x[1])
-                dir_z_n.append(result.x[2])
+            size = len(dir_x)
+            dir_n = np.empty((size, 3))
+            for i, (dx, dy, dz, norm) in enumerate(zip(
+                                dir_x, dir_y, dir_z, norm_list)):
+                dir_n[i] = minimize_vector(dx, dy, dz, norm)
 
             if was_float:
-                return dir_x_n[0], dir_y_n[0], dir_z_n[0]
+                return dir_n[0, 0], dir_n[0, 1], dir_n[0, 2]
             else:
-                return np.array(dir_x_n), np.array(dir_y_n), np.array(dir_z_n)
+                return dir_n[:, 0], dir_n[:, 1], dir_n[:, 2]
 
         # Naive scaling: create unit vector by dividing by norm
         else:

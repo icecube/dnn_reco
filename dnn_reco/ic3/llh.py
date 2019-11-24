@@ -110,8 +110,12 @@ class DNN_LLH_normalized(DNN_LLH_Base):
                               random_seed, weighted_normalization)
 
         def _setup(nside):
+
+            self.cov = np.diag([self.unc_x**2, self.unc_y**2, self.unc_z**2])
+
             # compute pdf for each pixel
             self.nside = nside
+            self._n_order = self._nside2norder()
             self.npix = hp.nside2npix(nside)
             self.dir_x_s, self.dir_y_s, self.dir_z_s = \
                 hp.pix2vec(nside, range(self.npix))
@@ -125,6 +129,7 @@ class DNN_LLH_normalized(DNN_LLH_Base):
             self.dir_y_s = self.dir_y_s[sorted_indices]
             self.dir_z_s = self.dir_z_s[sorted_indices]
             self.neg_llh_values = self.neg_llh_values[sorted_indices]
+            self.ipix_list = np.arange(self.npix)[sorted_indices]
 
             # get zenith and azimuth
             self.zenith_s, self.azimuth_s = self.get_zenith_azimuth(
@@ -140,17 +145,20 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         # -------------------------
         self.scale_unc = scale_unc
 
-        if self.scale_unc:
+        def _scale(nside):
             # set up once to be able to perform scaling
-            _setup(nside=32)
-
-            dir_x_s, dir_y_s, dir_z_s = self.sample_dir(1000)
+            _setup(nside=nside)
+            dir_x_s, dir_y_s, dir_z_s = self.sample_dir(10000)
             # print('scaling x by:', self.unc_x / np.std(dir_x_s))
             # print('scaling y by:', self.unc_y / np.std(dir_y_s))
             # print('scaling z by:', self.unc_z / np.std(dir_z_s))
             self.unc_x *= self.unc_x / np.std(dir_x_s)
             self.unc_y *= self.unc_y / np.std(dir_y_s)
             self.unc_z *= self.unc_z / np.std(dir_z_s)
+
+        if self.scale_unc:
+            _scale(nside=nside)
+
         # -------------------------
         _setup(nside=nside)
 
@@ -171,10 +179,72 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         np.array
             The log probability for given zenith/azimuth pairs.
         """
-        log_p = self.log_gauss(dir_x, self.dir_x, self.unc_x)
-        log_p += self.log_gauss(dir_y, self.dir_y, self.unc_y)
-        log_p += self.log_gauss(dir_z, self.dir_z, self.unc_z)
-        return log_p
+        from scipy.stats import multivariate_normal
+
+        return multivariate_normal.logpdf(
+            np.array([dir_x, dir_y, dir_z]).T,
+            mean=np.array([self.dir_x, self.dir_y, self.dir_z]).T,
+            cov=self.cov)
+
+        # log_p = self.log_gauss(dir_x, self.dir_x, self.unc_x)
+        # log_p += self.log_gauss(dir_y, self.dir_y, self.unc_y)
+        # log_p += self.log_gauss(dir_z, self.dir_z, self.unc_z)
+        # return log_p
+
+    def _nside2norder(self):
+        """
+        Give the HEALpix order for the given HEALpix nside parameter.
+
+        Credit goes to:
+            https://git.rwth-aachen.de/astro/astrotools/blob/master/
+            astrotools/healpytools.py
+
+        Returns
+        -------
+        int
+            norder of the healpy pixelization
+
+        Raises
+        ------
+        ValueError
+            If nside is not 2**norder.
+        """
+        norder = np.log2(self.nside)
+        if not (norder.is_integer()):
+            raise ValueError('Wrong nside number (it is not 2**norder)')
+        return int(norder)
+
+    def _sample_from_ipix(self, ipix, nest=False):
+        """
+        Sample vectors from a uniform distribution within a HEALpixel.
+
+        Credit goes to
+        https://git.rwth-aachen.de/astro/astrotools/blob/master/
+        astrotools/healpytools.py
+
+        :param ipix: pixel number(s)
+        :param nest: set True in case you work with healpy's nested scheme
+        :return: vectors containing events from the pixel(s) specified in ipix
+
+        Parameters
+        ----------
+        ipix : int, list of int
+            Healpy pixels.
+        nest : bool, optional
+            Set to True in case healpy's nested scheme is used.
+
+        Returns
+        -------
+        np.array, np.array, np.array
+            The sampled direction vector components.
+        """
+        if not nest:
+            ipix = hp.ring2nest(self.nside, ipix=ipix)
+
+        n_up = 29 - self._n_order
+        i_up = ipix * 4 ** n_up
+        i_up += self._random_state.randint(0, 4 ** n_up, size=np.size(ipix))
+        return hp.pix2vec(nside=2 ** 29, ipix=i_up, nest=True)
 
     def sample_dir(self, n):
         """Sample direction vectors from the distribution
@@ -189,24 +259,17 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         np.array, np.array, np.array
             The sampled direction vector components.
         """
-        n_sampled = 0.
-        dir_x = []
-        dir_y = []
-        dir_z = []
-        while not n_sampled >= n:
-            rand = self._random_state.uniform(size=self.npix)
-            event_at_ipix = self.prob_values >= rand
+        # sample random healpy pixels given their probability
+        indices = np.searchsorted(self.cdf_values, self._random_state.rand(n))
+        indices[indices > self.npix - 1] = self.npix - 1
 
-            n_sampled += np.sum(event_at_ipix)
-            dir_x.append(self.dir_x_s[event_at_ipix])
-            dir_y.append(self.dir_y_s[event_at_ipix])
-            dir_z.append(self.dir_z_s[event_at_ipix])
+        # get the healpy pixels
+        ipix = self.ipix_list[indices]
 
-        dir_x = np.concatenate(dir_x)
-        dir_y = np.concatenate(dir_y)
-        dir_z = np.concatenate(dir_z)
+        # sample directions within these pixels
+        dir_x, dir_y, dir_z = self._sample_from_ipix(ipix)
 
-        return dir_x[:n], dir_y[:n], dir_z[:n]
+        return dir_x, dir_y, dir_z
 
     def cdf_dir(self, dir_x, dir_y, dir_z):
         """Calculate cumulative probability for given direction vectors.
@@ -225,7 +288,10 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         np.array
             The cumulative probabilty for the given direction vectors.
         """
-        dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
+        if not self.is_normalized(dir_x, dir_y, dir_z):
+            print('cdf_dir is normalizing direction vectors')
+            dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
+
         neg_llh = -self.log_prob_dir(dir_x, dir_y, dir_z)
         pos = np.searchsorted(self.neg_llh_values, neg_llh)
         pos_clipped = np.clip(pos, 0, self.npix - 1)
@@ -511,7 +577,10 @@ class DNN_LLH(DNN_LLH_Base):
         np.array
             The cumulative probabilty for the given direction vectors.
         """
-        dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
+        if not self.is_normalized(dir_x, dir_y, dir_z):
+            print('cdf_dir is normalizing direction vectors')
+            dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
+
         neg_llh = -self.log_prob_dir(dir_x, dir_y, dir_z)
         pos = np.searchsorted(self.neg_llh_values, neg_llh)
         cdf = 1.0*pos / self._num_samples
