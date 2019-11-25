@@ -4,10 +4,336 @@ from __future__ import division, print_function
 import numpy as np
 import healpy as hp
 import uncertainties
-from uncertainties import unumpy
+from uncertainties import unumpy, ufloat, covariance_matrix
 from scipy.stats import multivariate_normal
 
-from dnn_reco.ic3.llh_base import DNN_LLH_Base
+from dnn_reco.ic3.llh_base import DNN_LLH_Base, DNN_LLH_Base_Elliptical
+
+
+class DNN_LLH_Circular_Dir(DNN_LLH_Base_Elliptical):
+
+    """The DNN LLH class for calculating circular PDFs obtained from
+    the DNN reco.
+
+    Attributes
+    ----------
+    azimuth : float
+        The best fit azimuth. This is the output of the DNN reco.
+    zenith : float
+        The best fit zenith. This is the output of the DNN reco.
+    cov : array_like
+        The covariance matrix for zenith and azimuth.
+        This is obtained from the uncertainty estimate of the DNN reco.
+        Shape: [2, 2]
+    dir_x : float
+        The best fit direction vector x component.
+        This is the output of the DNN reco for the x-component.
+    dir_y : float
+        The best fit direction vector y component.
+        This is the output of the DNN reco for the y-component.
+    dir_z : float
+        The best fit direction vector z component.
+        This is the output of the DNN reco for the z-component.
+    """
+
+    def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
+                 num_samples=1000000, random_seed=42,
+                 weighted_normalization=True, fix_delta=True):
+        """Initialize DNN LLH object.
+
+        Parameters
+        ----------
+        dir_x : float
+            The best fit direction vector x component.
+            This is the output of the DNN reco for the x-component.
+        dir_y : float
+            The best fit direction vector y component.
+            This is the output of the DNN reco for the y-component.
+        dir_z : float
+            The best fit direction vector z component.
+            This is the output of the DNN reco for the z-component.
+        unc_x : float
+            The estimated uncertainty for the direction vector x component.
+            This is the output of the DNN reco for the estimated uncertainty.
+        unc_y : float
+            The estimated uncertainty for the direction vector y component.
+            This is the output of the DNN reco for the estimated uncertainty.
+        unc_z : float
+            The estimated uncertainty for the direction vector z component.
+            This is the output of the DNN reco for the estimated uncertainty.
+        num_samples : int, optional
+            Number of samples to sample for internal calculations.
+            The more samples, the more accurate, but also slower.
+        random_seed : int, optional
+            Random seed for sampling.
+        weighted_normalization : bool, optional
+            If True the normalization vectors get normalized according to the
+            uncertainty on each of its components.
+            If False, the vectors get scaled by their norm to obtain unit
+            vectors.
+        fix_delta : bool, optional
+            If True, the sampled direction vectors will sampled in a way such
+            that the deltas of the angles: abs(azimuth - sampled_azimuth) and
+            abs(zenith - sampled_zenith) follow the expected distribution.
+        """
+        self.weighted_normalization = weighted_normalization
+        u_dir_x = ufloat(dir_x, unc_x)
+        u_dir_y = ufloat(dir_y, unc_y)
+        u_dir_z = ufloat(dir_z, unc_z)
+        u_dir_x, u_dir_y, u_dir_z = self.u_normalize_dir(
+                                            u_dir_x, u_dir_y, u_dir_z)
+
+        # Assign values with propagated and normalized vector
+        u_zenith, u_azimuth = self.u_get_zenith_azimuth(
+            u_dir_x, u_dir_y, u_dir_z)
+        self.dir_x = u_dir_x.nominal_value
+        self.dir_y = u_dir_y.nominal_value
+        self.dir_z = u_dir_z.nominal_value
+
+        unc_zenith = unumpy.std_devs(u_zenith)
+        unc_azimuth = unumpy.std_devs(u_azimuth)
+        zenith = unumpy.nominal_values(u_zenith)
+        azimuth = unumpy.nominal_values(u_azimuth)
+
+        # calculate circular error radius
+        circular_var = (unc_zenith**2 +
+                        unc_azimuth**2 * np.sin(zenith)**2) / 2.
+        cov = np.diag([circular_var, circular_var])
+        DNN_LLH_Base_Elliptical.__init__(self, zenith, azimuth, cov,
+                                         num_samples, random_seed,
+                                         weighted_normalization, fix_delta)
+
+
+class DNN_LLH_Circular(DNN_LLH_Base_Elliptical):
+
+    """The DNN LLH class for calculating circular PDFs obtained from
+    the DNN reco.
+
+    Attributes
+    ----------
+    azimuth : float
+        The best fit azimuth. This is the output of the DNN reco.
+    zenith : float
+        The best fit zenith. This is the output of the DNN reco.
+    cov : array_like
+        The covariance matrix for zenith and azimuth.
+        This is obtained from the uncertainty estimate of the DNN reco.
+        Shape: [2, 2]
+    dir_x : float
+        The best fit direction vector x component.
+        This is the output of the DNN reco for the x-component.
+    dir_y : float
+        The best fit direction vector y component.
+        This is the output of the DNN reco for the y-component.
+    dir_z : float
+        The best fit direction vector z component.
+        This is the output of the DNN reco for the z-component.
+    """
+
+    def __init__(self, zenith, azimuth, unc_zenith, unc_azimuth,
+                 num_samples=1000000, random_seed=42,
+                 weighted_normalization=True, fix_delta=True):
+        """Initialize DNN LLH object.
+
+        Parameters
+        ----------
+        zenith : float
+            The best fit zenith. This is the output of the DNN reco.
+        azimuth : float
+            The best fit azimuth. This is the output of the DNN reco.
+        unc_zenith : float
+            The estimated uncertainty on the zenith angle.
+            This is the output of the DNN reco.
+        unc_azimuth : float
+            The estimated uncertainty on the azimuth angle.
+            This is the output of the DNN reco.
+        num_samples : int, optional
+            Number of samples to sample for internal calculations.
+            The more samples, the more accurate, but also slower.
+        random_seed : int, optional
+            Random seed for sampling.
+        weighted_normalization : bool, optional
+            If True the normalization vectors get normalized according to the
+            uncertainty on each of its components.
+            If False, the vectors get scaled by their norm to obtain unit
+            vectors.
+        fix_delta : bool, optional
+            If True, the sampled direction vectors will sampled in a way such
+            that the deltas of the angles: abs(azimuth - sampled_azimuth) and
+            abs(zenith - sampled_zenith) follow the expected distribution.
+        """
+        # calculate circular error radius
+        circular_var = (unc_zenith**2 +
+                        unc_azimuth**2 * np.sin(zenith)**2) / 2.
+        cov = np.diag([circular_var, circular_var])
+        DNN_LLH_Base_Elliptical.__init__(self, zenith, azimuth, cov,
+                                         num_samples, random_seed,
+                                         weighted_normalization, fix_delta)
+
+
+class DNN_LLH_Elliptical_Dir(DNN_LLH_Base_Elliptical):
+
+    """The DNN LLH class for calculating elliptical PDFs obtained from
+    the DNN reco.
+
+    Attributes
+    ----------
+    azimuth : float
+        The best fit azimuth. This is the output of the DNN reco.
+    zenith : float
+        The best fit zenith. This is the output of the DNN reco.
+    unc_zenith : float
+        The estimated uncertainty on the zenith angle.
+        This is the output of the DNN reco.
+    unc_azimuth : float
+        The estimated uncertainty on the azimuth angle.
+        This is the output of the DNN reco.
+    cov : array_like
+        The covariance matrix for zenith and azimuth.
+        This is obtained from the uncertainty estimate of the DNN reco.
+        Shape: [2, 2]
+    dir_x : float
+        The best fit direction vector x component.
+        This is the output of the DNN reco for the x-component.
+    dir_y : float
+        The best fit direction vector y component.
+        This is the output of the DNN reco for the y-component.
+    dir_z : float
+        The best fit direction vector z component.
+        This is the output of the DNN reco for the z-component.
+    """
+
+    def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
+                 num_samples=1000000, random_seed=42,
+                 weighted_normalization=True, fix_delta=True):
+        """Initialize DNN LLH object.
+
+        Parameters
+        ----------
+        dir_x : float
+            The best fit direction vector x component.
+            This is the output of the DNN reco for the x-component.
+        dir_y : float
+            The best fit direction vector y component.
+            This is the output of the DNN reco for the y-component.
+        dir_z : float
+            The best fit direction vector z component.
+            This is the output of the DNN reco for the z-component.
+        unc_x : float
+            The estimated uncertainty for the direction vector x component.
+            This is the output of the DNN reco for the estimated uncertainty.
+        unc_y : float
+            The estimated uncertainty for the direction vector y component.
+            This is the output of the DNN reco for the estimated uncertainty.
+        unc_z : float
+            The estimated uncertainty for the direction vector z component.
+            This is the output of the DNN reco for the estimated uncertainty.
+        num_samples : int, optional
+            Number of samples to sample for internal calculations.
+            The more samples, the more accurate, but also slower.
+        random_seed : int, optional
+            Random seed for sampling.
+        weighted_normalization : bool, optional
+            If True the normalization vectors get normalized according to the
+            uncertainty on each of its components.
+            If False, the vectors get scaled by their norm to obtain unit
+            vectors.
+        fix_delta : bool, optional
+            If True, the sampled direction vectors will sampled in a way such
+            that the deltas of the angles: abs(azimuth - sampled_azimuth) and
+            abs(zenith - sampled_zenith) follow the expected distribution.
+        """
+        self.weighted_normalization = weighted_normalization
+        u_dir_x = ufloat(dir_x, unc_x)
+        u_dir_y = ufloat(dir_y, unc_y)
+        u_dir_z = ufloat(dir_z, unc_z)
+        u_dir_x, u_dir_y, u_dir_z = self.u_normalize_dir(
+                                            u_dir_x, u_dir_y, u_dir_z)
+
+        # Assign values with propagated and normalized vector
+        u_zenith, u_azimuth = self.u_get_zenith_azimuth(
+            u_dir_x, u_dir_y, u_dir_z)
+        self.dir_x = u_dir_x.nominal_value
+        self.dir_y = u_dir_y.nominal_value
+        self.dir_z = u_dir_z.nominal_value
+        self.zenith = unumpy.nominal_values(u_zenith)
+        self.azimuth = unumpy.nominal_values(u_azimuth)
+        self.unc_zenith = unumpy.std_devs(u_zenith)
+        self.unc_azimuth = unumpy.std_devs(u_azimuth)
+        cov = np.array(covariance_matrix([u_zenith, u_azimuth]))
+        DNN_LLH_Base_Elliptical.__init__(self, self.zenith, self.azimuth, cov,
+                                         num_samples, random_seed,
+                                         weighted_normalization, fix_delta)
+
+
+class DNN_LLH_Elliptical(DNN_LLH_Base_Elliptical):
+
+    """The DNN LLH class for calculating elliptical PDFs obtained from
+    the DNN reco.
+
+    Attributes
+    ----------
+    azimuth : float
+        The best fit azimuth. This is the output of the DNN reco.
+    zenith : float
+        The best fit zenith. This is the output of the DNN reco.
+    unc_zenith : float
+        The estimated uncertainty on the zenith angle.
+        This is the output of the DNN reco.
+    unc_azimuth : float
+        The estimated uncertainty on the azimuth angle.
+        This is the output of the DNN reco.
+    cov : array_like
+        The covariance matrix for zenith and azimuth.
+        This is obtained from the uncertainty estimate of the DNN reco.
+        Shape: [2, 2]
+    dir_x : float
+        The best fit direction vector x component.
+        This is the output of the DNN reco for the x-component.
+    dir_y : float
+        The best fit direction vector y component.
+        This is the output of the DNN reco for the y-component.
+    dir_z : float
+        The best fit direction vector z component.
+        This is the output of the DNN reco for the z-component.
+    """
+
+    def __init__(self, zenith, azimuth, unc_zenith, unc_azimuth,
+                 num_samples=1000000, random_seed=42,
+                 weighted_normalization=True, fix_delta=True):
+        """Initialize DNN LLH object.
+
+        Parameters
+        ----------
+        zenith : float
+            The best fit zenith. This is the output of the DNN reco.
+        azimuth : float
+            The best fit azimuth. This is the output of the DNN reco.
+        unc_zenith : float
+            The estimated uncertainty on the zenith angle.
+            This is the output of the DNN reco.
+        unc_azimuth : float
+            The estimated uncertainty on the azimuth angle.
+            This is the output of the DNN reco.
+        num_samples : int, optional
+            Number of samples to sample for internal calculations.
+            The more samples, the more accurate, but also slower.
+        random_seed : int, optional
+            Random seed for sampling.
+        weighted_normalization : bool, optional
+            If True the normalization vectors get normalized according to the
+            uncertainty on each of its components.
+            If False, the vectors get scaled by their norm to obtain unit
+            vectors.
+        fix_delta : bool, optional
+            If True, the sampled direction vectors will sampled in a way such
+            that the deltas of the angles: abs(azimuth - sampled_azimuth) and
+            abs(zenith - sampled_zenith) follow the expected distribution.
+        """
+        cov = np.diag([unc_zenith**2, unc_azimuth**2])
+        DNN_LLH_Base_Elliptical.__init__(self, zenith, azimuth, cov,
+                                         num_samples, random_seed,
+                                         weighted_normalization, fix_delta)
 
 
 class DNN_LLH_normalized(DNN_LLH_Base):
@@ -429,7 +755,7 @@ class DNN_LLH(DNN_LLH_Base):
         fix_delta : bool, optional
             If True, the sampled direction vectors will sampled in a way such
             that the deltas: abs(dir_i - sampled_dir_i) follows the expected
-            distribution-
+            distribution.
         """
 
         # call init from base class
@@ -581,26 +907,6 @@ class DNN_LLH(DNN_LLH_Base):
         dir_x_s, dir_y_s, dir_z_s = self.normalize_dir(
                                     dir_x_s, dir_y_s, dir_z_s)
         return dir_x_s, dir_y_s, dir_z_s
-
-    def u_normalize_dir(self, u_dir_x, u_dir_y, u_dir_z):
-        """Normalize direction vector
-
-        Parameters
-        ----------
-        u_dir_x : unumpy.array
-            The x-component of the direction vector with uncertainty.
-        u_dir_y : unumpy.array
-            The y-component of the direction vector with uncertainty.
-        u_dir_z : unumpy.array
-            The z-component of the direction vector with uncertainty.
-
-        Returns
-        -------
-        unumpy.array, unumpy.array, unumpy.array
-            The normalized direction vector components with uncertainties.
-        """
-        norm = unumpy.sqrt(u_dir_x**2 + u_dir_y**2 + u_dir_z**2)
-        return u_dir_x/norm, u_dir_y/norm, u_dir_z/norm
 
     def cdf_dir(self, dir_x, dir_y, dir_z):
         """Calculate cumulative probability for given direction vectors.
