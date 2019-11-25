@@ -381,7 +381,8 @@ class DNN_LLH(DNN_LLH_Base):
 
     def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
                  propagate_errors=False, num_samples=1000000, random_seed=42,
-                 scale_unc=True, weighted_normalization=True):
+                 scale_unc=True, weighted_normalization=True,
+                 fix_delta=True):
         """Initialize DNN LLH object.
 
         Parameters
@@ -425,6 +426,10 @@ class DNN_LLH(DNN_LLH_Base):
             uncertainty on each of its components.
             If False, the vectors get scaled by their norm to obtain unit
             vectors.
+        fix_delta : bool, optional
+            If True, the sampled direction vectors will sampled in a way such
+            that the deltas: abs(dir_i - sampled_dir_i) follows the expected
+            distribution-
         """
 
         # call init from base class
@@ -433,6 +438,7 @@ class DNN_LLH(DNN_LLH_Base):
 
         self._num_samples = num_samples
         self.propagate_errors = propagate_errors
+        self._fix_delta = fix_delta
         if self.propagate_errors:
             # propagate errors
             u_dir_x = unumpy.uarray(dir_x, unc_x)
@@ -476,6 +482,7 @@ class DNN_LLH(DNN_LLH_Base):
                 self.unc_y *= self.unc_y / np.std(dir_y_s)
                 self.unc_z *= self.unc_z / np.std(dir_z_s)
             _scale()
+
         # -------------------------
 
         self.zenith, self.azimuth = self.get_zenith_azimuth(
@@ -533,9 +540,44 @@ class DNN_LLH(DNN_LLH_Base):
         np.array, np.array, np.array
             The sampled direction vector components.
         """
-        dir_x_s = self._random_state.normal(self.dir_x, self.unc_x, n)
-        dir_y_s = self._random_state.normal(self.dir_y, self.unc_y, n)
-        dir_z_s = self._random_state.normal(self.dir_z, self.unc_z, n)
+        if self._fix_delta:
+            delta_x = self._random_state.normal(0., self.unc_x, n)
+            delta_y = self._random_state.normal(0., self.unc_y, n)
+            delta_z = self._random_state.normal(0., self.unc_z, n)
+
+            def fix_delta(delta, d):
+                # return delta
+                mask_over_bound = np.abs(d + delta) > 1.
+
+                # see if these can be fixed by going in the other direction
+                mask_allowed = np.abs(d - delta) < 1.
+                mask_fixable = np.logical_and(mask_over_bound, mask_allowed)
+                mask_on_boundary = np.logical_and(mask_over_bound,
+                                                  ~mask_allowed)
+
+                # For those events that are over bounds in either direction,
+                # choose the furthest boundary
+                delta_max = 1 + np.abs(d)
+                mask_on_left_boundary = np.logical_and(mask_on_boundary,
+                                                       d > 0.)
+                mask_on_right_boundary = np.logical_and(mask_on_boundary,
+                                                        d < 0.)
+
+                delta[mask_on_left_boundary] = -delta_max
+                delta[mask_on_right_boundary] = +delta_max
+
+                # fix directions which are fixable
+                delta[mask_fixable] *= -1.
+                return delta
+
+            dir_x_s = self.dir_x + fix_delta(delta_x, self.dir_x)
+            dir_y_s = self.dir_y + fix_delta(delta_y, self.dir_y)
+            dir_z_s = self.dir_z + fix_delta(delta_z, self.dir_z)
+
+        else:
+            dir_x_s = self._random_state.normal(self.dir_x, self.unc_x, n)
+            dir_y_s = self._random_state.normal(self.dir_y, self.unc_y, n)
+            dir_z_s = self._random_state.normal(self.dir_z, self.unc_z, n)
         dir_x_s, dir_y_s, dir_z_s = self.normalize_dir(
                                     dir_x_s, dir_y_s, dir_z_s)
         return dir_x_s, dir_y_s, dir_z_s
