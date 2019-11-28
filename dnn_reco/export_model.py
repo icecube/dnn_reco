@@ -237,7 +237,7 @@ def export_data_settings(data_settings, output_folder):
         allowed_cascade_keys.append(data_settings['cascade_key'])
 
     if 'datasets' in data_config:
-        for dataset in data_config.values():
+        for dataset in data_config['datasets'].values():
             if 'DNN_pulse_key' in dataset:
                 allowed_pulse_keys.append(dataset['DNN_pulse_key'])
             elif 'pulse_map_string' in dataset:
@@ -256,7 +256,6 @@ def export_data_settings(data_settings, output_folder):
     print('=========================')
     for key, value in data_settings.items():
         print('{}: {}'.format(key, value))
-    print('\n')
 
     with open(os.path.join(output_folder,
               'config_data_settings.yaml'), 'w') as f:
