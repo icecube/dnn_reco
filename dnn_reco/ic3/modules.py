@@ -19,15 +19,6 @@ from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
 from dnn_reco.model import NNModel
 
-from ic3_data.ext_boost import get_valid_pulse_map as get_valid_pulse_map_cpp
-
-
-def get_valid_pulse_map(frame, pulse_key, dom_exclusions,
-                        partial_exclusion, verbose=False):
-    """Simple wrapper over c++ version. Necessary for I3 Magic... """
-    return get_valid_pulse_map_cpp(frame, pulse_key, dom_exclusions,
-                                   partial_exclusion, verbose)
-
 
 class DeepLearningReco(icetray.I3ConditionalModule):
 

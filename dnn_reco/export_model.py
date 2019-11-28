@@ -213,6 +213,51 @@ def export_data_settings(data_settings, output_folder):
     data_settings['autoencoder_settings'] = data_config['autoencoder_settings']
     data_settings['autoencoder_name'] = data_config['autoencoder_encoder_name']
 
+    # ---------------------------------
+    # Find and save optional parameters
+    # ---------------------------------
+    if 'DNN_excluded_doms' in data_config:
+        data_settings['dom_exclusions'] = data_config['DNN_excluded_doms']
+    if 'DNN_partial_exclusion' in data_config:
+        data_settings['partial_exclusion'] = \
+            data_config['DNN_partial_exclusion']
+    if 'DNN_pulse_key' in data_config:
+        data_settings['pulse_key'] = data_config['DNN_pulse_key']
+    elif 'pulse_map_string' in data_config:
+        data_settings['pulse_key'] = data_config['pulse_map_string']
+
+    if 'DNN_cascade_key' in data_config:
+        data_settings['cascade_key'] = data_config['DNN_cascade_key']
+
+    allowed_pulse_keys = []
+    allowed_cascade_keys = []
+    if 'pulse_key' in data_settings:
+        allowed_pulse_keys.append(data_settings['pulse_key'])
+    if 'cascade_key' in data_settings:
+        allowed_cascade_keys.append(data_settings['cascade_key'])
+
+    if 'datasets' in data_config:
+        for dataset in data_config.values():
+            if 'DNN_pulse_key' in dataset:
+                allowed_pulse_keys.append(dataset['DNN_pulse_key'])
+            elif 'pulse_map_string' in dataset:
+                allowed_pulse_keys.append(dataset['pulse_map_string'])
+
+            if 'DNN_cascade_key' in dataset:
+                allowed_cascade_keys.append(dataset['DNN_cascade_key'])
+
+    if len(allowed_pulse_keys) > 0:
+        data_settings['allowed_pulse_keys'] = allowed_pulse_keys
+    if len(allowed_cascade_keys) > 0:
+        data_settings['allowed_cascade_keys'] = allowed_cascade_keys
+
+    print('\n=========================')
+    print('= Found Data Settings:  =')
+    print('=========================')
+    for key, value in data_settings.items():
+        print('{}: {}'.format(key, value))
+    print('\n')
+
     with open(os.path.join(output_folder,
               'config_data_settings.yaml'), 'w') as f:
         yaml.dump(data_settings, f, default_flow_style=False)

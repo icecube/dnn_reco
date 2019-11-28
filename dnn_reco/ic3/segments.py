@@ -7,19 +7,20 @@ from icecube import icetray
 
 from ic3_data.container import DNNDataContainer
 from ic3_data.data import DNNContainerHandler
-from dnn_reco.ic3.modules import DeepLearningReco, get_valid_pulse_map
+from dnn_reco.ic3.modules import DeepLearningReco
 
 
 @icetray.traysegment
 def ApplyDNNRecos(
         tray, name,
-        pulse_key,
         model_names,
+        pulse_key=None,
         dom_exclusions=None,
-        partial_exclusion=True,
+        partial_exclusion=None,
         output_keys=None,
         models_dir='/data/user/mhuennefeld/DNN_reco/models/exported_models',
         cascade_key='MCCascade',
+        check_settings=True,
         measure_time=True,
         batch_size=1,
         num_cpus=1,
@@ -33,12 +34,12 @@ def ApplyDNNRecos(
         Description
     name : str
         Name of module
-    pulse_key : str
-        Name of pulses to use.
     model_names : str or list of str
         A list of strings or a single string that define the models to apply.
         If a list of model names is given, the reco will be applied with each
         model.
+    pulse_key : str
+        Name of pulses to use.
     dom_exclusions : list of str, optional
         List of frame keys that define DOMs or TimeWindows that should be
         excluded. Typical values for this are:
@@ -57,6 +58,16 @@ def ApplyDNNRecos(
     cascade_key : str, optional
         The particle to use if the relative time method is 'vertex' or
         'first_light_at_dom'.
+    check_settings : bool, optional
+        If True, the set values will be checked against configured or
+        loaded settings if they were set. It these settings do not match
+        an error will be raised. This ensures the correct use of the
+        trained models.
+        Sometimes it is necessary to use the model with slightly different
+        settings. In this case 'check_settings' can be set to False.
+        However, when doing so it can't be guaranteed that the model is
+        used in a correct way.
+        TLTR: use 'False' with caution.
     measure_time : bool, optional
         If True, the run-time will be measured.
     batch_size : int, optional
@@ -80,25 +91,15 @@ def ApplyDNNRecos(
     # configure container
     container.load_configuration(os.path.join(models_dir, model_names[0]))
 
-    # set up container
-    container.set_up()
-
-    # mask out DOMs and TimeWindows if DOM exlcusions are provided
-    if dom_exclusions is not None:
-        tray.AddModule(get_valid_pulse_map, 'get_valid_pulse_map_' + name,
-                       pulse_key=pulse_key,
-                       dom_exclusions=dom_exclusions,
-                       partial_exclusion=partial_exclusion,
-                       verbose=verbose,
-                       )
-        container_pulse_key = pulse_key + '_masked'
-    else:
-        container_pulse_key = pulse_key
+    # set up container and define pulse settings and DOM exclusions
+    container.set_up(pulse_key=pulse_key,
+                     dom_exclusions=dom_exclusions,
+                     partial_exclusion=partial_exclusion,
+                     cascade_key=cascade_key,
+                     check_settings=check_settings)
 
     tray.AddModule(DNNContainerHandler, 'DNNContainerHandler_' + name,
-                   DNNDataContainer=container,
-                   PulseKey=container_pulse_key,
-                   CascadeKey=cascade_key)
+                   DNNDataContainer=container, Verbose=verbose)
 
     for model_name, output_key in zip(model_names, output_keys):
         tray.AddModule(DeepLearningReco, 'DeepLearningReco_'+model_name+name,
@@ -108,7 +109,3 @@ def ApplyDNNRecos(
                        MeasureTime=measure_time,
                        ParallelismThreads=num_cpus,
                        )
-
-    # clean up and remove masked pulses
-    if dom_exclusions is not None:
-        tray.AddModule('Delete', 'Delete'+name, Keys=[pulse_key + '_masked'])
