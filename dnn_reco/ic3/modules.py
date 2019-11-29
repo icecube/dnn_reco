@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import os
+import logging
 import glob
 import numpy as np
 import tensorflow as tf
@@ -49,6 +50,19 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.AddParameter('DNNDataContainer',
                           'Data container that will be used to feed model',
                           None)
+        self.AddParameter('IgnoreMisconfiguredSettingsList',
+                          "The model automatically checks whether the "
+                          "configured settings for the 'DNNDataContainer' "
+                          "match those settings that were exported in this "
+                          "model. If a mismatch is found, an error will be "
+                          "raised. This helps to ensure the correct use of "
+                          "the trained models. Sometimes it is necessary to "
+                          "use the model with slightly different settings. In "
+                          "this case a list of setting names can be passed "
+                          "for which the mismatches will be ignored. Doing so "
+                          "will relax the raised error to a warning that is "
+                          "issued. This should be used with caution."
+                          None)
         self.AddParameter('OutputBaseName',
                           'Output key under which the result will be written',
                           'DeepLearningReco')
@@ -75,6 +89,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._output_key = self.GetParameter("OutputBaseName")
         self._measure_time = self.GetParameter("MeasureTime")
         self._parallelism_threads = self.GetParameter("ParallelismThreads")
+        self._ingore_list = \
+            self.GetParameter('IgnoreMisconfiguredSettingsList')
+        if self._ingore_list is None:
+            self._ingore_list = []
 
         # read in and combine config files and set up
         training_files = glob.glob(os.path.join(self._model_path,
@@ -92,7 +110,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         if self._parallelism_threads is not None:
             self.config['tf_parallelism_threads'] = self._parallelism_threads
 
+        # ----------------------------------------------------------------
         # Check if settings of data container match settings in model path
+        # ----------------------------------------------------------------
         cfg_file = os.path.join(self._model_path, 'config_data_settings.yaml')
         with open(cfg_file, 'r') as stream:
             data_config = yaml.safe_load(stream)
@@ -105,9 +125,56 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             data_config['is_str_dom_format'] = False
 
         for k in self._container.config:
+
+            # backwards compatibility for older exported models which did not
+            # export these settings
+            if k not in data_config and k in ['pulse_key', 'dom_exclusions',
+                                              'partial_exclusion',
+                                              'cascade_key']:
+                msg = 'Warning: not checking if parameter {!r} is correctly '
+                msg += 'configured for model {!r} because the settings '
+                msg += 'were not exported.'
+                logging.warning(msg.format(k, self._model_path))
+                continue
+
+            # check for allowed pulse keys
+            if (k == 'pulse_key' and 'allowed_pulse_keys' in data_config and
+                    data_config['allowed_pulse_keys'] is not None and
+                    self._container.config[k]
+                    in data_config['allowed_pulse_keys']):
+
+                # this is an allowed pulse, so everything is ok
+                continue
+
+            # check for allowed cascade keys
+            if (k == 'cascade_key' and 'allowed_cascade_keys' in data_config
+                    and data_config['allowed_cascade_keys'] is not None and
+                    self._container.config[k]
+                    in data_config['allowed_cascade_keys']):
+
+                # this is an allowed cascade key, so everything is ok
+                continue
+
             if not self._container.config[k] == data_config[k]:
-                raise ValueError('Settings do not match: {!r} != {!r}'.format(
-                        self._container.config[k], data_config[k]))
+                if k in self._ingore_list:
+                    msg = 'Warning: parameter {!r} is set to {!r} which '
+                    msg += 'differs from the model [{!r}] default value {!r}. '
+                    msg += 'This mismatch will be ingored since the parameter '
+                    msg += 'is in the IgnoreMisconfiguredSettingsList. '
+                    msg += 'Make sure this is what you intend to do!'
+                    logging.warning(msg.format(k, self._model_path,
+                                               self._container.config[k],
+                                               data_config[k]))
+                else:
+                    msg = 'Fatal: parameter {!r} is set to {!r} which '
+                    msg += 'differs from the model [{!r}] default value {!r}.'
+                    msg += 'If you are sure you want to use this model '
+                    msg += 'with these settings, then you can add the '
+                    msg += 'parameter to the IgnoreMisconfiguredSettingsList.'
+                    raise ValueError(msg.format(k, self._model_path,
+                                                self._container.config[k],
+                                                data_config[k]))
+        # ----------------------------------------------------------------
 
         # create variables and frame buffer for batching
         self._frame_buffer = deque()

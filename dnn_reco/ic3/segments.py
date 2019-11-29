@@ -20,7 +20,7 @@ def ApplyDNNRecos(
         output_keys=None,
         models_dir='/data/user/mhuennefeld/DNN_reco/models/exported_models',
         cascade_key='MCCascade',
-        check_settings=True,
+        ignore_misconfigured_settings_list=None,
         measure_time=True,
         batch_size=1,
         num_cpus=1,
@@ -40,15 +40,18 @@ def ApplyDNNRecos(
         model.
     pulse_key : str
         Name of pulses to use.
+        If None is passed, the model's default settings will be used.
     dom_exclusions : list of str, optional
         List of frame keys that define DOMs or TimeWindows that should be
         excluded. Typical values for this are:
         ['BrightDOMs','SaturationWindows','BadDomsList','CalibrationErrata']
+        If None is passed, the model's default settings will be used.
     partial_exclusion : bool, optional
         If True, partially exclude DOMS, e.g. only omit pulses from excluded
         TimeWindows defined in 'dom_exclusions'.
         If False, all pulses from a DOM will be excluded if the omkey exists
         in the dom_exclusions.
+        If None is passed, the model's default settings will be used.
     output_keys : None, optional
         A list of output keys for the reco results.
         If None, the output will be saved as dnn_reco_{ModelName}.
@@ -58,16 +61,16 @@ def ApplyDNNRecos(
     cascade_key : str, optional
         The particle to use if the relative time method is 'vertex' or
         'first_light_at_dom'.
-    check_settings : bool, optional
-        If True, the set values will be checked against configured or
-        loaded settings if they were set. It these settings do not match
-        an error will be raised. This ensures the correct use of the
-        trained models.
-        Sometimes it is necessary to use the model with slightly different
-        settings. In this case 'check_settings' can be set to False.
-        However, when doing so it can't be guaranteed that the model is
-        used in a correct way.
-        TLTR: use 'False' with caution.
+        If None is passed, the model's default settings will be used.
+    ignore_misconfigured_settings_list : list of st, optional
+        The models automatically check whether the configured settings for the
+        'DNNDataContainer' match those settings that were exported. If a
+        mismatch is found, an error will be raised. This helps to ensure the
+        correct use of the trained models. Sometimes it is necessary to use the
+        model with slightly different settings. In this case a list of setting
+        names can be passed for which the mismatches will be ignored.
+        Doing so will relax the raised error to a warning that is issued.
+        This should be used with caution.
     measure_time : bool, optional
         If True, the run-time will be measured.
     batch_size : int, optional
@@ -92,20 +95,23 @@ def ApplyDNNRecos(
     container.load_configuration(os.path.join(models_dir, model_names[0]))
 
     # set up container and define pulse settings and DOM exclusions
-    container.set_up(pulse_key=pulse_key,
-                     dom_exclusions=dom_exclusions,
-                     partial_exclusion=partial_exclusion,
-                     cascade_key=cascade_key,
-                     check_settings=check_settings)
+    container.set_up(
+        pulse_key=pulse_key,
+        dom_exclusions=dom_exclusions,
+        partial_exclusion=partial_exclusion,
+        cascade_key=cascade_key,
+        ignore_misconfigured_settings_list=ignore_misconfigured_settings_list)
 
     tray.AddModule(DNNContainerHandler, 'DNNContainerHandler_' + name,
                    DNNDataContainer=container, Verbose=verbose)
 
     for model_name, output_key in zip(model_names, output_keys):
-        tray.AddModule(DeepLearningReco, 'DeepLearningReco_'+model_name+name,
-                       ModelPath=os.path.join(models_dir, model_name),
-                       DNNDataContainer=container,
-                       OutputBaseName=output_key,
-                       MeasureTime=measure_time,
-                       ParallelismThreads=num_cpus,
-                       )
+        tray.AddModule(
+            DeepLearningReco, 'DeepLearningReco_'+model_name+name,
+            ModelPath=os.path.join(models_dir, model_name),
+            DNNDataContainer=container,
+            OutputBaseName=output_key,
+            MeasureTime=measure_time,
+            ParallelismThreads=num_cpus,
+            IgnoreMisconfiguredSettingsList=ignore_misconfigured_settings_list,
+            )
