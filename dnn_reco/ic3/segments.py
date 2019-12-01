@@ -62,7 +62,7 @@ def ApplyDNNRecos(
         The particle to use if the relative time method is 'vertex' or
         'first_light_at_dom'.
         If None is passed, the model's default settings will be used.
-    ignore_misconfigured_settings_list : list of st, optional
+    ignore_misconfigured_settings_list : list of str, optional
         The models automatically check whether the configured settings for the
         'DNNDataContainer' match those settings that were exported. If a
         mismatch is found, an error will be raised. This helps to ensure the

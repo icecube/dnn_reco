@@ -61,7 +61,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                           "this case a list of setting names can be passed "
                           "for which the mismatches will be ignored. Doing so "
                           "will relax the raised error to a warning that is "
-                          "issued. This should be used with caution."
+                          "issued. This should be used with caution.",
                           None)
         self.AddParameter('OutputBaseName',
                           'Output key under which the result will be written',
@@ -132,8 +132,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                                               'partial_exclusion',
                                               'cascade_key']:
                 msg = 'Warning: not checking if parameter {!r} is correctly '
-                msg += 'configured for model {!r} because the settings '
-                msg += 'were not exported.'
+                msg += 'configured for model {!r} because the setting '
+                msg += 'was not exported.'
                 logging.warning(msg.format(k, self._model_path))
                 continue
 
@@ -162,8 +162,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                     msg += 'This mismatch will be ingored since the parameter '
                     msg += 'is in the IgnoreMisconfiguredSettingsList. '
                     msg += 'Make sure this is what you intend to do!'
-                    logging.warning(msg.format(k, self._model_path,
-                                               self._container.config[k],
+                    logging.warning(msg.format(k, self._container.config[k],
+                                               self._model_path,
                                                data_config[k]))
                 else:
                     msg = 'Fatal: parameter {!r} is set to {!r} which '
@@ -171,8 +171,8 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                     msg += 'If you are sure you want to use this model '
                     msg += 'with these settings, then you can add the '
                     msg += 'parameter to the IgnoreMisconfiguredSettingsList.'
-                    raise ValueError(msg.format(k, self._model_path,
-                                                self._container.config[k],
+                    raise ValueError(msg.format(k, self._container.config[k],
+                                                self._model_path,
                                                 data_config[k]))
         # ----------------------------------------------------------------
 
