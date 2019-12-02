@@ -9,6 +9,16 @@ This covers a wide range of supervised learning applications such as regression 
 The software framework not only covers the development and training of neural
 network models, but also enables their application and distribution.
 
+.. figure:: figures/angular_resolution-1.png
+
+    An example application of the |dnn_reco| project:
+    cascade angular reconstruction.
+    A comparison to the standard reconstruction method (Monopod)
+    in IceCube is shown.
+    The convolutional neural newtork (CNN) trained within the |dnn_reco|
+    framework can outperform the standard reconstruction method at higher
+    energies, while reducing the runtime by two to three orders of magnitude.
+
 A major concern in the context of machine learning is reproducibility.
 Trained models are very powerful, but can be susceptible to incorrect usage
 and mis-configured settings.
@@ -33,15 +43,13 @@ apply these models with the provided I3Module.
 The |dnn_reco| framework ensures that an exported model is used with the
 correct settings and input parameters.
 
-.. figure:: figures/angular_resolution-1.png
+**Further Material & Publications**
 
-    An example application of the |dnn_reco| project:
-    cascade angular reconstruction.
-    A comparison to the standard reconstruction method (Monopod)
-    in IceCube is shown.
-    The convolutional neural newtork (CNN) trained within the |dnn_reco|
-    framework can outperform the standard reconstruction method at higher
-    energies, while reducing the runtime by two to three orders of magnitude.
+* `Master Thesis <https://icecube.wisc.edu/~mhuennefeld/DNNreco/wikipage/material/MasterThesis.pdf>`_
+
+* `ICRC 2017 <https://pos.sissa.it/cgi-bin/reader/contribution.cgi?id=PoS(ICRC2017)1057>`_
+
+* |dnn_reco| paper [coming soon]
 
 .. fad
     .. figure:: figures/runtime-1.png
