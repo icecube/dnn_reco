@@ -26,7 +26,7 @@ created during the installation steps (see :ref:`Installation and Requirements`)
 
     # load icecube environment if not already loaded
     eval $(/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh)
-    source /cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/RHEL_7_x86_64/metaprojects/simulation/V06-01-01/env-shell.sh
+    source /cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/RHEL_7_x86_64/metaprojects/icerec/V05-02-04/env-shell.sh
 
     # Activate virtual environment if not already activated
     source ${DNN_HOME}/dnn_reco_env/bin/activate

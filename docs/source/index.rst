@@ -37,6 +37,7 @@ components can be easily extendend and exchanged.
 
    pages/about
    pages/installation
+   pages/models
    pages/tutorial
    pages/bootcamp
    pages/config
