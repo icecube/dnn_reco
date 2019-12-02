@@ -16,7 +16,7 @@ setup(
     author_email='mirco.huennefeld@tu-dortmund.de',
     url='https://icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/index.html',
     packages=['dnn_reco'],
-    install_requires=['numpy', 'pandas', 'click', 'ruamel.yaml', 'tables==3.5.2',
+    install_requires=['numpy', 'pandas', 'click', 'ruamel.yaml',
                       'gitpython', 'tfscripts', 'h5py',
                       ],
     dependency_links=[
