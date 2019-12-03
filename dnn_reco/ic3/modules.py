@@ -130,7 +130,9 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             # export these settings
             if k not in data_config and k in ['pulse_key', 'dom_exclusions',
                                               'partial_exclusion',
-                                              'cascade_key']:
+                                              'cascade_key',
+                                              'allowed_pulse_keys',
+                                              'allowed_cascade_keys']:
                 msg = 'Warning: not checking if parameter {!r} is correctly '
                 msg += 'configured for model {!r} because the setting '
                 msg += 'was not exported.'
