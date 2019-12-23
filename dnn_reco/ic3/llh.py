@@ -455,7 +455,7 @@ class DNN_LLH_normalized(DNN_LLH_Base):
             self.dir_y_s = self.dir_y_s[sorted_indices]
             self.dir_z_s = self.dir_z_s[sorted_indices]
             self.neg_llh_values = self.neg_llh_values[sorted_indices]
-            self.ipix_list = np.arange(self.npix)[sorted_indices]
+            self.ipix_list = sorted_indices
 
             # get zenith and azimuth
             self.zenith_s, self.azimuth_s = self.get_zenith_azimuth(
