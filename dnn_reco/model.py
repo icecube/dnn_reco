@@ -6,6 +6,7 @@ import ruamel.yaml as yaml
 import click
 import timeit
 import glob
+from copy import deepcopy
 
 from dnn_reco import misc
 from dnn_reco.modules.loss.utils import loss_utils
@@ -57,7 +58,7 @@ class NNModel(object):
         self._model_is_compiled = False
         self._step_offset = 0
         self.is_training = is_training
-        self.config = config
+        self.config = dict(deepcopy(config))
         self.data_handler = data_handler
         self.data_transformer = data_transformer
 

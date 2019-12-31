@@ -8,6 +8,7 @@ import time
 import timeit
 import os
 import ruamel.yaml as yaml
+from copy import deepcopy
 
 from dnn_reco import misc
 from dnn_reco import detector
@@ -62,7 +63,7 @@ class DataHandler(object):
         """
 
         # read input data
-        self._config = dict(config)
+        self._config = dict(deepcopy(config))
         self.num_bins = config['data_handler_num_bins']
 
         # keep track of multiprocessing processes
