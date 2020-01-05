@@ -542,6 +542,38 @@ class DNN_LLH_Base(object):
 
         return quantiles, containment
 
+    def contour_area(self, levels, nside):
+        """Get the area inside a contour of a given level in square degrees.
+
+        Parameters
+        ----------
+        levels : float or array_like
+            The level or levels for which to compute the contained area.
+            Must be a value in (0, 1).
+        nside : int
+            The nside parameter of the HEALpix.
+            The higher nside, the more accurate, but also slower to compute.
+
+        Returns
+        -------
+        array_like
+            The contained area in square degrees for each specified level
+        """
+        if isinstance(levels, float):
+            levels = [levels]
+
+        # area of one HEALPix with given nside in square degrees
+        pix_area = hp.nside2pixarea(nside, degrees=True)
+        npix = hp.nside2npix(nside)
+        cdf_values = self.cdf_dir(*hp.pix2vec(nside, range(npix)))
+
+        # number of HEALPix pixels within contour
+        contour_areas = []
+        for level in levels:
+            num_pixels_inside = np.sum(cdf_values <= level)
+            contour_areas.append(num_pixels_inside * pix_area)
+        return contour_areas
+
 
 class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
 
