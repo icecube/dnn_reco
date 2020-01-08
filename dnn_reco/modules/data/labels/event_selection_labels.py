@@ -74,7 +74,12 @@ def astroness(input_data, config, label_names=None, *args, **kwargs):
         _primary = f['MCPrimary']
 
     # check if event is a neutrino
-    is_neutrino = _primary['pdg_encoding'] in [-12, 12, -14, 14, -16, 16]
+    is_neutrino = (_primary['pdg_encoding'] == -12 |
+                   _primary['pdg_encoding'] == 12 |
+                   _primary['pdg_encoding'] == -14 |
+                   _primary['pdg_encoding'] == 14 |
+                   _primary['pdg_encoding'] == -16 |
+                   _primary['pdg_encoding'] == 16)
 
     if 'weight_E250' in _weights:
         astroness = (_weights['weight_E250'] /
@@ -153,7 +158,12 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
         _primary = f['MCPrimary']
 
     # check if event is a neutrino
-    is_neutrino = _primary['pdg_encoding'] in [-12, 12, -14, 14, -16, 16]
+    is_neutrino = (_primary['pdg_encoding'] == -12 |
+                   _primary['pdg_encoding'] == 12 |
+                   _primary['pdg_encoding'] == -14 |
+                   _primary['pdg_encoding'] == 14 |
+                   _primary['pdg_encoding'] == -16 |
+                   _primary['pdg_encoding'] == 16)
     cascade_lengths = _labels['Length']
 
     label_name_base = 'p_starting_cascade_L{}_D{}'
