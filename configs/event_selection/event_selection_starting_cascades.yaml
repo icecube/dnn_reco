@@ -391,10 +391,12 @@
 'label_pid_keys': [
     'p_starting_cascade_L25_Dm60', 'p_starting_cascade_L25_D0',
     'p_starting_cascade_L25_D60', 'p_starting_cascade_L25_D300',
-    'p_starting_cascade_L50_Dm60', 'p_starting_cascade_L50_D0',
-    'p_starting_cascade_L50_D60', 'p_starting_cascade_L50_D300',
+    'p_starting_cascade_L25_Dinf', 'p_starting_cascade_L50_Dm60',
+    'p_starting_cascade_L50_D0', 'p_starting_cascade_L50_D60',
+    'p_starting_cascade_L50_D300', 'p_starting_cascade_L50_Dinf',
     'p_starting_cascade_L100_Dm60', 'p_starting_cascade_L100_D0',
     'p_starting_cascade_L100_D60', 'p_starting_cascade_L100_D300',
+    'p_starting_cascade_L100_Dinf',
 ]
 # smooth pid labels as defined in 'label_pid_keys':
 # new_labels = labels * (1 - label_smoothing) + label_smoothing / 2.
