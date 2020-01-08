@@ -87,10 +87,11 @@ def astroness(input_data, config, label_names=None, *args, **kwargs):
         assert np.sum(is_neutrino) == 0, 'Expected no Neutrinos!'
 
     if label_names is None:
-        if label_names != ['astroness']:
-            raise ValueError('Labels {!r} != [astroness]'.format(label_names))
+        label_names = ['astroness']
 
-    label_names = ['astroness']
+    if label_names != ['astroness']:
+        raise ValueError('Labels {!r} != [astroness]'.format(label_names))
+
     labels = [astroness]
 
     labels = np.array(labels, dtype=config['np_float_precision']).T
