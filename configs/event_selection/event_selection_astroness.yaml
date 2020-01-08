@@ -491,7 +491,7 @@
 # 2D convolutional layer of upper DeepCore
 'conv_upper_DeepCore_settings': {
     'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 7], [1, 7], [1, 7], [1, 5],
-                         [1, 1],
+                         [1, 1]],
     'num_filters_list': [80, 80, 100, 100, 100, 100, 100, 100],
     'pooling_type_list': [False, False, 'max', False, False, 'max', False, False],
     'pooling_strides_list': [1, 1, 2, 1],
