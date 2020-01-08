@@ -70,8 +70,13 @@ def astroness(input_data, config, label_names=None, *args, **kwargs):
         lengths = [25, 50, 100]
 
     with pd.HDFStore(input_data,  mode='r') as f:
-        _weights = f['weights_mese']
         _primary = f['MCPrimary']
+        try:
+            _weights = f['weights_mese']
+        except KeyError as error:
+            # load dummy weights, this should only happen with Corsika files,
+            # e.g. astroness should be all zero, which is checked by assert
+            _weights = f['weights']
 
     # check if event is a neutrino
     abs_pdg_code = np.abs(_primary['pdg_encoding'])
