@@ -825,6 +825,8 @@ class DataHandler(object):
                     nn_biased_selection_func = \
                         create_nn_biased_selection_func()
                     nn_biased_selection = True
+                else:
+                    nn_biased_selection = False
 
             else:
                 nn_biased_selection = False
