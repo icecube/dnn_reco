@@ -303,6 +303,34 @@
 'filter_less_than': {
 }
 
+# ----------------
+# Biased Selection
+# ----------------
+# Filter events based on the curent reconstruction performance on these
+# by defining key, value pairs and a biased fraction.
+# Events will be put in queues, such that biased_fraction of all events
+# passes one of the defined cuts.
+# If apply_biased_selection is False, no biased selection will be performed.
+'nn_biased_selection': {
+    'apply_biased_selection': False,
+    'reload_frequency': 100,
+    'biased_fraction': 0.5,
+    # Select biased event if: (true - pred)[key] > value
+    'true_minus_pred_greater': {},
+    # Select biased event if: (true - pred)[key] < value
+    'true_minus_pred_less': {},
+    # Select biased event if: transformed(true - pred)[key] > value
+    'true_minus_pred_trafo_greater': {},
+    # Select biased event if: transformed(true - pred)[key] > value
+    'true_minus_pred_trafo_less': {},
+    # Select biased event if: abs(true - pred)[key] >= value
+    'cut_abs_diff': {'p_starting': 0.8},
+    # Select biased event if: abs(transformed(true - pred))[key] >= value
+    'cut_abs_diff_trafo': {},
+    # Select biased event if: abs((true - pred) / unc)[key] >= value
+    'cut_unc_weighted_diff_trafo': {},
+}
+
 # --------------
 # Label settings
 # --------------

@@ -41,7 +41,7 @@ def main(config_files):
                 'file_capacity': 1,
                 'batch_capacity': 2,
                 'num_jobs': config['trafo_num_jobs'],
-                'num_add_files': 0,
+                'num_add_files': 1,
                 'num_repetitions': 1,
                 'num_splits': config['data_handler_num_splits'],
                 'init_values': config['DOM_init_values'],

@@ -557,7 +557,51 @@ class NNModel(object):
             self._step_offset = int(latest_checkpoint.split('-')[-1])
             self.saver.restore(sess=self.sess, save_path=latest_checkpoint)
 
-    def predict(self, x_ic78, x_deepcore, *args, **kwargs):
+    def predict_batched(self, x_ic78, x_deepcore, max_size, transformed=False,
+                        *args, **kwargs):
+        """Reconstruct events in multiple batches.
+
+        Parameters
+        ----------
+        x_ic78 : float, list or numpy.ndarray
+            The input data for the main IceCube array.
+        x_deepcore : float, list or numpy.ndarray
+            The input data for the DeepCore array.
+        transformed : bool, optional
+            If true, the normalized and transformed values are returned.
+        max_size : int, optional
+            The maximum number of events to predict at once in a batch.
+        *args
+            Variable length argument list.
+        **kwargs
+            Arbitrary keyword arguments.
+
+        Returns
+        -------
+        np.ndarray, np.ndarray
+            The prediction and estimated uncertainties
+        """
+        y_pred_list = []
+        y_unc_list = []
+
+        split_indices_list = np.array_split(np.arange(x_ic78.shape[0]),
+                                            np.ceil(x_ic78.shape[0]/max_size))
+
+        for split_indices in split_indices_list:
+
+            y_pred, y_unc = self.predict(x_ic78[split_indices],
+                                         x_deepcore[split_indices],
+                                         transformed=transformed,
+                                         *args, **kwargs)
+            y_pred_list.append(y_pred)
+            y_unc_list.append(y_unc)
+
+        y_pred = np.concatenate(y_pred_list, axis=0)
+        y_unc = np.concatenate(y_unc_list, axis=0)
+
+        return y_pred, y_unc
+
+    def predict(self, x_ic78, x_deepcore, transformed=False, *args, **kwargs):
         """Reconstruct events.
 
         Parameters
@@ -566,10 +610,17 @@ class NNModel(object):
             The input data for the main IceCube array.
         x_deepcore : float, list or numpy.ndarray
             The input data for the DeepCore array.
+        transformed : bool, optional
+            If true, the normalized and transformed values are returned.
         *args
             Variable length argument list.
         **kwargs
             Arbitrary keyword arguments.
+
+        Returns
+        -------
+        np.ndarray, np.ndarray
+            The prediction and estimated uncertainties
         """
         feed_dict = {
             self.shared_objects['x_ic78']: x_ic78,
@@ -580,9 +631,14 @@ class NNModel(object):
         for keep_prob in self.shared_objects['keep_prob_list']:
             feed_dict[keep_prob] = 1.0
 
-        y_pred, y_unc = self.sess.run([self.shared_objects['y_pred'],
-                                       self.shared_objects['y_unc']],
-                                      feed_dict=feed_dict)
+        if transformed:
+            vars_to_run = [self.shared_objects['y_pred_trafo'],
+                           self.shared_objects['y_unc_trafo']]
+        else:
+            vars_to_run = [self.shared_objects['y_pred'],
+                           self.shared_objects['y_unc']]
+
+        y_pred, y_unc = self.sess.run(vars_to_run, feed_dict=feed_dict)
 
         return y_pred, y_unc
 

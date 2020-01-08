@@ -9,9 +9,12 @@ import timeit
 import os
 import ruamel.yaml as yaml
 from copy import deepcopy
+import tensorflow as tf
 
 from dnn_reco import misc
 from dnn_reco import detector
+from dnn_reco.data_trafo import DataTransformer
+from dnn_reco.model import NNModel
 
 
 class DataHandler(object):
@@ -591,6 +594,215 @@ class DataHandler(object):
         final_batch_queue = multiprocessing.Manager().Queue(
                                                     maxsize=batch_capacity)
 
+        def create_nn_biased_selection_func():
+            """Helper Method to create NN model instance for  biased selection
+            """
+            local_random_state = np.random.RandomState()
+            cfg = dict(deepcopy(self._config))
+            cfg_sel = cfg['nn_biased_selection']
+
+            default_settings = {
+                'max_size': 32,
+                'reload_frequency': 100,
+                'biased_fraction': 0.1,
+                'true_minus_pred_greater': {},
+                'true_minus_pred_less': {},
+                'true_minus_pred_trafo_greater': {},
+                'true_minus_pred_trafo_less': {},
+                'cut_abs_diff': {},
+                'cut_abs_diff_trafo': {},
+                'cut_unc_weighted_diff_trafo': {},
+                'tf_parallelism_threads': 10,
+                'GPU_device_count': 1,
+            }
+            for key, value in default_settings.items():
+                if key not in cfg_sel:
+                    cfg_sel[key] = value
+
+            if cfg_sel['biased_fraction'] <= 0. or \
+                    cfg_sel['biased_fraction'] > 1.:
+                raise ValueError('Biased fraction {!r} not in (0, 1]'.format(
+                    cfg_sel['biased_fraction']))
+
+            # Create a new tf graph and session for this model instance
+            g = tf.Graph()
+            if 'tf_parallelism_threads' in cfg_sel:
+                n_cpus = cfg_sel['tf_parallelism_threads']
+                sess = tf.Session(graph=g, config=tf.ConfigProto(
+                            gpu_options=tf.GPUOptions(allow_growth=True),
+                            device_count={'GPU': cfg_sel['GPU_device_count']},
+                            intra_op_parallelism_threads=n_cpus,
+                            inter_op_parallelism_threads=n_cpus,
+                          )).__enter__()
+            else:
+                sess = tf.Session(graph=g, config=tf.ConfigProto(
+                            gpu_options=tf.GPUOptions(allow_growth=True),
+                            device_count={'GPU': cfg_sel['GPU_device_count']},
+                          )).__enter__()
+            with g.as_default():
+                # Create Data Handler object
+                data_handler = DataHandler(cfg)
+                data_handler.setup_with_test_data(cfg['training_data_file'])
+
+                # create data transformer
+                data_transformer = DataTransformer(
+                    data_handler=data_handler,
+                    treat_doms_equally=cfg['trafo_treat_doms_equally'],
+                    normalize_dom_data=cfg['trafo_normalize_dom_data'],
+                    normalize_label_data=cfg['trafo_normalize_label_data'],
+                    normalize_misc_data=cfg['trafo_normalize_misc_data'],
+                    log_dom_bins=cfg['trafo_log_dom_bins'],
+                    log_label_bins=cfg['trafo_log_label_bins'],
+                    log_misc_bins=cfg['trafo_log_misc_bins'],
+                    norm_constant=cfg['trafo_norm_constant'])
+
+                # load trafo model from file
+                data_transformer.load_trafo_model(cfg['trafo_model_path'])
+
+                # create NN model
+                model = NNModel(is_training=False,
+                                config=cfg,
+                                data_handler=data_handler,
+                                data_transformer=data_transformer,
+                                sess=sess)
+
+                # compile model: initalize and finalize graph
+                model.compile()
+
+                # restore model weights
+                model.restore()
+
+            # create nn biased selection masking function
+            def nn_biased_selection_func(icecube_data):
+                """Mask a batch of IceCube data to obtain a biased selection"""
+
+                if icecube_data is None:
+                    return None
+
+                if len(icecube_data[0]) == 0:
+                    return None
+
+                # reload model weights if necessary
+                nn_biased_selection_func.counter += 1
+                if cfg_sel['reload_frequency'] is not None:
+                    if nn_biased_selection_func.counter \
+                            % cfg_sel['reload_frequency'] == 0:
+                        model.restore()
+
+                # apply model on loaded data
+                y_pred, y_unc = model.predict_batched(
+                                            icecube_data[0], icecube_data[1],
+                                            max_size=cfg_sel['max_size'])
+                y_true = icecube_data[2]
+
+                # transform data
+                y_true_trafo = data_transformer.transform(
+                            y_true, data_type='label')
+                y_pred_trafo = data_transformer.transform(
+                            y_pred, data_type='label')
+                y_unc_trafo = data_transformer.transform(
+                            y_unc, data_type='label', bias_correction=False)
+
+                diff = y_true - y_pred
+                diff_trafo = y_true_trafo - y_pred_trafo
+                abs_diff = np.abs(diff)
+                abs_diff_trafo = np.abs(diff_trafo)
+
+                # create mask
+                mask = np.zeros(len(y_true))
+
+                # select biased events based on difference greater than value
+                for key, value in cfg_sel['true_minus_pred_greater'].items():
+                    index = data_handler.get_label_index(key)
+                    mask = np.logical_or(mask, diff[:, index] > value)
+
+                # select biased events based on difference less than value
+                for key, value in cfg_sel['true_minus_pred_less'].items():
+                    index = data_handler.get_label_index(key)
+                    mask = np.logical_or(mask, diff[:, index] < value)
+
+                # select biased events based on transformed difference
+                # greater than the specified value
+                for key, value in \
+                        cfg_sel['true_minus_pred_trafo_greater'].items():
+                    index = data_handler.get_label_index(key)
+                    mask = np.logical_or(mask, diff_trafo[:, index] > value)
+
+                # select biased events based on transformed difference
+                # greater than the specified value
+                for key, value in \
+                        cfg_sel['true_minus_pred_trafo_less'].items():
+                    index = data_handler.get_label_index(key)
+                    mask = np.logical_or(mask, diff_trafo[:, index] < value)
+
+                # select biased events based on absolute difference
+                for key, value in cfg_sel['cut_abs_diff'].items():
+                    index = data_handler.get_label_index(key)
+                    mask = np.logical_or(mask, abs_diff[:, index] >= value)
+
+                # select biased events based on transformed absolute difference
+                for key, value in cfg_sel['cut_abs_diff_trafo'].items():
+                    index = data_handler.get_label_index(key)
+                    mask = np.logical_or(mask,
+                                         abs_diff_trafo[:, index] >= value)
+
+                # select biased events based on uncertainty weighted difference
+                for key, value in \
+                        cfg_sel['cut_unc_weighted_diff_trafo'].items():
+                    index = data_handler.get_label_index(key)
+                    unc_diff_trafo = \
+                        abs_diff_trafo[:, index] / y_unc_trafo[:, index]
+                    mask = np.logical_or(mask, unc_diff_trafo >= value)
+
+                # Check if any events are selected
+                num_biased_events = np.sum(mask)
+
+                # calculate how many unbiased events should be chosen
+                num_to_choose = \
+                    int(num_biased_events * (1./cfg_sel['biased_fraction']-1))
+
+                # add random events to obtain approximate correct fraction
+                indices_unbiased = np.arange(len(y_true))[~mask]
+
+                # Choose at least 1 event from a file if imbalance is not too
+                # big to make sure to still take events from all files.
+                # Keep track of imbalance.
+                num_chosen = num_to_choose - nn_biased_selection_func.balance
+                if nn_biased_selection_func.balance > 100:
+                    num_chosen = max(num_chosen, 0)
+                else:
+                    num_chosen = max(num_chosen, 1)
+                num_chosen = int(min(len(indices_unbiased), num_chosen))
+                nn_biased_selection_func.balance += num_chosen - num_to_choose
+
+                if num_chosen > 0:
+                    indices = local_random_state.choice(indices_unbiased,
+                                                        size=num_chosen,
+                                                        replace=False)
+                    mask_random = np.zeros(len(y_true))
+                    mask_random[indices] = True
+                    mask = np.logical_or(mask, mask_random)
+
+                # check if any events are being selected
+                if np.sum(mask) == 0:
+                    # print('None found from', len(y_true))
+                    return None
+
+                # apply mask
+                icecube_data_masked = [np.array(icecube_data[0][mask]),
+                                       np.array(icecube_data[1][mask]),
+                                       np.array(icecube_data[2][mask])]
+                if self.misc_data_exists:
+                    icecube_data_masked.append(np.array(icecube_data[3][mask]))
+                else:
+                    icecube_data_masked.append(None)
+
+                return icecube_data_masked
+
+            nn_biased_selection_func.counter = 0
+            nn_biased_selection_func.balance = 0
+            return nn_biased_selection_func
+
         def file_loader():
             """Helper Method to load files.
 
@@ -600,6 +812,24 @@ class DataHandler(object):
             It then puts these on the 'data_batch_queue' multiprocessing queue.
             """
             local_random_state = np.random.RandomState()
+
+            # ----------------------------------------------
+            # Create NN model instance for  biased selection
+            # ----------------------------------------------
+            if 'nn_biased_selection' in self._config and \
+                    self._config['nn_biased_selection'] is not None:
+
+                cfg_sel = self._config['nn_biased_selection']
+                if cfg_sel['apply_biased_selection'] and \
+                        cfg_sel['biased_fraction'] > 0:
+                    nn_biased_selection_func = \
+                        create_nn_biased_selection_func()
+                    nn_biased_selection = True
+
+            else:
+                nn_biased_selection = False
+            # ----------------------------------------------
+
             while not processed_all_files.value:
 
                 # get file
@@ -627,6 +857,11 @@ class DataHandler(object):
                                     input_data=file,
                                     init_values=init_values,
                                     nan_fill_value=nan_fill_value)
+
+                        # biased selection
+                        if nn_biased_selection:
+                            icecube_data = \
+                                nn_biased_selection_func(icecube_data)
 
                         if icecube_data is not None:
 
@@ -699,6 +934,7 @@ class DataHandler(object):
                 # create lists and concatenate at end
                 # (faster than concatenating in each step)
                 data_batch = data_batch_queue.get()
+                current_queue_size = len(data_batch[0])
                 x_ic78_list = [data_batch[0]]
                 x_deepcore_list = [data_batch[1]]
                 label_list = [data_batch[2]]
@@ -706,16 +942,23 @@ class DataHandler(object):
                 if self.misc_data_exists:
                     misc_list = [data_batch[3]]
 
-                for i in range(num_add_files):
-                    if (data_batch_queue.qsize() > 1 or
-                            not data_batch_queue.empty()):
-                        data_batch = data_batch_queue.get()
-                        x_ic78_list.append(data_batch[0])
-                        x_deepcore_list.append(data_batch[1])
-                        label_list.append(data_batch[2])
+                while current_queue_size < num_repetitions * batch_size and \
+                        data_left_in_queue.value:
 
-                        if self.misc_data_exists:
-                            misc_list.append(data_batch[3])
+                    # avoid dead lock and delay for a bit
+                    time.sleep(0.1)
+
+                    for i in range(num_add_files):
+                        if (data_batch_queue.qsize() > 1 or
+                                not data_batch_queue.empty()):
+                            data_batch = data_batch_queue.get()
+                            current_queue_size += len(data_batch[0])
+                            x_ic78_list.append(data_batch[0])
+                            x_deepcore_list.append(data_batch[1])
+                            label_list.append(data_batch[2])
+
+                            if self.misc_data_exists:
+                                misc_list.append(data_batch[3])
 
                 # concatenate into one numpy array:
                 x_ic78 = np.concatenate(x_ic78_list, axis=0)
@@ -736,7 +979,36 @@ class DataHandler(object):
                     else:
                         shuffled_indices = np.random.permutation(queue_size)
 
-                    # todo: optimize this, get rid of loop
+                    # ---------
+                    # Version A
+                    # ---------
+                    # # pick at most as many events as needed to complete batch
+                    # queue_index = 0
+                    # while queue_index < queue_size:
+                    #     # number of events needed to fill batch
+                    #     num_needed = batch_size - size
+
+                    #     # number of events available in this epoch
+                    #     num_available = queue_size - queue_index
+                    #     num_events_to_add = min(num_needed, num_available)
+
+                    #     # add events to batch lists
+                    #     new_queue_index = queue_index + num_events_to_add
+                    #     indices = shuffled_indices[queue_index:new_queue_index]
+                    #     if isinstance(indices, int):
+                    #         indices = [indices]
+                    #     ic78_batch.extend(x_ic78[indices])
+                    #     deepcore_batch.extend(x_deepcore[indices])
+                    #     labels_batch.extend(labels[indices])
+                    #     if self.misc_data_exists:
+                    #         misc_batch.extend(misc_data[indices])
+
+                    #     queue_index = new_queue_index
+                    #     size += num_events_to_add
+
+                    # ---------
+                    # Version B
+                    # ---------
                     for index in shuffled_indices:
 
                         # add event to batch lists
@@ -747,6 +1019,7 @@ class DataHandler(object):
                             misc_batch.append(misc_data[index])
 
                         size += 1
+                    # ---------
                         if size == batch_size:
                             batch = [np.array(ic78_batch),
                                      np.array(deepcore_batch),
