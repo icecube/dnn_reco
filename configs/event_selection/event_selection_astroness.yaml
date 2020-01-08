@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'event_selection_starting_astroness'
+'unique_name': 'event_selection_astroness'
 
 #---------------------------
 # General settings
