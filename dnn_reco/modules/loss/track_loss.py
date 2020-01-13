@@ -139,7 +139,9 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
         loss_z = tf.reduce_mean(r3**2 + unc_diff_z**2, 0)
         loss_t = tf.reduce_mean(rt**2 + unc_diff_t**2, 0)
 
-    zeros = tf.zeros_like(loss_x)
+    # provde dummy gradients
+    loss = loss_x + loss_y + loss_z + loss_t
+    zeros = tf.zeros_like(loss_x) * loss
 
     loss_all_list = []
     for label in data_handler.label_names:
@@ -268,7 +270,9 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
         loss_z = tf.reduce_mean(gl_z, 0)
         loss_t = tf.reduce_mean(gl_t, 0)
 
-    zeros = tf.zeros_like(loss_x)
+    # provde dummy gradients
+    loss = loss_x + loss_y + loss_z + loss_t
+    zeros = tf.zeros_like(loss_x) * loss
 
     loss_all_list = []
     for label in data_handler.label_names:
