@@ -117,9 +117,9 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
     r2 = s*dir_y_true - a2
     r3 = s*dir_z_true - a3
 
-    # calculate time at closest approach point on infinite track
+    # calculate time diff [meter] at closest approach point on infinite track
     c = 0.299792458  # in m /ns
-    rt = time_true + s / c - time_pred
+    rt = (time_true + (s / c) - time_pred) * c
 
     unc_diff_x = tf.stop_gradient(r1) - x_unc
     unc_diff_y = tf.stop_gradient(r2) - y_unc
@@ -246,9 +246,9 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
     r2 = s*dir_y_true - a2
     r3 = s*dir_z_true - a3
 
-    # calculate time at closest approach point on infinite track
+    # calculate time diff [meter] at closest approach point on infinite track
     c = 0.299792458  # in m /ns
-    rt = time_true + s / c - time_pred
+    rt = (time_true + (s / c) - time_pred) * c
 
     gl_x = 2*tf.log(x_unc) + (r1 / x_unc)**2
     gl_y = 2*tf.log(y_unc) + (r2 / y_unc)**2
