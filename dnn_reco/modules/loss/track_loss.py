@@ -91,17 +91,17 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
     x_true = shared_objects['y_true'][:, index_pos_x]
     y_true = shared_objects['y_true'][:, index_pos_y]
     z_true = shared_objects['y_true'][:, index_pos_z]
-    time_true = shared_objects['y_true'][:, index_pos_time]
+    time_true = shared_objects['y_true'][:, index_time]
 
     x_pred = shared_objects['y_pred'][:, index_pos_x]
     y_pred = shared_objects['y_pred'][:, index_pos_y]
     z_pred = shared_objects['y_pred'][:, index_pos_z]
-    time_pred = shared_objects['y_pred'][:, index_pos_time]
+    time_pred = shared_objects['y_pred'][:, index_time]
 
     x_unc = shared_objects['y_unc'][:, index_pos_x]
     y_unc = shared_objects['y_unc'][:, index_pos_y]
     z_unc = shared_objects['y_unc'][:, index_pos_z]
-    time_unc = shared_objects['y_unc'][:, index_pos_time]
+    time_unc = shared_objects['y_unc'][:, index_time]
 
     # x: predicted point, p: true point on track, d: true unit direction vector
     # calculate a = x - p
@@ -153,7 +153,7 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
         elif label == index_pos_z:
             loss_all_list.append(loss_z)
 
-        elif label == index_pos_t:
+        elif label == index_time:
             loss_all_list.append(loss_t)
 
         else:
@@ -220,17 +220,17 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
     x_true = shared_objects['y_true'][:, index_pos_x]
     y_true = shared_objects['y_true'][:, index_pos_y]
     z_true = shared_objects['y_true'][:, index_pos_z]
-    time_true = shared_objects['y_true'][:, index_pos_time]
+    time_true = shared_objects['y_true'][:, index_time]
 
     x_pred = shared_objects['y_pred'][:, index_pos_x]
     y_pred = shared_objects['y_pred'][:, index_pos_y]
     z_pred = shared_objects['y_pred'][:, index_pos_z]
-    time_pred = shared_objects['y_pred'][:, index_pos_time]
+    time_pred = shared_objects['y_pred'][:, index_time]
 
     x_unc = shared_objects['y_unc'][:, index_pos_x]
     y_unc = shared_objects['y_unc'][:, index_pos_y]
     z_unc = shared_objects['y_unc'][:, index_pos_z]
-    time_unc = shared_objects['y_unc'][:, index_pos_time]
+    time_unc = shared_objects['y_unc'][:, index_time]
 
     # x: predicted point, p: true point on track, d: true unit direction vector
     # calculate a = x - p
@@ -282,7 +282,7 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
         elif label == index_pos_z:
             loss_all_list.append(loss_z)
 
-        elif label == index_pos_t:
+        elif label == index_time:
             loss_all_list.append(loss_t)
 
         else:
