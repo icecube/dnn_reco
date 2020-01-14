@@ -68,7 +68,7 @@
 
 'tf_random_seed': 42
 'float_precision': float32
-'num_jobs' : 12
+'num_jobs' : 8
 'file_capacity' : 5
 'batch_capacity' : 200
 'num_add_files' : 10
@@ -119,6 +119,9 @@
 # These values will then be added to the misc values under the name:
 #     'hdf key'_'column'
 'misc_load_dict': {
+  'MCLabelsMuonScattering': ['length', 'length_before', 'length_after',
+                             'muon_entry_energy', 'muon_loss_energy',
+                             'rel_muon_loss_energy', 'p_scattering_candidate']
   'LabelsDeepLearning': ['p_outside_cascade', 'p_starting_300m',
                          'Length', 'LengthInDetector', 'p_entering'],
   'FilterMask': ['MuonFilter', 'CascadeFilter'],
@@ -212,12 +215,12 @@
 # unless defined otherwise here
 'label_weight_dict': {
     # 'length': 1,
-    # 'length_before': 1,
-    # 'length_after': 1,
+    'length_before': 1,
+    'length_after': 1,
     # 'muon_zenith': 1,
     # 'muon_azimuth': 1,
     # 'muon_energy': 1,
-    # 'muon_entry_energy': 1,
+    'muon_entry_energy': 1,
     # 'muon_entry_x': 1,
     # 'muon_entry_y': 1,
     # 'muon_entry_z': 1,
@@ -227,12 +230,12 @@
     # 'muon_exit_y': 1,
     # 'muon_exit_z': 1,
     # 'muon_exit_time': 1,
-    # 'muon_loss_energy': 1,
+    'muon_loss_energy': 1,
     # 'muon_loss_x': 1,
     # 'muon_loss_y': 1,
     # 'muon_loss_z': 1,
     # 'muon_loss_time': 1,
-    # 'rel_muon_loss_energy': 1,
+    'rel_muon_loss_energy': 1,
     'p_scattering_candidate': 1,
 }
 # Keys to use for I3Particle
@@ -315,6 +318,9 @@
 'trafo_normalize_misc_data' : False
 'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
+                            'muon_loss_energy',
+                            'muon_entry_energy',
+                            # 'muon_energy',
                          }
 'trafo_log_misc_bins' : False
 'trafo_treat_doms_equally' : True
