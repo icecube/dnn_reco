@@ -15,17 +15,22 @@
 'training_data_file' : [
 
     # MuonGun - low
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/*_energy/IC86_2013/l2/1/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/*_energy/IC86_2013/l2/2/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/*_energy/IC86_2013/l2/3/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/*_energy/IC86_2013/l2/4/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/*_energy/IC86_2013/l2/5/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/low_energy/IC86_2013/l2/1/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/low_energy/IC86_2013/l2/2/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/low_energy/IC86_2013/l2/3/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/low_energy/IC86_2013/l2/4/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/low_energy/IC86_2013/l2/5/*.hdf5',
 
     # MuonGun - medium
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/1/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/2/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/3/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/4/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/5/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/6/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/7/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/8/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/9/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/7/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/8/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/medium_energy/IC86_2013/l2/9/*.hdf5',
 
     # MuonGun - high
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/MuonGun/high_energy/IC86_2013/l2/1/*.hdf5',
@@ -74,10 +79,10 @@
 'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 8
-'file_capacity' : 5
+'file_capacity' : 1
 'batch_capacity' : 200
-'num_add_files' : 10
-'num_repetitions' : 3
+'num_add_files' : 200
+'num_repetitions' : 10
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
 
