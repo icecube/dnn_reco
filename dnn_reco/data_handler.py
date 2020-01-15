@@ -1047,24 +1047,24 @@ class DataHandler(object):
         # select biased events based on difference greater than value
         for key, value in cfg_sel['label_greater'].items():
             index = self.get_label_index(key)
-            mask = np.logical_or(mask, diff[:, index] > value)
+            mask = np.logical_or(mask, y_true[:, index] > value)
 
         # select biased events based on difference less than value
         for key, value in cfg_sel['label_less'].items():
             index = self.get_label_index(key)
-            mask = np.logical_or(mask, diff[:, index] < value)
+            mask = np.logical_or(mask, y_true[:, index] < value)
 
         # select biased events based on transformed difference
         # greater than the specified value
         for key, value in cfg_sel['label_equal'].items():
             index = self.get_label_index(key)
-            mask = np.logical_or(mask, diff_trafo[:, index] > value)
+            mask = np.logical_or(mask, y_true[:, index] == value)
 
         # select biased events based on transformed difference
         # greater than the specified value
         for key, value in cfg_sel['label_unequal'].items():
             index = self.get_label_index(key)
-            mask = np.logical_or(mask, diff_trafo[:, index] < value)
+            mask = np.logical_or(mask, y_true[:, index] != value)
 
         return mask
 
@@ -1077,6 +1077,7 @@ class DataHandler(object):
 
         default_settings = {
             'max_size': 32,
+            'max_imbalance': 100,
             'reload_frequency': 100,
             'biased_fraction': 0.1,
             'label_greater': {},
@@ -1158,7 +1159,7 @@ class DataHandler(object):
             # big to make sure to still take events from all files.
             # Keep track of imbalance.
             num_chosen = num_to_choose - biased_selection_func.balance
-            if biased_selection_func.balance > 100:
+            if biased_selection_func.balance > cfg_sel['max_imbalance']:
                 num_chosen = max(num_chosen, 0)
             else:
                 num_chosen = max(num_chosen, 1)
