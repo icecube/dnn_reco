@@ -69,10 +69,12 @@ def muon_scattering(input_data, config, label_names=None, *args, **kwargs):
     for i, name in enumerate(label_names):
         label_dict[name] = labels[:, i]
 
-    for scattering_def in config['labels_muon_scattering_defs']:
+    for def_name, scattering_def in \
+            config['labels_muon_scattering_defs'].items():
         passed_cuts = np.ones_like(labels[:, 0], dtype=bool)
         for key, value in scattering_def.items():
             passed_cuts = np.logical_and(passed_cuts, label_dict[key] >= value)
+        label_dict[def_name] = passed_cuts
 
     if label_names is None:
         label_names = sorted(label_dict.keys())
