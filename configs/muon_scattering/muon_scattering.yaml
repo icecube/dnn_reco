@@ -99,8 +99,8 @@
 'data_handler_num_bins': 9
 'data_handler_num_splits': 4
 
-'data_handler_label_file': 'default_labels'
-'data_handler_label_name': 'simple_label_loader'
+'data_handler_label_file': 'muon_scattering_labels'
+'data_handler_label_name': 'muon_scattering'
 'data_handler_misc_file': 'default_misc'
 'data_handler_misc_name': 'general_misc_loader'
 'data_handler_filter_file': 'default_filter'
@@ -214,18 +214,46 @@
 # --------------
 # Label settings
 # --------------
+# define selections for muon scattering
+'labels_muon_scattering_defs': {
+    'p_b300_a300_e10000_r_50': {
+        'muon_entry_energy': 10000,
+        'length_after': 300,
+        'length_before': 300,
+        'rel_muon_loss_energy': 0.5,
+    },
+    'p_b200_a200_e10000_r_50': {
+        'muon_entry_energy': 10000,
+        'length_after': 200,
+        'length_before': 200,
+        'rel_muon_loss_energy': 0.5,
+    },
+    'p_b200_a200_e1000_r_50': {
+        'muon_entry_energy': 1000,
+        'length_after': 200,
+        'length_before': 200,
+        'rel_muon_loss_energy': 0.5,
+    },
+    'p_b200_a200_e10000_r_30': {
+        'muon_entry_energy': 1000,
+        'length_after': 200,
+        'length_before': 200,
+        'rel_muon_loss_energy': 0.4,
+    },
+}
+
 # initialize label weights with this value
 'label_weight_initialization': 0.
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
     # 'length': 1,
-    'length_before': 1,
-    'length_after': 1,
+    # 'length_before': 1,
+    # 'length_after': 1,
     # 'muon_zenith': 1,
     # 'muon_azimuth': 1,
     # 'muon_energy': 1,
-    'muon_entry_energy': 1,
+    # 'muon_entry_energy': 1,
     # 'muon_entry_x': 1,
     # 'muon_entry_y': 1,
     # 'muon_entry_z': 1,
@@ -235,13 +263,17 @@
     # 'muon_exit_y': 1,
     # 'muon_exit_z': 1,
     # 'muon_exit_time': 1,
-    'muon_loss_energy': 1,
+    # 'muon_loss_energy': 1,
     # 'muon_loss_x': 1,
     # 'muon_loss_y': 1,
     # 'muon_loss_z': 1,
     # 'muon_loss_time': 1,
-    'rel_muon_loss_energy': 1,
+    # 'rel_muon_loss_energy': 1,
     'p_scattering_candidate': 1,
+    'p_b200_a200_e10000_r_50': 1,
+    'p_b200_a200_e1000_r_50': 1,
+    'p_b200_a200_e10000_r_30': 1,
+    'p_b300_a300_e10000_r_50': 1,
 }
 # Keys to use for I3Particle
 'label_particle_keys': {
@@ -277,6 +309,10 @@
 # (depends on the chosen neural network model)
 'label_pid_keys': [
     'p_scattering_candidate',
+    'p_b300_a300_e10000_r_50',
+    'p_b200_a200_e10000_r_50',
+    'p_b200_a200_e1000_r_50',
+    'p_b200_a200_e10000_r_30',
 ]
 # smooth pid labels as defined in 'label_pid_keys':
 # new_labels = labels * (1 - label_smoothing) + label_smoothing / 2.
@@ -323,8 +359,8 @@
 'trafo_normalize_misc_data' : False
 'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
-                            'muon_loss_energy',
-                            'muon_entry_energy',
+                            # 'muon_loss_energy',
+                            # 'muon_entry_energy',
                             # 'muon_energy',
                          }
 'trafo_log_misc_bins' : False
