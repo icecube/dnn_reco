@@ -994,7 +994,7 @@ class DataHandler(object):
             raise ValueError('Biased fraction {!r} not in (0, 1]'.format(
                 cfg_sel['biased_fraction']))
 
-        model, data_transformer, data_handler = self._create_model(self, cfg_sel)
+        model, data_transformer, data_handler = self._create_model(cfg_sel)
 
         # create nn biased selection masking function
         def nn_biased_selection_func(icecube_data):
