@@ -613,7 +613,7 @@ class DataHandler(object):
                 cfg_sel = self._config['nn_biased_selection']
                 if cfg_sel['apply_biased_selection'] and \
                         cfg_sel['biased_fraction'] > 0:
-                    nn_biased_selection_func = \
+                    biased_selection_func = \
                         self._create_biased_selection_func()
                     nn_biased_selection = True
                 else:
@@ -653,8 +653,7 @@ class DataHandler(object):
 
                         # biased selection
                         if nn_biased_selection:
-                            icecube_data = \
-                                nn_biased_selection_func(icecube_data)
+                            icecube_data = biased_selection_func(icecube_data)
 
                         if icecube_data is not None:
 
@@ -964,8 +963,113 @@ class DataHandler(object):
 
             return model, data_transformer, data_handler
 
+    def _get_nn_biased_selection_mask(self, icecube_data, cfg_sel,
+                                      data_handler, data_transformer,
+                                      model, counter):
+        """Helper method to obtain NN model event mask for biased selection
+        """
+
+        # reload model weights if necessary
+        if cfg_sel['reload_frequency'] is not None:
+            if counter % cfg_sel['reload_frequency'] == 0:
+                model.restore()
+
+        # apply model on loaded data
+        y_pred, y_unc = model.predict_batched(icecube_data[0], icecube_data[1],
+                                              max_size=cfg_sel['max_size'])
+        y_true = icecube_data[2]
+
+        # transform data
+        y_true_trafo = data_transformer.transform(y_true, data_type='label')
+        y_pred_trafo = data_transformer.transform(y_pred, data_type='label')
+        y_unc_trafo = data_transformer.transform(y_unc, data_type='label',
+                                                 bias_correction=False)
+
+        diff = y_true - y_pred
+        diff_trafo = y_true_trafo - y_pred_trafo
+        abs_diff = np.abs(diff)
+        abs_diff_trafo = np.abs(diff_trafo)
+
+        # create mask
+        mask = np.zeros(len(y_true))
+
+        # select biased events based on difference greater than value
+        for key, value in cfg_sel['true_minus_pred_greater'].items():
+            index = data_handler.get_label_index(key)
+            mask = np.logical_or(mask, diff[:, index] > value)
+
+        # select biased events based on difference less than value
+        for key, value in cfg_sel['true_minus_pred_less'].items():
+            index = data_handler.get_label_index(key)
+            mask = np.logical_or(mask, diff[:, index] < value)
+
+        # select biased events based on transformed difference
+        # greater than the specified value
+        for key, value in cfg_sel['true_minus_pred_trafo_greater'].items():
+            index = data_handler.get_label_index(key)
+            mask = np.logical_or(mask, diff_trafo[:, index] > value)
+
+        # select biased events based on transformed difference
+        # greater than the specified value
+        for key, value in cfg_sel['true_minus_pred_trafo_less'].items():
+            index = data_handler.get_label_index(key)
+            mask = np.logical_or(mask, diff_trafo[:, index] < value)
+
+        # select biased events based on absolute difference
+        for key, value in cfg_sel['cut_abs_diff'].items():
+            index = data_handler.get_label_index(key)
+            mask = np.logical_or(mask, abs_diff[:, index] >= value)
+
+        # select biased events based on transformed absolute difference
+        for key, value in cfg_sel['cut_abs_diff_trafo'].items():
+            index = data_handler.get_label_index(key)
+            mask = np.logical_or(mask,
+                                 abs_diff_trafo[:, index] >= value)
+
+        # select biased events based on uncertainty weighted difference
+        for key, value in cfg_sel['cut_unc_weighted_diff_trafo'].items():
+            index = data_handler.get_label_index(key)
+            unc_diff_trafo = \
+                abs_diff_trafo[:, index] / y_unc_trafo[:, index]
+            mask = np.logical_or(mask, unc_diff_trafo >= value)
+
+        return mask
+
+    def _get_label_biased_selection_mask(self, icecube_data, cfg_sel):
+        """Helper method to obtain event mask for biased selection based
+        on the label values.
+        """
+        y_true = icecube_data[2]
+
+        # create mask
+        mask = np.zeros(len(y_true))
+
+        # select biased events based on difference greater than value
+        for key, value in cfg_sel['label_greater'].items():
+            index = self.get_label_index(key)
+            mask = np.logical_or(mask, diff[:, index] > value)
+
+        # select biased events based on difference less than value
+        for key, value in cfg_sel['label_less'].items():
+            index = self.get_label_index(key)
+            mask = np.logical_or(mask, diff[:, index] < value)
+
+        # select biased events based on transformed difference
+        # greater than the specified value
+        for key, value in cfg_sel['label_equal'].items():
+            index = self.get_label_index(key)
+            mask = np.logical_or(mask, diff_trafo[:, index] > value)
+
+        # select biased events based on transformed difference
+        # greater than the specified value
+        for key, value in cfg_sel['label_unequal'].items():
+            index = self.get_label_index(key)
+            mask = np.logical_or(mask, diff_trafo[:, index] < value)
+
+        return mask
+
     def _create_biased_selection_func(self):
-        """Helper Method to create NN model instance for  biased selection
+        """Helper Method to create NN model instance for biased selection
         """
         local_random_state = np.random.RandomState()
         cfg = dict(deepcopy(self._config))
@@ -975,6 +1079,10 @@ class DataHandler(object):
             'max_size': 32,
             'reload_frequency': 100,
             'biased_fraction': 0.1,
+            'label_greater': {},
+            'label_less': {},
+            'label_equal': {},
+            'label_unequal': {},
             'true_minus_pred_greater': {},
             'true_minus_pred_less': {},
             'true_minus_pred_trafo_greater': {},
@@ -994,11 +1102,21 @@ class DataHandler(object):
             raise ValueError('Biased fraction {!r} not in (0, 1]'.format(
                 cfg_sel['biased_fraction']))
 
-        model, data_transformer, data_handler = \
-            self._create_model(cfg, cfg_sel)
+        # figure out if we need the current nn model prediction
+        nn_is_required = False
+        for key in ['true_minus_pred_greater', 'true_minus_pred_less',
+                    'true_minus_pred_trafo_greater', 'cut_abs_diff',
+                    'true_minus_pred_trafo_less', 'cut_abs_diff_trafo',
+                    'cut_unc_weighted_diff_trafo']:
+            if cfg_sel[key] != {}:
+                nn_is_required = True
+
+        if nn_is_required:
+            model, data_transformer, data_handler = \
+                self._create_model(cfg, cfg_sel)
 
         # create nn biased selection masking function
-        def nn_biased_selection_func(icecube_data):
+        def biased_selection_func(icecube_data):
             """Mask a batch of IceCube data to obtain a biased selection"""
 
             if icecube_data is None:
@@ -1007,77 +1125,23 @@ class DataHandler(object):
             if len(icecube_data[0]) == 0:
                 return None
 
-            # reload model weights if necessary
-            nn_biased_selection_func.counter += 1
-            if cfg_sel['reload_frequency'] is not None:
-                if nn_biased_selection_func.counter \
-                        % cfg_sel['reload_frequency'] == 0:
-                    model.restore()
+            # keep track of function calls
+            biased_selection_func.counter += 1
 
-            # apply model on loaded data
-            y_pred, y_unc = model.predict_batched(
-                                        icecube_data[0], icecube_data[1],
-                                        max_size=cfg_sel['max_size'])
-            y_true = icecube_data[2]
+            # get mask from biased label selection
+            mask = self._get_label_biased_selection_mask(icecube_data, cfg_sel)
 
-            # transform data
-            y_true_trafo = data_transformer.transform(
-                        y_true, data_type='label')
-            y_pred_trafo = data_transformer.transform(
-                        y_pred, data_type='label')
-            y_unc_trafo = data_transformer.transform(
-                        y_unc, data_type='label', bias_correction=False)
+            # get mask from biased nn selection
+            if nn_is_required:
+                mask_nn = self._get_nn_biased_selection_mask(
+                    icecube_data=icecube_data,
+                    cfg_sel=cfg_sel,
+                    data_handler=data_handler,
+                    data_transformer=data_transformer,
+                    model=model,
+                    counter=biased_selection_func.counter)
 
-            diff = y_true - y_pred
-            diff_trafo = y_true_trafo - y_pred_trafo
-            abs_diff = np.abs(diff)
-            abs_diff_trafo = np.abs(diff_trafo)
-
-            # create mask
-            mask = np.zeros(len(y_true))
-
-            # select biased events based on difference greater than value
-            for key, value in cfg_sel['true_minus_pred_greater'].items():
-                index = data_handler.get_label_index(key)
-                mask = np.logical_or(mask, diff[:, index] > value)
-
-            # select biased events based on difference less than value
-            for key, value in cfg_sel['true_minus_pred_less'].items():
-                index = data_handler.get_label_index(key)
-                mask = np.logical_or(mask, diff[:, index] < value)
-
-            # select biased events based on transformed difference
-            # greater than the specified value
-            for key, value in \
-                    cfg_sel['true_minus_pred_trafo_greater'].items():
-                index = data_handler.get_label_index(key)
-                mask = np.logical_or(mask, diff_trafo[:, index] > value)
-
-            # select biased events based on transformed difference
-            # greater than the specified value
-            for key, value in \
-                    cfg_sel['true_minus_pred_trafo_less'].items():
-                index = data_handler.get_label_index(key)
-                mask = np.logical_or(mask, diff_trafo[:, index] < value)
-
-            # select biased events based on absolute difference
-            for key, value in cfg_sel['cut_abs_diff'].items():
-                index = data_handler.get_label_index(key)
-                mask = np.logical_or(mask, abs_diff[:, index] >= value)
-
-            # select biased events based on transformed absolute difference
-            for key, value in cfg_sel['cut_abs_diff_trafo'].items():
-                index = data_handler.get_label_index(key)
-                mask = np.logical_or(mask,
-                                     abs_diff_trafo[:, index] >= value)
-
-            # select biased events based on uncertainty weighted difference
-            for key, value in \
-                    cfg_sel['cut_unc_weighted_diff_trafo'].items():
-                index = data_handler.get_label_index(key)
-                unc_diff_trafo = \
-                    abs_diff_trafo[:, index] / y_unc_trafo[:, index]
-                mask = np.logical_or(mask, unc_diff_trafo >= value)
+                mask = np.logical_or(mask, mask_nn)
 
             # Check if any events are selected
             num_biased_events = np.sum(mask)
@@ -1092,13 +1156,13 @@ class DataHandler(object):
             # Choose at least 1 event from a file if imbalance is not too
             # big to make sure to still take events from all files.
             # Keep track of imbalance.
-            num_chosen = num_to_choose - nn_biased_selection_func.balance
-            if nn_biased_selection_func.balance > 100:
+            num_chosen = num_to_choose - biased_selection_func.balance
+            if biased_selection_func.balance > 100:
                 num_chosen = max(num_chosen, 0)
             else:
                 num_chosen = max(num_chosen, 1)
             num_chosen = int(min(len(indices_unbiased), num_chosen))
-            nn_biased_selection_func.balance += num_chosen - num_to_choose
+            biased_selection_func.balance += num_chosen - num_to_choose
 
             if num_chosen > 0:
                 indices = local_random_state.choice(indices_unbiased,
@@ -1124,6 +1188,6 @@ class DataHandler(object):
 
             return icecube_data_masked
 
-        nn_biased_selection_func.counter = 0
-        nn_biased_selection_func.balance = 0
-        return nn_biased_selection_func
+        biased_selection_func.counter = 0
+        biased_selection_func.balance = 0
+        return biased_selection_func
