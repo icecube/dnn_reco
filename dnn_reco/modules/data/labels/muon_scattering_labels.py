@@ -59,14 +59,14 @@ def muon_scattering(input_data, config, label_names=None, *args, **kwargs):
     list of str
         The names of the labels
     """
-    labels, label_names = simple_label_loader(
+    labels, label_names_def = simple_label_loader(
                         input_data, config, label_names=None, *args, **kwargs)
 
     if 'labels_muon_scattering_defs' not in config:
         config['labels_muon_scattering_defs'] = {}
 
     label_dict = {}
-    for i, name in enumerate(label_names):
+    for i, name in enumerate(label_names_def):
         label_dict[name] = labels[:, i]
 
     for def_name, scattering_def in \
