@@ -1151,6 +1151,7 @@ class DataHandler(object):
                 int(num_biased_events * (1./cfg_sel['biased_fraction']-1))
 
             # add random events to obtain approximate correct fraction
+            y_true = icecube_data[2]
             indices_unbiased = np.arange(len(y_true))[~mask]
 
             # Choose at least 1 event from a file if imbalance is not too
