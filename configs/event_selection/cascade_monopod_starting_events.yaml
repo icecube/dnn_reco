@@ -524,8 +524,8 @@
                          [2, 0, 5], [2, 0, 5], [2, 0, 5], # pool(3, 3, 8)
                          [2, 0, 3], [2, 0, 3], [2, 0, 3], # pool(2, 2, 4)
                          [1, 0, 3], [1, 0, 1]],
-    'num_filters_list': [35, 35, 80, 80, 80, 80, 80, 80, 240, 240, 240, 240, 240,
-                         240, 240, 300, 300, 300, 100, 100],
+    'num_filters_list': [35, 35, 60, 60, 60, 60, 60, 60, 120, 120, 120, 120, 120,
+                         120, 120, 150, 150, 150, 100, 100],
     'pooling_type_list': [False, False, 'max', False, False, False, False,
                           False,'max', False, False, False, False, False, 'max',
                           False, False, 'max', False, False],
