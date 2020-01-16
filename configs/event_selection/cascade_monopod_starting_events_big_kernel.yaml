@@ -274,15 +274,15 @@
 # passes one of the defined cuts.
 # If apply_biased_selection is False, no biased selection will be performed.
 'nn_biased_selection': {
-    'apply_biased_selection': False,
+    'apply_biased_selection': True,
     'reload_frequency': 100,
-    'biased_fraction': 0.5,
+    'biased_fraction': 0.2,
     # Select biased event if: label[key] > value
     'label_greater': {},
     # Select biased event if: label[key] < value
     'label_less': {},
     # Select biased event if: label[key] == value
-    'label_equal': {},
+    'label_equal': {'p_starting_300m': False},
     # Select biased event if: label[key] != value
     'label_unequal': {},
     # Select biased event if: (true - pred)[key] > value
@@ -294,7 +294,7 @@
     # Select biased event if: transformed(true - pred)[key] > value
     'true_minus_pred_trafo_less': {},
     # Select biased event if: abs(true - pred)[key] >= value
-    'cut_abs_diff': {'p_starting': 0.8},
+    'cut_abs_diff': {},
     # Select biased event if: abs(transformed(true - pred))[key] >= value
     'cut_abs_diff_trafo': {},
     # Select biased event if: abs((true - pred) / unc)[key] >= value
@@ -390,7 +390,7 @@
 # Note: normalization here is not correct, just there to get intraclass weights
 'event_weights_num_corsika_files': 32098  # ~ 32098 files
 'event_weights_num_muongun_files': 174771 # ~ 174771 files
-'event_weights_num_nugen_files': 176  # ~ 176000 files
+'event_weights_num_nugen_files': 1760  # ~ 176000 files
 
 #---------------------------
 # General Training settings
