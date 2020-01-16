@@ -413,7 +413,8 @@
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False
-'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False, False]
+'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False,
+                        False, False, False, False, False, False]
 'trafo_log_label_bins' : {
                          }
 'trafo_log_misc_bins' : False
