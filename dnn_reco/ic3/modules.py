@@ -206,13 +206,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                     os.path.join(self._model_path, 'config_meta_data.yaml'))
 
             # Get time vars that need to be corrected by global time offset
-            self._mask_time = []
+            self._time_indices = []
             for i, name in enumerate(self.data_handler.label_names):
                 if name in self.data_handler.relative_time_keys:
-                    self._mask_time.append(True)
-                else:
-                    self._mask_time.append(False)
-            self._mask_time = np.expand_dims(np.array(self._mask_time), axis=0)
+                    self._time_indices.append(i)
 
             # create data transformer
             self.data_transformer = DataTransformer(
@@ -341,10 +338,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
             # Fix time offset
             if self.data_handler.relative_time_keys:
-                mask = np.broadcast_to(self._mask_time,
-                                       self.y_pred_batch.shape)
-                self.y_pred_batch[mask] += \
+                global_time_offset = \
                     self._container.global_time_offset_batch[:size]
+                for i in self._time_indices:
+                    self.y_pred_batch[:, i] += global_time_offset
 
             if self._measure_time:
                 self._runtime_prediction = \
