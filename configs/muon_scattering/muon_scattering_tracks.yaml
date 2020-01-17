@@ -202,7 +202,7 @@
     'biased_fraction': 0.2,
     # Select biased event if: label[key] > value
     'label_greater': {
-        'p_b300_a200_e50_r_70':  0.5,
+        'p_b300_a200_e50_r_50':  0.5,
     },
     # Select biased event if: label[key] < value
     'label_less': {},
