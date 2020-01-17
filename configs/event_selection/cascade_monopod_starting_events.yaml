@@ -69,6 +69,8 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/low_energy/IC86_*/*/9*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/low_energy/IC86_*/*/100/*.hdf5',
 
+    # Corsika
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/Corsika/*/*/0*000-0*999/*.hdf5',
   ]
 'trafo_data_file' : [
     # NuGen
@@ -127,6 +129,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/low_energy/IC86_*/*/9*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/low_energy/IC86_*/*/100/*.hdf5',
 
+     # Corsika
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/Corsika/*/*/0*000-0*999/*.hdf5',
+
   ]
 'validation_data_file' : [
     # NuGen
@@ -138,6 +143,8 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/medium_energy/IC86_*/*/21/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/low_energy/IC86_*/*/101/*.hdf5',
 
+     # Corsika
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/Corsika/*/*/10000-10999/*.hdf5',
   ]
 'test_data_file' : [
     # NuGen
@@ -148,6 +155,9 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/high_energy/IC86_*/*/6/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/medium_energy/IC86_*/*/21/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/MuonGun/low_energy/IC86_*/*/101/*.hdf5',
+
+     # Corsika
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_classification_data/L3_MonopodFit4/Corsika/*/*/10000-10999/*.hdf5',
   ]
 
 'tf_random_seed': 42
