@@ -483,7 +483,7 @@
 'model_file' : 'general_IC86_models'
 'model_name' : 'general_model_IC86_opt4'
 'model_is_training' : True
-'model_enforce_direction_norm': True
+'model_enforce_direction_norm': False
 
 # 2D convolutional layer of upper DeepCore
 'conv_upper_DeepCore_settings': {
