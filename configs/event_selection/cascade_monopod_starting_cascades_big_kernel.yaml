@@ -292,7 +292,7 @@
     # Select biased event if: label[key] < value
     'label_less': {},
     # Select biased event if: label[key] == value
-    'label_equal': {'p_starting_300m': False},
+    'label_equal': {'p_starting_cascade_L100_D300': False},
     # Select biased event if: label[key] != value
     'label_unequal': {},
     # Select biased event if: (true - pred)[key] > value
