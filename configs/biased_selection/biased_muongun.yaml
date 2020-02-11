@@ -165,11 +165,13 @@
 # passes one of the defined cuts.
 # If apply_biased_selection is False, no biased selection will be performed.
 'nn_biased_selection': {
-    'apply_biased_selection': False,
+    'apply_biased_selection': True,
     'reload_frequency': 100,
     'biased_fraction': 0.2,
     # Select biased event if: label[key] > value
-    'label_greater': {},
+    'label_greater': {
+      'event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 0.5,
+    },
     # Select biased event if: label[key] < value
     'label_less': {},
     # Select biased event if: label[key] == value
@@ -205,7 +207,7 @@
     # 'p_passed_CascadeFilter': 1.,
     # 'p_passed_MuonFilter': 1.,
     # 'p_passed_event_selection_cscdl3_300m_01_p_starting_300m': 1.,
-    # 'p_passed_event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 1.,
+    'p_passed_event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 1.,
     # 'event_selection_cscdl3_300m_01_p_starting_300m': 1.,
     'event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 1.,
 }
