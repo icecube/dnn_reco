@@ -51,9 +51,9 @@
 'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 12
-'file_capacity' : 3
+'file_capacity' : 2
 'batch_capacity' : 200
-'num_add_files' : 100
+'num_add_files' : 50
 'num_repetitions' : 3
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
@@ -167,7 +167,7 @@
 'nn_biased_selection': {
     'apply_biased_selection': True,
     'reload_frequency': 100,
-    'biased_fraction': 0.2,
+    'biased_fraction': 0.1,
     # Select biased event if: label[key] > value
     'label_greater': {
       'event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 0.5,
@@ -209,7 +209,7 @@
     # 'p_passed_event_selection_cscdl3_300m_01_p_starting_300m': 1.,
     'p_passed_event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 1.,
     # 'event_selection_cscdl3_300m_01_p_starting_300m': 1.,
-    'event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 1.,
+    # 'event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 1.,
 }
 # Keys to use for I3Particle
 'label_particle_keys': {
@@ -279,7 +279,7 @@
 'num_training_iterations' : 100000000
 'validation_frequency' : 100
 'save_frequency' : 500
-'keep_probability_list' : [1.0, 1.0, 1.0, 1.0]
+'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
 'evaluation_file': #default_evaluation
