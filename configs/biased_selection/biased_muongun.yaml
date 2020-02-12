@@ -288,7 +288,7 @@
 #---------------------------
 # Trafo settings
 #---------------------------
-'trafo_num_jobs' : 25
+'trafo_num_jobs' : 10
 'trafo_num_batches' : 10000
 'trafo_model_path' : '../data/trafo_models/dnn_reco_biased_muongun_01.npy'
 'trafo_normalize_dom_data' : True
