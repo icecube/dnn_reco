@@ -16,12 +16,15 @@
 
     # MuonGun - low
     '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/low_energy/IC86_2013/l2/1/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/low_energy/IC86_2013/l2/2/*.hdf5',
 
     # MuonGun - medium
     '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/medium_energy/IC86_2013/l2/1/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/medium_energy/IC86_2013/l2/2/*.hdf5',
 
     # MuonGun - high
     '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/high_energy/IC86_2013/l2/1/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/high_energy/IC86_2013/l2/2/*.hdf5',
   ]
 'trafo_data_file' : [
     # MuonGun - low
@@ -36,21 +39,21 @@
 'validation_data_file' : [
 
     # MuonGun
-    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/low_energy/IC86_2013/l2/2/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/medium_energy/IC86_2013/l2/2/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/high_energy/IC86_2013/l2/2/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/low_energy/IC86_2013/l2/3/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/medium_energy/IC86_2013/l2/3/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/high_energy/IC86_2013/l2/3/*.hdf5',
   ]
 'test_data_file' : [
 
     # MuonGun
-    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/low_energy/IC86_2013/l2/2/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/medium_energy/IC86_2013/l2/2/*.hdf5',
-    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/high_energy/IC86_2013/l2/2/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/low_energy/IC86_2013/l2/3/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/medium_energy/IC86_2013/l2/3/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/biased_simulation/MuonGun/MuonGun/high_energy/IC86_2013/l2/3/*.hdf5',
   ]
 
 'tf_random_seed': 42
 'float_precision': float32
-'num_jobs' : 12
+'num_jobs' : 8
 'file_capacity' : 2
 'batch_capacity' : 200
 'num_add_files' : 50
