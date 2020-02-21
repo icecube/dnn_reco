@@ -734,8 +734,9 @@ class DataHandler(object):
                 if self.misc_data_exists:
                     misc_list = [data_batch[3]]
 
-                while current_queue_size < num_repetitions * batch_size and \
-                        data_left_in_queue.value:
+                while (current_queue_size <
+                       np.sqrt(num_repetitions) * batch_size and
+                       data_left_in_queue.value):
 
                     # avoid dead lock and delay for a bit
                     time.sleep(0.1)
