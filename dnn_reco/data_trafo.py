@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import sys
 import numpy as np
 import pickle
 import tensorflow as tf
@@ -346,7 +347,10 @@ class DataTransformer:
         """
         # load trafo model from file
         with open(model_path, 'rb') as handle:
-            trafo_model = pickle.load(handle)
+            if sys.version_info.major >= 3:
+                trafo_model = pickle.load(handle, encoding='latin1')
+            else:
+                trafo_model = pickle.load(handle)
 
         # make sure that settings match
         for key in self.trafo_model:
