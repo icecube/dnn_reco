@@ -96,6 +96,7 @@ class DNN_LLH_Circular_Dir(DNN_LLH_Base_Elliptical):
         azimuth = unumpy.nominal_values(u_azimuth)
 
         # calculate circular error radius
+        # (Note we want to get 'average' circular error, therefore divide by 2)
         circular_var = (unc_zenith**2 +
                         unc_azimuth**2 * np.sin(zenith)**2) / 2.
         cov = np.diag([circular_var, circular_var])
@@ -163,6 +164,7 @@ class DNN_LLH_Circular(DNN_LLH_Base_Elliptical):
             abs(zenith - sampled_zenith) follow the expected distribution.
         """
         # calculate circular error radius
+        # (Note we want to get 'average' circular error, therefore divide by 2)
         circular_var = (unc_zenith**2 +
                         unc_azimuth**2 * np.sin(zenith)**2) / 2.
         cov = np.diag([circular_var, circular_var])
