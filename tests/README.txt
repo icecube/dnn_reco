@@ -4,6 +4,10 @@
 # Test:
 #       - pulse summary values data
 #       - DNN reco based on summary
+# Note: the tests here use the processing scripts from
+# https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/sandbox/mhuennefeld/processing_scripts/trunk/
+# and more specifically this config:
+# https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/sandbox/mhuennefeld/processing_scripts/trunk/processing/configs/unit_tests/dnn_reco_test_01.yaml
 # ---------------------------------------
 
 # Define directory for output
