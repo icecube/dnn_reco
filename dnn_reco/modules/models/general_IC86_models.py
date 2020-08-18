@@ -398,7 +398,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                 layer_flat_DeepCore_2], axis=1)
 
         # dropout
-        layer_flat = tf.nn.dropout(layer_flat, 1 - (keep_prob_list[2]))
+        layer_flat = tf.nn.dropout(layer_flat, rate=1 - (keep_prob_list[2]))
 
         # -----------------------------------
         # fully connected layers
