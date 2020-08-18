@@ -2,7 +2,11 @@ from __future__ import division, print_function
 import numpy as np
 import tensorflow as tf
 
-from tfscripts import layers as tfs
+# Check and allow for newer TFScripts versions
+try:
+    from tfscripts.compat.v1 import layers as tfs
+except ImportError:
+    from tfscripts import layers as tfs
 
 from dnn_reco.modules.models.utils.model_utils import preprocess_icecube_data
 

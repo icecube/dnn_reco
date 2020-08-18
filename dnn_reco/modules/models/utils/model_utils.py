@@ -1,7 +1,11 @@
 from __future__ import division, print_function
 import tensorflow as tf
 
-from tfscripts import layers as tfs
+# Check and allow for newer TFScripts versions
+try:
+    from tfscripts.compat.v1 import layers as tfs
+except ImportError:
+    from tfscripts import layers as tfs
 """
 This file contains commonly used utility functions to build icecube nn models.
 """
