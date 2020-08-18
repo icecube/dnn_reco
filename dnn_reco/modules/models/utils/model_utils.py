@@ -42,18 +42,18 @@ def preprocess_icecube_data(is_training, shared_objects):
     # DropOut on whole DOMs
     # -----------------------------------
     if is_training:
-        noise_shape_IC78 = [tf.shape(X_IC78)[0]] + \
+        noise_shape_IC78 = [tf.shape(input=X_IC78)[0]] + \
             X_IC78.get_shape().as_list()[1:-1] + [1]
-        noise_shape_DeepCore = [tf.shape(X_DeepCore)[0]] + \
+        noise_shape_DeepCore = [tf.shape(input=X_DeepCore)[0]] + \
             X_DeepCore.get_shape().as_list()[1:-1] + [1]
 
         X_IC78 = tf.nn.dropout(X_IC78,
-                               keep_prob=keep_prob_list[0],
+                               rate=1 - (keep_prob_list[0]),
                                noise_shape=noise_shape_IC78,
                                )
 
         X_DeepCore = tf.nn.dropout(X_DeepCore,
-                                   keep_prob=keep_prob_list[0],
+                                   rate=1 - (keep_prob_list[0]),
                                    noise_shape=noise_shape_DeepCore,
                                    )
 
@@ -62,9 +62,9 @@ def preprocess_icecube_data(is_training, shared_objects):
     # Move strings in channel dimension:
     # only convolve over DOMs dimension
     # -----------------------------------
-    X_DeepCore_upper = tf.transpose(X_DeepCore[:, :, 0:10, :],
-                                    [0, 2, 3, 1])
-    X_DeepCore_lower = tf.transpose(X_DeepCore[:, :, 10:, :], [0, 2, 3, 1])
+    X_DeepCore_upper = tf.transpose(a=X_DeepCore[:, :, 0:10, :],
+                                    perm=[0, 2, 3, 1])
+    X_DeepCore_lower = tf.transpose(a=X_DeepCore[:, :, 10:, :], perm=[0, 2, 3, 1])
 
     input_ch_size = X_DeepCore.get_shape().as_list()[-1]
     X_DeepCore_upper = tf.reshape(X_DeepCore_upper,

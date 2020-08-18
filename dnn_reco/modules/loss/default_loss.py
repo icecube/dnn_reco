@@ -82,10 +82,10 @@ def weighted_mse(config, data_handler, data_transformer, shared_objects,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        mse_values_trafo = tf.reduce_sum(loss_event * weights, axis=0) / \
-            tf.reduce_sum(weights, axis=0)
+        mse_values_trafo = tf.reduce_sum(input_tensor=loss_event * weights, axis=0) / \
+            tf.reduce_sum(input_tensor=weights, axis=0)
     else:
-        mse_values_trafo = tf.reduce_mean(loss_event, 0)
+        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
 
@@ -134,13 +134,13 @@ def mse(config, data_handler, data_transformer, shared_objects,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        mse_values_trafo = tf.reduce_sum(loss_event * weights, 0) / weight_sum
-        mse_unc_values_trafo = tf.reduce_sum(unc_diff**2 * weights, 0) / \
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        mse_values_trafo = tf.reduce_sum(input_tensor=loss_event * weights, axis=0) / weight_sum
+        mse_unc_values_trafo = tf.reduce_sum(input_tensor=unc_diff**2 * weights, axis=0) / \
             weight_sum
     else:
-        mse_values_trafo = tf.reduce_mean(loss_event, 0)
-        mse_unc_values_trafo = tf.reduce_mean(unc_diff**2, 0)
+        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
+        mse_unc_values_trafo = tf.reduce_mean(input_tensor=unc_diff**2, axis=0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
 
@@ -188,13 +188,13 @@ def abs(config, data_handler, data_transformer, shared_objects,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        abs_values_trafo = tf.reduce_sum(loss_event * weights, 0) / weight_sum
-        abs_unc_values_trafo = tf.reduce_sum(tf.abs(unc_diff) * weights, 0) / \
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        abs_values_trafo = tf.reduce_sum(input_tensor=loss_event * weights, axis=0) / weight_sum
+        abs_unc_values_trafo = tf.reduce_sum(input_tensor=tf.abs(unc_diff) * weights, axis=0) / \
             weight_sum
     else:
-        abs_values_trafo = tf.reduce_mean(loss_event, 0)
-        abs_unc_values_trafo = tf.reduce_mean(tf.abs(unc_diff), 0)
+        abs_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
+        abs_unc_values_trafo = tf.reduce_mean(input_tensor=tf.abs(unc_diff), axis=0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
 
@@ -242,14 +242,14 @@ def gaussian_likelihood(config, data_handler, data_transformer, shared_objects,
     # uncertainty estimate on prediction
     unc = tf.clip_by_value(shared_objects['y_unc_trafo'], eps, float('inf'))
 
-    loss_event = 2*tf.log(unc) + (y_diff_trafo / unc)**2
+    loss_event = 2*tf.math.log(unc) + (y_diff_trafo / unc)**2
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        loss = tf.reduce_sum(loss_event * weights, 0) / weight_sum
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        loss = tf.reduce_sum(input_tensor=loss_event * weights, axis=0) / weight_sum
     else:
-        loss = tf.reduce_mean(loss_event, axis=0)
+        loss = tf.reduce_mean(input_tensor=loss_event, axis=0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
 
@@ -309,7 +309,7 @@ def pull_distribution_scale(config, data_handler, data_transformer,
     pull = y_diff_trafo / unc
 
     # get variance
-    mean, var = tf.nn.moments(pull, axes=[0])
+    mean, var = tf.nn.moments(x=pull, axes=[0])
 
     loss = (var - 1.)**2
 
@@ -363,10 +363,10 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        mse_values_trafo = tf.reduce_sum(loss_event * weights, 0) / weight_sum
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        mse_values_trafo = tf.reduce_sum(input_tensor=loss_event * weights, axis=0) / weight_sum
     else:
-        mse_values_trafo = tf.reduce_mean(loss_event, 0)
+        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
 
     logit_tensors = shared_objects['logit_tensors']
 
@@ -384,9 +384,9 @@ def mse_and_cross_entropy(config, data_handler, data_transformer,
                                         logits=logit_tensors[name])
             if 'event_weights' in shared_objects:
                 label_loss.append(
-                    tf.reduce_sum(loss_i * weights[:, 0], 0) / weight_sum[0])
+                    tf.reduce_sum(input_tensor=loss_i * weights[:, 0], axis=0) / weight_sum[0])
             else:
-                label_loss.append(tf.reduce_mean(loss_i))
+                label_loss.append(tf.reduce_mean(input_tensor=loss_i))
         else:
             label_loss.append(mse_values_trafo[i])
 
@@ -450,10 +450,10 @@ def mse_and_weighted_cross_entropy(config, data_handler, data_transformer,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        mse_values_trafo = tf.reduce_sum(loss_event * weights, 0) / weight_sum
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        mse_values_trafo = tf.reduce_sum(input_tensor=loss_event * weights, axis=0) / weight_sum
     else:
-        mse_values_trafo = tf.reduce_mean(loss_event, 0)
+        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
         weights = tf.expand_dims(tf.ones_like(loss_event[:, 0]), axis=-1)
 
     logit_tensors = shared_objects['logit_tensors']
@@ -478,12 +478,12 @@ def mse_and_weighted_cross_entropy(config, data_handler, data_transformer,
             # compute weights for each event
             # ------------------------------
             # Here we assume that background class has value 0 and signal 1
-            signal_weights = tf.where(labels_i > 0.5,
+            signal_weights = tf.compat.v1.where(labels_i > 0.5,
                                       weights[:, 0],
                                       tf.zeros_like(weights[:, 0]))
 
             # sort events according to the classification score
-            sorted_indices = tf.contrib.framework.argsort(predictions_i)
+            sorted_indices = tf.argsort(predictions_i)
             signal_weights_sorted = tf.gather(signal_weights, sorted_indices)
             weights_sorted = tf.gather(weights[:, 0], sorted_indices)
             loss_i_sorted = tf.gather(loss_i, sorted_indices)
@@ -495,8 +495,8 @@ def mse_and_weighted_cross_entropy(config, data_handler, data_transformer,
 
             eps = 1e-6
             label_loss.append(
-                    tf.reduce_sum(loss_i_sorted * loss_weight, 0) /
-                    (tf.reduce_sum(loss_weight) + eps))
+                    tf.reduce_sum(input_tensor=loss_i_sorted * loss_weight, axis=0) /
+                    (tf.reduce_sum(input_tensor=loss_weight) + eps))
             # ------------------------------
         else:
             label_loss.append(mse_values_trafo[i])
@@ -552,7 +552,7 @@ def tukey(config, data_handler, data_transformer, shared_objects,
         y_diff_trafo / (1.4826 * shared_objects['median_abs_dev'])
 
     c = 4.6851
-    loss_event = tf.where(
+    loss_event = tf.compat.v1.where(
         tf.less(tf.abs(y_diff_trafo_scaled), c),
         (c**2/6) * (1 - (1 - (y_diff_trafo_scaled/c)**2)**3),
         tf.zeros_like(y_diff_trafo_scaled) + (c**2/6),
@@ -560,10 +560,10 @@ def tukey(config, data_handler, data_transformer, shared_objects,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        tukey_loss = tf.reduce_sum(loss_event * weights, 0) / weight_sum
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        tukey_loss = tf.reduce_sum(input_tensor=loss_event * weights, axis=0) / weight_sum
     else:
-        tukey_loss = tf.reduce_mean(loss_event, 0)
+        tukey_loss = tf.reduce_mean(input_tensor=loss_event, axis=0)
 
     loss_utils.add_logging_info(data_handler, shared_objects)
 
@@ -627,12 +627,12 @@ def opening_angle(config, data_handler, data_transformer, shared_objects,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        loss_angle = tf.reduce_sum(angle * weights, 0) / weight_sum
-        loss_unc = tf.reduce_sum(unc_diff**2 * weights, 0) / weight_sum
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        loss_angle = tf.reduce_sum(input_tensor=angle * weights, axis=0) / weight_sum
+        loss_unc = tf.reduce_sum(input_tensor=unc_diff**2 * weights, axis=0) / weight_sum
     else:
-        loss_angle = tf.reduce_mean(angle, 0)
-        loss_unc = tf.reduce_mean(unc_diff**2, 0)
+        loss_angle = tf.reduce_mean(input_tensor=angle, axis=0)
+        loss_unc = tf.reduce_mean(input_tensor=unc_diff**2, axis=0)
 
     loss = loss_angle + loss_unc
     zeros = tf.zeros_like(loss)
@@ -708,16 +708,16 @@ def opening_angle_raleigh(config, data_handler, data_transformer,
     eps = 1e-6
     sigma = tf.clip_by_value(sigma, eps, float('inf'))
 
-    raleigh = (angle / sigma)**2 + 4*tf.log(sigma) - 2*tf.log(angle)
+    raleigh = (angle / sigma)**2 + 4*tf.math.log(sigma) - 2*tf.math.log(angle)
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        weight_sum = tf.reduce_sum(weights, axis=0)
-        loss_angle = tf.reduce_sum(angle * weights, 0) / weight_sum
-        raleigh_loss = tf.reduce_sum(raleigh * weights, 0) / weight_sum
+        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        loss_angle = tf.reduce_sum(input_tensor=angle * weights, axis=0) / weight_sum
+        raleigh_loss = tf.reduce_sum(input_tensor=raleigh * weights, axis=0) / weight_sum
     else:
-        loss_angle = tf.reduce_mean(angle, 0)
-        raleigh_loss = tf.reduce_mean(raleigh, 0)
+        loss_angle = tf.reduce_mean(input_tensor=angle, axis=0)
+        raleigh_loss = tf.reduce_mean(input_tensor=raleigh, axis=0)
 
     loss = loss_angle + raleigh_loss
     zeros = tf.zeros_like(loss)

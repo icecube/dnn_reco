@@ -1,25 +1,10 @@
 
 ---------------------------------------
-Steps to do to include biased selection
+Steps to migrate to tensorflow 2
 ---------------------------------------
-
-- refactor ic3-modules model creation in independent tf.Session and graph: move out code to misc or utils for reusability
-
-- create independent session and graph in file_loader() function
---> Check: does __enter__() [e.g. change of default session] mess with the training procedure?
---> If it does, does it help to also have training process in independent session and graph?
-
-- every n steps/batches/files: reload weights
-
-- predict for batch events: calculate diff in normalized coordinates and define parameters how to mask/sample events based on this [also include option to define abs/unc units]
-
-- also take events from files without biased selection: account for these in function counter and take less from other file
-
-
-- clean up version A and B
-- clean up debug prints
-
-- add settings to config and remove it from code
+- fix line breaks and linting
+- fix tf.summary logic
+- transition from tf.compat.* symbols to more idomatic tensorflow 2 logic
 
 ----------------
 Additional ToDos
@@ -29,6 +14,3 @@ Additional ToDos
 - Use proper 1D convolution with strings in channel dimension [or FC layers for upper DeepCore?]
 - shift mis-aligned DOMs to correct z-axis
 - use proper residual layers
-
-
-- Create regression problem with astroness as label

@@ -918,15 +918,15 @@ class DataHandler(object):
         g = tf.Graph()
         if 'tf_parallelism_threads' in cfg_sel:
             n_cpus = cfg_sel['tf_parallelism_threads']
-            sess = tf.Session(graph=g, config=tf.ConfigProto(
-                        gpu_options=tf.GPUOptions(allow_growth=True),
+            sess = tf.compat.v1.Session(graph=g, config=tf.compat.v1.ConfigProto(
+                        gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                         device_count={'GPU': cfg_sel['GPU_device_count']},
                         intra_op_parallelism_threads=n_cpus,
                         inter_op_parallelism_threads=n_cpus,
                       )).__enter__()
         else:
-            sess = tf.Session(graph=g, config=tf.ConfigProto(
-                        gpu_options=tf.GPUOptions(allow_growth=True),
+            sess = tf.compat.v1.Session(graph=g, config=tf.compat.v1.ConfigProto(
+                        gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                         device_count={'GPU': cfg_sel['GPU_device_count']},
                       )).__enter__()
         with g.as_default():
