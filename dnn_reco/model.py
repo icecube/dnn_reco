@@ -427,9 +427,9 @@ class NNModel(object):
             # weight label_losses
             # use nested where trick to avoid NaNs:
             # https://stackoverflow.com/questions/33712178/tensorflow-nan-bug
-            label_loss_safe = tf.compat.v1.where(self.shared_objects['non_zero_mask'],
+            label_loss_safe = tf.where(self.shared_objects['non_zero_mask'],
                                        label_loss, tf.zeros_like(label_loss))
-            weighted_label_loss = tf.compat.v1.where(
+            weighted_label_loss = tf.where(
                         self.shared_objects['non_zero_mask'],
                         label_loss_safe * self.shared_objects['label_weights'],
                         tf.zeros_like(label_loss))
@@ -489,7 +489,7 @@ class NNModel(object):
             else:
                 remove_nan_gradients = False
             if remove_nan_gradients:
-                gvs = [(tf.compat.v1.where(tf.math.is_nan(grad), tf.zeros_like(grad), grad),
+                gvs = [(tf.where(tf.math.is_nan(grad), tf.zeros_like(grad), grad),
                         var) for grad, var in gvs if grad is not None]
 
             if 'clip_gradients_value' in opt_config:

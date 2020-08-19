@@ -95,7 +95,7 @@ def correct_azimuth_residual(y_diff_trafo, config, data_handler,
 
             # Found an azimuth label: correct for 2 pi periodicity
             abs_diff = tf.abs(y_diff_list[i])
-            y_diff_list[i] = tf.compat.v1.where(abs_diff < pi_trafo[i],
+            y_diff_list[i] = tf.where(abs_diff < pi_trafo[i],
                                       abs_diff,
                                       two_pi_trafo[i] - abs_diff)
 

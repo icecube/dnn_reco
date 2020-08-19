@@ -69,7 +69,7 @@ def nersc_gnn_weight(config, data_handler, data_transformer, shared_objects,
     weight = shared_objects['x_misc'][:, index_weight] * 86400 * 365 * 10
     is_nugen = shared_objects['y_true'][:, index_signal] > .5
 
-    event_weights = tf.compat.v1.where(
+    event_weights = tf.where(
         is_nugen,
         weight / config['nersc_gnn_weight_num_nugen_files'],
         weight / config['nersc_gnn_weight_num_corsika_files'],

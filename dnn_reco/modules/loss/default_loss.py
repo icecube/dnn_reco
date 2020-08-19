@@ -478,7 +478,7 @@ def mse_and_weighted_cross_entropy(config, data_handler, data_transformer,
             # compute weights for each event
             # ------------------------------
             # Here we assume that background class has value 0 and signal 1
-            signal_weights = tf.compat.v1.where(labels_i > 0.5,
+            signal_weights = tf.where(labels_i > 0.5,
                                       weights[:, 0],
                                       tf.zeros_like(weights[:, 0]))
 
@@ -552,7 +552,7 @@ def tukey(config, data_handler, data_transformer, shared_objects,
         y_diff_trafo / (1.4826 * shared_objects['median_abs_dev'])
 
     c = 4.6851
-    loss_event = tf.compat.v1.where(
+    loss_event = tf.where(
         tf.less(tf.abs(y_diff_trafo_scaled), c),
         (c**2/6) * (1 - (1 - (y_diff_trafo_scaled/c)**2)**3),
         tf.zeros_like(y_diff_trafo_scaled) + (c**2/6),
