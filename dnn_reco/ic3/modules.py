@@ -198,7 +198,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             sess = tf.compat.v1.Session(graph=g, config=tf.compat.v1.ConfigProto(
                         gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                         device_count={'GPU': 1},
-                      )).
+                      ))
         with g.as_default():
             # Create Data Handler object
             self.data_handler = DataHandler(self.config)
