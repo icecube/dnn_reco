@@ -193,12 +193,12 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                         device_count={'GPU': 1},
                         intra_op_parallelism_threads=n_cpus,
                         inter_op_parallelism_threads=n_cpus,
-                      )).__enter__()
+                      ))
         else:
             sess = tf.compat.v1.Session(graph=g, config=tf.compat.v1.ConfigProto(
                         gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                         device_count={'GPU': 1},
-                      )).__enter__()
+                      )).
         with g.as_default():
             # Create Data Handler object
             self.data_handler = DataHandler(self.config)

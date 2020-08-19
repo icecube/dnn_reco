@@ -91,12 +91,12 @@ class NNModel(object):
                                 device_count={'GPU': 1},
                                 intra_op_parallelism_threads=n_cpus,
                                 inter_op_parallelism_threads=n_cpus,
-                              )).__enter__()
+                              ))
                 else:
                     sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(
                                 gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                                 device_count={'GPU': 1},
-                              )).__enter__()
+                              ))
         self.sess = sess
         tf.compat.v1.set_random_seed(self.config['tf_random_seed'])
 

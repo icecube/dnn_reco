@@ -923,12 +923,12 @@ class DataHandler(object):
                         device_count={'GPU': cfg_sel['GPU_device_count']},
                         intra_op_parallelism_threads=n_cpus,
                         inter_op_parallelism_threads=n_cpus,
-                      )).__enter__()
+                      ))
         else:
             sess = tf.compat.v1.Session(graph=g, config=tf.compat.v1.ConfigProto(
                         gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                         device_count={'GPU': cfg_sel['GPU_device_count']},
-                      )).__enter__()
+                      ))
         with g.as_default():
             # Create Data Handler object
             data_handler = DataHandler(cfg)
