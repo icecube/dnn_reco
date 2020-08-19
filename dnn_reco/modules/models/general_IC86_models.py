@@ -2,7 +2,11 @@ from __future__ import division, print_function
 import numpy as np
 import tensorflow as tf
 
-from tfscripts import layers as tfs
+# Check and allow for newer TFScripts versions
+try:
+    from tfscripts.compat.v1 import layers as tfs
+except ImportError:
+    from tfscripts import layers as tfs
 
 from dnn_reco.modules.models.utils.model_utils import preprocess_icecube_data
 
@@ -84,7 +88,7 @@ def general_model_IC86(is_training, config, data_handler,
     keep_prob_list = shared_objects['keep_prob_list']
     num_labels = data_handler.label_shape[-1]
 
-    with tf.variable_scope('model_pred'):
+    with tf.compat.v1.variable_scope('model_pred'):
 
         # apply DOM dropout, split and reshape DeepCore input
         X_IC78, X_DeepCore_upper, X_DeepCore_lower = preprocess_icecube_data(
@@ -144,7 +148,7 @@ def general_model_IC86(is_training, config, data_handler,
                                 layer_flat_DeepCore_2], axis=1)
 
         # dropout
-        layer_flat = tf.nn.dropout(layer_flat, keep_prob_list[2])
+        layer_flat = tf.nn.dropout(layer_flat, rate=1 - (keep_prob_list[2]))
 
         # -----------------------------------
         # fully connected layers
@@ -260,7 +264,7 @@ def general_model_IC86(is_training, config, data_handler,
         # put it back together
         y_pred_trafo = tf.stack(y_pred_trafo_final_list, axis=1)
 
-    with tf.variable_scope('model_unc'):
+    with tf.compat.v1.variable_scope('model_unc'):
 
         # -----------------------------------
         # Uncertainty estimate
@@ -292,9 +296,9 @@ def general_model_IC86(is_training, config, data_handler,
     # -----------------------------------
     # collect model variables that need to be saved
     # -----------------------------------
-    model_vars_pred = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
+    model_vars_pred = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES,
                                         'model_pred')
-    model_vars_unc = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
+    model_vars_unc = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES,
                                        'model_unc')
 
     return y_pred_trafo, y_unc_pred_trafo, model_vars_pred, model_vars_unc
@@ -338,7 +342,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
     keep_prob_list = shared_objects['keep_prob_list']
     num_labels = data_handler.label_shape[-1]
 
-    with tf.variable_scope('model_pred'):
+    with tf.compat.v1.variable_scope('model_pred'):
 
         # apply DOM dropout, split and reshape DeepCore input
         X_IC78, X_DeepCore_upper, X_DeepCore_lower = preprocess_icecube_data(
@@ -398,7 +402,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
                                 layer_flat_DeepCore_2], axis=1)
 
         # dropout
-        layer_flat = tf.nn.dropout(layer_flat, keep_prob_list[2])
+        layer_flat = tf.nn.dropout(layer_flat, rate=1 - (keep_prob_list[2]))
 
         # -----------------------------------
         # fully connected layers
@@ -514,7 +518,7 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         # put it back together
         y_pred_trafo = tf.stack(y_pred_trafo_final_list, axis=1)
 
-    with tf.variable_scope('model_unc'):
+    with tf.compat.v1.variable_scope('model_unc'):
 
         # -----------------------------------
         # Uncertainty estimate
@@ -542,9 +546,9 @@ def general_model_IC86_opt4(is_training, config, data_handler,
     # -----------------------------------
     # collect model variables that need to be saved
     # -----------------------------------
-    model_vars_pred = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
+    model_vars_pred = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES,
                                         'model_pred')
-    model_vars_unc = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
+    model_vars_unc = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES,
                                        'model_unc')
 
     return y_pred_trafo, y_unc_pred_trafo, model_vars_pred, model_vars_unc

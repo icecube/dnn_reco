@@ -20,6 +20,6 @@ setup(
                       'gitpython', 'tfscripts', 'h5py',
                       ],
     dependency_links=[
-      'git+https://github.com/IceCubeOpenSource/TFScripts.git@master#egg=tfscripts-0.2.1',
+      'git+https://github.com/IceCubeOpenSource/TFScripts.git',
     ],
     )

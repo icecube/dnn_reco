@@ -128,16 +128,16 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        w_sum = tf.reduce_sum(weights, axis=0)
-        loss_x = tf.reduce_sum((r1**2 + unc_diff_x**2) * weights, 0) / w_sum
-        loss_y = tf.reduce_sum((r2**2 + unc_diff_y**2) * weights, 0) / w_sum
-        loss_z = tf.reduce_sum((r3**2 + unc_diff_z**2) * weights, 0) / w_sum
-        loss_t = tf.reduce_sum((rt**2 + unc_diff_t**2) * weights, 0) / w_sum
+        w_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        loss_x = tf.reduce_sum(input_tensor=(r1**2 + unc_diff_x**2) * weights, axis=0) / w_sum
+        loss_y = tf.reduce_sum(input_tensor=(r2**2 + unc_diff_y**2) * weights, axis=0) / w_sum
+        loss_z = tf.reduce_sum(input_tensor=(r3**2 + unc_diff_z**2) * weights, axis=0) / w_sum
+        loss_t = tf.reduce_sum(input_tensor=(rt**2 + unc_diff_t**2) * weights, axis=0) / w_sum
     else:
-        loss_x = tf.reduce_mean(r1**2 + unc_diff_x**2, 0)
-        loss_y = tf.reduce_mean(r2**2 + unc_diff_y**2, 0)
-        loss_z = tf.reduce_mean(r3**2 + unc_diff_z**2, 0)
-        loss_t = tf.reduce_mean(rt**2 + unc_diff_t**2, 0)
+        loss_x = tf.reduce_mean(input_tensor=r1**2 + unc_diff_x**2, axis=0)
+        loss_y = tf.reduce_mean(input_tensor=r2**2 + unc_diff_y**2, axis=0)
+        loss_z = tf.reduce_mean(input_tensor=r3**2 + unc_diff_z**2, axis=0)
+        loss_t = tf.reduce_mean(input_tensor=rt**2 + unc_diff_t**2, axis=0)
 
     zeros = tf.zeros_like(loss_x)
 
@@ -250,23 +250,23 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
     c = 0.299792458  # in m /ns
     rt = (time_true + (s / c) - time_pred) * c
 
-    gl_x = 2*tf.log(x_unc) + (r1 / x_unc)**2
-    gl_y = 2*tf.log(y_unc) + (r2 / y_unc)**2
-    gl_z = 2*tf.log(z_unc) + (r3 / z_unc)**2
-    gl_t = 2*tf.log(time_unc) + (rt / time_unc)**2
+    gl_x = 2*tf.math.log(x_unc) + (r1 / x_unc)**2
+    gl_y = 2*tf.math.log(y_unc) + (r2 / y_unc)**2
+    gl_z = 2*tf.math.log(z_unc) + (r3 / z_unc)**2
+    gl_t = 2*tf.math.log(time_unc) + (rt / time_unc)**2
 
     if 'event_weights' in shared_objects:
         weights = shared_objects['event_weights']
-        w_sum = tf.reduce_sum(weights, axis=0)
-        loss_x = tf.reduce_sum(gl_x * weights, 0) / w_sum
-        loss_y = tf.reduce_sum(gl_y * weights, 0) / w_sum
-        loss_z = tf.reduce_sum(gl_z * weights, 0) / w_sum
-        loss_t = tf.reduce_sum(gl_t * weights, 0) / w_sum
+        w_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        loss_x = tf.reduce_sum(input_tensor=gl_x * weights, axis=0) / w_sum
+        loss_y = tf.reduce_sum(input_tensor=gl_y * weights, axis=0) / w_sum
+        loss_z = tf.reduce_sum(input_tensor=gl_z * weights, axis=0) / w_sum
+        loss_t = tf.reduce_sum(input_tensor=gl_t * weights, axis=0) / w_sum
     else:
-        loss_x = tf.reduce_mean(gl_x, 0)
-        loss_y = tf.reduce_mean(gl_y, 0)
-        loss_z = tf.reduce_mean(gl_z, 0)
-        loss_t = tf.reduce_mean(gl_t, 0)
+        loss_x = tf.reduce_mean(input_tensor=gl_x, axis=0)
+        loss_y = tf.reduce_mean(input_tensor=gl_y, axis=0)
+        loss_z = tf.reduce_mean(input_tensor=gl_z, axis=0)
+        loss_t = tf.reduce_mean(input_tensor=gl_t, axis=0)
 
     zeros = tf.zeros_like(loss_x)
 

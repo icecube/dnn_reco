@@ -82,23 +82,23 @@ class NNModel(object):
 
         # get or create new default session
         if sess is None:
-            sess = tf.get_default_session()
+            sess = tf.compat.v1.get_default_session()
             if sess is None:
                 if 'tf_parallelism_threads' in self.config:
                     n_cpus = self.config['tf_parallelism_threads']
-                    sess = tf.Session(config=tf.ConfigProto(
-                                gpu_options=tf.GPUOptions(allow_growth=True),
+                    sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(
+                                gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                                 device_count={'GPU': 1},
                                 intra_op_parallelism_threads=n_cpus,
                                 inter_op_parallelism_threads=n_cpus,
                               )).__enter__()
                 else:
-                    sess = tf.Session(config=tf.ConfigProto(
-                                gpu_options=tf.GPUOptions(allow_growth=True),
+                    sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(
+                                gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
                                 device_count={'GPU': 1},
                               )).__enter__()
         self.sess = sess
-        tf.set_random_seed(self.config['tf_random_seed'])
+        tf.compat.v1.set_random_seed(self.config['tf_random_seed'])
 
     def _setup_directories(self):
         """Creates necessary directories
@@ -160,14 +160,14 @@ class NNModel(object):
         """
         # define placeholders for keep probability for dropout
         if 'keep_probability_list' in self.config:
-            keep_prob_list = [tf.placeholder(
+            keep_prob_list = [tf.compat.v1.placeholder(
                                         self.config['tf_float_precision'],
                                         name='keep_prob_{:0.2f}'.format(i))
                               for i in self.config['keep_probability_list']]
             self.shared_objects['keep_prob_list'] = keep_prob_list
 
         # IC78: main IceCube array
-        self.shared_objects['x_ic78'] = tf.placeholder(
+        self.shared_objects['x_ic78'] = tf.compat.v1.placeholder(
                         self.config['tf_float_precision'],
                         shape=[None, 10, 10, 60,  self.data_handler.num_bins],
                         name='x_ic78',
@@ -176,7 +176,7 @@ class NNModel(object):
                             self.shared_objects['x_ic78'], data_type='ic78')
 
         # DeepCore
-        self.shared_objects['x_deepcore'] = tf.placeholder(
+        self.shared_objects['x_deepcore'] = tf.compat.v1.placeholder(
                         self.config['tf_float_precision'],
                         shape=[None, 8, 60,  self.data_handler.num_bins],
                         name='x_deepcore',
@@ -186,7 +186,7 @@ class NNModel(object):
                                             data_type='deepcore')
 
         # labels
-        self.shared_objects['y_true'] = tf.placeholder(
+        self.shared_objects['y_true'] = tf.compat.v1.placeholder(
                         self.config['tf_float_precision'],
                         shape=[None] + self.data_handler.label_shape,
                         name='y_true',
@@ -196,7 +196,7 @@ class NNModel(object):
 
         # misc data
         if self.data_handler.misc_shape is not None:
-            self.shared_objects['x_misc'] = tf.placeholder(
+            self.shared_objects['x_misc'] = tf.compat.v1.placeholder(
                         self.config['tf_float_precision'],
                         shape=[None] + self.data_handler.misc_shape,
                         name='x_misc',
@@ -242,14 +242,14 @@ class NNModel(object):
 
         y_pred_list = tf.unstack(self.shared_objects['y_pred'], axis=1)
         for i, name in enumerate(self.data_handler.label_names):
-            tf.summary.histogram('y_pred_' + name, y_pred_list[i])
+            tf.compat.v1.summary.histogram('y_pred_' + name, y_pred_list[i])
 
         # count number of trainable parameters
         print('Number of free parameters in NN model: {}\n'.format(
                     self.count_parameters(self.shared_objects['model_vars'])))
 
         # create saver
-        self.saver = tf.train.Saver(self.shared_objects['model_vars'])
+        self.saver = tf.compat.v1.train.Saver(self.shared_objects['model_vars'])
 
     def _intialize_label_weights(self):
         """Initialize label weights and non zero mask
@@ -274,7 +274,7 @@ class NNModel(object):
                         trainable=False,
                         dtype=self.config['tf_float_precision'])
 
-            self.shared_objects['new_median_abs_dev_values'] = tf.placeholder(
+            self.shared_objects['new_median_abs_dev_values'] = tf.compat.v1.placeholder(
                                         self.config['tf_float_precision'],
                                         shape=self.data_handler.label_shape,
                                         name='new_median_abs_dev_values')
@@ -304,7 +304,7 @@ class NNModel(object):
                                     trainable=False,
                                     dtype=self.config['tf_float_precision'])
 
-            self.shared_objects['new_label_weight_values'] = tf.placeholder(
+            self.shared_objects['new_label_weight_values'] = tf.compat.v1.placeholder(
                                         self.config['tf_float_precision'],
                                         shape=self.data_handler.label_shape,
                                         name='new_label_weight_values')
@@ -325,7 +325,7 @@ class NNModel(object):
 
             self.shared_objects['y_diff_trafo'] = y_diff_trafo
             self.shared_objects['mse_values_trafo'] = tf.reduce_mean(
-                                                    tf.square(y_diff_trafo), 0)
+                                                    input_tensor=tf.square(y_diff_trafo), axis=0)
 
         else:
             label_weights = tf.constant(
@@ -335,10 +335,10 @@ class NNModel(object):
 
         self.shared_objects['label_weights'] = label_weights
         self.shared_objects['label_weights_benchmark'] = tf.reduce_sum(
-                                                            label_weights)
+                                                            input_tensor=label_weights)
 
-        tf.summary.histogram('label_weights', label_weights)
-        tf.summary.scalar('label_weights_benchmark',
+        tf.compat.v1.summary.histogram('label_weights', label_weights)
+        tf.compat.v1.summary.scalar('label_weights_benchmark',
                           self.shared_objects['label_weights_benchmark'])
 
         misc.print_warning('Total Benchmark should be: {:3.3f}'.format(
@@ -433,7 +433,7 @@ class NNModel(object):
                         self.shared_objects['non_zero_mask'],
                         label_loss_safe * self.shared_objects['label_weights'],
                         tf.zeros_like(label_loss))
-            weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
+            weighted_loss_sum = tf.reduce_sum(input_tensor=weighted_label_loss)
 
             # get optimizer
             optimizer = getattr(tf.train,
@@ -453,12 +453,17 @@ class NNModel(object):
             if opt_config['l1_regularization'] > 0. or \
                     opt_config['l2_regularization'] > 0.:
 
-                regularizer = tf.contrib.layers.l1_l2_regularizer(
-                                    scale_l1=opt_config['l1_regularization'],
-                                    scale_l2=opt_config['l2_regularization'])
+                reg_loss = 0.
 
-                reg_loss = tf.contrib.layers.apply_regularization(
-                                            regularizer, weights_list=var_list)
+                # apply regularization
+                if opt_config['l1_regularization'] > 0.:
+                    reg_loss += tf.add_n(
+                        [tf.reduce_sum(tf.abs(v)) for v in var_list])
+
+                if opt_config['l2_regularization'] > 0.:
+                    reg_loss += tf.add_n(
+                        [tf.reduce_sum(v**2) for v in var_list])
+
                 total_loss = weighted_loss_sum + reg_loss
 
             else:
@@ -471,9 +476,9 @@ class NNModel(object):
                 'loss_sum_total_' + name: total_loss,
             })
 
-            tf.summary.histogram('loss_label_' + name, weighted_label_loss)
-            tf.summary.scalar('loss_sum_' + name, weighted_loss_sum)
-            tf.summary.scalar('loss_sum_total_' + name, total_loss)
+            tf.compat.v1.summary.histogram('loss_label_' + name, weighted_label_loss)
+            tf.compat.v1.summary.scalar('loss_sum_' + name, weighted_loss_sum)
+            tf.compat.v1.summary.scalar('loss_sum_total_' + name, total_loss)
 
             # get gradients
             gvs = optimizer.compute_gradients(total_loss, var_list=var_list)
@@ -484,7 +489,7 @@ class NNModel(object):
             else:
                 remove_nan_gradients = False
             if remove_nan_gradients:
-                gvs = [(tf.where(tf.is_nan(grad), tf.zeros_like(grad), grad),
+                gvs = [(tf.where(tf.math.is_nan(grad), tf.zeros_like(grad), grad),
                         var) for grad, var in gvs if grad is not None]
 
             if 'clip_gradients_value' in opt_config:
@@ -505,10 +510,10 @@ class NNModel(object):
     def _merge_tensorboard_summaries(self):
         """Merges summary variables for TensorBoard visualization and logging.
         """
-        self._merged_summary = tf.summary.merge_all()
-        self._train_writer = tf.summary.FileWriter(
+        self._merged_summary = tf.compat.v1.summary.merge_all()
+        self._train_writer = tf.compat.v1.summary.FileWriter(
                            self.config['log_path'] + '_train')
-        self._val_writer = tf.summary.FileWriter(
+        self._val_writer = tf.compat.v1.summary.FileWriter(
                            self.config['log_path'] + '_val')
 
     def _initialize_and_finalize_model(self):
@@ -516,10 +521,10 @@ class NNModel(object):
         """
 
         # initialize variables
-        self.sess.run(tf.global_variables_initializer())
+        self.sess.run(tf.compat.v1.global_variables_initializer())
 
         # finalize model: forbid any changes to computational graph
-        tf.get_default_graph().finalize()
+        tf.compat.v1.get_default_graph().finalize()
 
     def compile(self):
 
@@ -973,5 +978,5 @@ class NNModel(object):
             Number of trainable parameters
         """
         if var_list is None:
-            var_list = tf.trainable_variables()
+            var_list = tf.compat.v1.trainable_variables()
         return np.sum([np.prod(x.get_shape().as_list()) for x in var_list])

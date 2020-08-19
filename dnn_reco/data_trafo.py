@@ -436,7 +436,7 @@ class DataTransformer:
             log_name = 'log_{}_bins'.format(data_type)
             normalize_name = 'normalize_{}_data'.format(data_type)
 
-        is_tf = tf.contrib.framework.is_tensor(data)
+        is_tf = tf.is_tensor(data)
 
         if is_tf:
             if dtype != self._tf_float_dtype:
@@ -446,7 +446,7 @@ class DataTransformer:
 
         # choose numpy or tensorflow log function
         if is_tf:
-            log_func = tf.log
+            log_func = tf.math.log
             exp_func = tf.exp
         else:
             log_func = np.log
