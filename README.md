@@ -1,6 +1,9 @@
 # dnn_reco
 IceCube DNN reconstruction
 
+## Documentation
+   Documentation my be found here: https://icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/pages/about.html
+
 ## Installation Instructions
     # clone repository and call this from dnn_reco directory:
     pip install -e ./ --process-dependency-links
