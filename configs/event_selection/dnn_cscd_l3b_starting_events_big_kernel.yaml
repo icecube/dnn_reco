@@ -503,20 +503,47 @@
 # different weights of the network and wrt different loss functions.
 'model_optimizer_dict': {
 
-  # define an arbitrary name of optimizer here
-  'simple_mse': {
-                  'optimizer': 'AdamOptimizer',
-                  'optimizer_settings': {'learning_rate': 0.001,},
-                  'vars' : ['unc', 'pred'],
-                  'loss_file': 'default_loss',
-                  'loss_name': 'mse_and_cross_entropy',
-                  'l1_regularization': 0.,
-                  'l2_regularization': 0.,
-                  'clip_gradients_value': ,
-                  'remove_nan_gradients': False,
+   # define an arbitrary name of optimizer here
+   'TrainingStep1': {
+        'optimizer': 'Adam',
+        'optimizer_settings': {
+            # 'amsgrad': True,
+            'learning_rate': {
+                'full_class_string': 'dnn_reco.utils.learning_rate.MultiLearningRateScheduler',
+                'settings':{
+                    'boundaries': [1000],
+                    'scheduler_settings': [
+                        {
+                        'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
+                        'settings': {
+                            'initial_learning_rate': 0.00001,
+                            'end_learning_rate': 0.001,
+                            'decay_steps': 1000,
+                            },
+                        },
+                        {
+                        'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
+                        'settings': {
+                            'initial_learning_rate': 0.001,
+                            'end_learning_rate': 0.001,
+                            'decay_steps': 1000000,
+                            'power': 2,
+                            },
+                        },
+                    ]
                 },
+            },
+        },
+        'vars' : ['unc', 'pred'],
+        'loss_file': 'default_loss',
+        'loss_name': 'mse_and_cross_entropy',
+        'l1_regularization': 0.,
+        'l2_regularization': 0.,
+        'clip_gradients_value': ,
+        'remove_nan_gradients': False,
+    },
   # 'gaussian_unc': {
-  #                 'optimizer': 'AdamOptimizer',
+  #                 'optimizer': 'Adam',
   #                 'optimizer_settings': {'learning_rate': 0.000001,},
   #                 'vars' : ['unc'],
   #                 'loss_file': 'default_loss',

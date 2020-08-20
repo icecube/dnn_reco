@@ -9,6 +9,7 @@ import glob
 from copy import deepcopy
 
 from dnn_reco import misc
+from dnn_reco.utils.learning_rate import MultiLearningRateScheduler
 from dnn_reco.modules.loss.utils import loss_utils
 
 
@@ -435,11 +436,32 @@ class NNModel(object):
                         tf.zeros_like(label_loss))
             weighted_loss_sum = tf.reduce_sum(input_tensor=weighted_label_loss)
 
+            # create learning rate schedule if learning rate is a dict
+            optimizer_settings = dict(opt_config['optimizer_settings'])
+            if 'learning_rate' in optimizer_settings:
+                if isinstance(optimizer_settings['learning_rate'], dict):
+
+                    # assume that the learning rate dictionary defines a
+                    # schedule of learning rates
+                    # In this case the dictionary must have the following keys:
+                    #   full_class_string: str
+                    #       The full class string of the scheduler class to use
+                    #   settings: dict
+                    #       keyword arguments that are passed on to the
+                    #       scheduler class.
+                    lr_cfg = optimizer_settings.pop('learning_rate')
+                    scheduler_class = misc.load_class(
+                        lr_cfg['full_class_string'])
+                    scheduler = scheduler_class(**lr_cfg['settings'])
+                    optimizer_settings['learning_rate'] = scheduler
+
             # get optimizer
-            optimizer = getattr(tf.train,
-                                opt_config['optimizer'])(
-                                **opt_config['optimizer_settings']
-                                )
+            # check for old-style (tf < 2) optimizers in tf.train
+            try:
+                optimizer_cls = getattr(tf.train, opt_config['optimizer'])
+            except AttributeError:
+                optimizer_cls = getattr(tf.optimizers, opt_config['optimizer'])
+            optimizer = optimizer_cls(**optimizer_settings)
 
             # get variable list
             if isinstance(opt_config['vars'], str):
