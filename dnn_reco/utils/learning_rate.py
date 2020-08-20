@@ -2,8 +2,14 @@ import tensorflow as tf
 
 from dnn_reco import misc
 
+try:
+    # Note: this is only available in TF version >2
+    from tf.optimizers.schedules import LearningRateSchedule
+except ImportError:
+    from tf.compat.v2.optimizers.schedules import LearningRateSchedule
 
-class MultiLearningRateScheduler(tf.optimizers.schedules.LearningRateSchedule):
+
+class MultiLearningRateScheduler(LearningRateSchedule):
     """A LearningRateSchedule that combines multiple schedulers
     """
 

@@ -9,7 +9,6 @@ import glob
 from copy import deepcopy
 
 from dnn_reco import misc
-from dnn_reco.utils.learning_rate import MultiLearningRateScheduler
 from dnn_reco.modules.loss.utils import loss_utils
 
 
