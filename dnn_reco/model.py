@@ -498,7 +498,8 @@ class NNModel(object):
                 'loss_sum_total_' + name: total_loss,
             })
 
-            tf.compat.v1.summary.histogram('loss_label_' + name, weighted_label_loss)
+            tf.compat.v1.summary.histogram(
+                'loss_label_' + name, weighted_label_loss)
             tf.compat.v1.summary.scalar('loss_sum_' + name, weighted_loss_sum)
             tf.compat.v1.summary.scalar('loss_sum_total_' + name, total_loss)
 
@@ -509,7 +510,7 @@ class NNModel(object):
                     total_loss, var_list=var_list)
             except AttributeError:
                 gradients = tf.gradients(total_loss, var_list)
-                gvs = zip(gradients, variables)
+                gvs = zip(gradients, var_list)
 
             # remove nans in gradients and replace these with zeros
             if 'remove_nan_gradients' in opt_config:
