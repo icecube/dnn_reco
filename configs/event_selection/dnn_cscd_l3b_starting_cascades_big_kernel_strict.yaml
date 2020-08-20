@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'dnn_cscd_l3b_starting_cascades_big_kernel'
+'unique_name': 'dnn_cscd_l3b_starting_cascades_big_kernel_strict'
 
 #---------------------------
 # General settings
