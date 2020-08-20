@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 from dnn_reco import misc
-from dnn_reco import utils
+from dnn_reco.utils import angles as angle_utils
 from dnn_reco.modules.loss.utils import loss_utils
 
 """
@@ -614,10 +614,10 @@ def opening_angle(config, data_handler, data_transformer, shared_objects,
     azimuth_unc = shared_objects['y_unc'][:, index_azimuth]
     zenith_unc = shared_objects['y_unc'][:, index_zenith]
 
-    angle = utils.tf_get_angle_deviation(azimuth1=azimuth_true,
-                                         zenith1=zenith_true,
-                                         azimuth2=azimuth_pred,
-                                         zenith2=zenith_pred)
+    angle = angle_utils.tf_get_angle_deviation(azimuth1=azimuth_true,
+                                               zenith1=zenith_true,
+                                               azimuth2=azimuth_pred,
+                                               zenith2=zenith_pred)
 
     # use zenith true here, even though it will hae to be predicted value
     sigma = tf.sqrt(zenith_unc**2 + azimuth_unc**2 * tf.sin(zenith_true)**2)
@@ -695,10 +695,10 @@ def opening_angle_raleigh(config, data_handler, data_transformer,
     azimuth_unc = shared_objects['y_unc'][:, index_azimuth]
     zenith_unc = shared_objects['y_unc'][:, index_zenith]
 
-    angle = utils.tf_get_angle_deviation(azimuth1=azimuth_true,
-                                         zenith1=zenith_true,
-                                         azimuth2=azimuth_pred,
-                                         zenith2=zenith_pred)
+    angle = angle_utils.tf_get_angle_deviation(azimuth1=azimuth_true,
+                                               zenith1=zenith_true,
+                                               azimuth2=azimuth_pred,
+                                               zenith2=zenith_pred)
 
     # use zenith true here, even though it will hae to be predicted value
     sigma = tf.sqrt(zenith_unc**2 + azimuth_unc**2 * tf.sin(zenith_true)**2)

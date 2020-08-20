@@ -69,8 +69,9 @@ class DataHandler(object):
         self._config = dict(deepcopy(config))
         self.num_bins = config['data_handler_num_bins']
 
-        # keep track of multiprocessing processes
+        # keep track of multiprocessing processes and managers
         self._mp_processes = []
+        self._mp_managers = []
 
         self.is_setup = False
 
@@ -594,15 +595,29 @@ class DataHandler(object):
         final_batch_queue = multiprocessing.Manager().Queue(
                                                     maxsize=batch_capacity)
 
-        def file_loader():
+        # keep references to managers alive, such that these do not shut
+        # down until the DataHandler object gets garbage collected
+        self._mp_managers.append(file_list_queue)
+        self._mp_managers.append(data_batch_queue)
+        self._mp_managers.append(final_batch_queue)
+
+        def file_loader(seed):
             """Helper Method to load files.
 
             Loads a file from the file list, processes the data and creates
             the dom_responses and cascade_parameters of all events in the
             given file.
             It then puts these on the 'data_batch_queue' multiprocessing queue.
+
+            Parameters
+            ----------
+            seed : int
+                The seed of the local random stat.
+                Note: the the batch generator is *not* deterministic, since
+                all processes use the same queue. Due to differing
+                runtimes, the order of the processed files may change.
             """
-            local_random_state = np.random.RandomState()
+            local_random_state = np.random.RandomState(seed)
 
             # ----------------------------------------------
             # Create NN model instance for  biased selection
@@ -875,7 +890,7 @@ class DataHandler(object):
 
         # create processes
         for i in range(num_jobs):
-            process = multiprocessing.Process(target=file_loader, args=())
+            process = multiprocessing.Process(target=file_loader, args=(i,))
             process.daemon = True
             process.start()
             self._mp_processes.append(process)
@@ -897,6 +912,8 @@ class DataHandler(object):
         time.sleep(1.)
         for process in self._mp_processes:
             process.join(timeout=1.0)
+
+        self._mp_managers = []
 
     def _create_model(self, cfg, cfg_sel):
         """Helper function for biased selection. Creates a new DNN model in an

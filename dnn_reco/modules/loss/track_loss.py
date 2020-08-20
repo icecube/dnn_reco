@@ -3,7 +3,6 @@ import tensorflow as tf
 import numpy as np
 
 from dnn_reco import misc
-from dnn_reco import utils
 from dnn_reco.modules.loss.utils import loss_utils
 
 """
