@@ -503,7 +503,13 @@ class NNModel(object):
             tf.compat.v1.summary.scalar('loss_sum_total_' + name, total_loss)
 
             # get gradients
-            gvs = optimizer.compute_gradients(total_loss, var_list=var_list)
+            # compatibility mode for old and new tensorflow versions
+            try:
+                gvs = optimizer.compute_gradients(
+                    total_loss, var_list=var_list)
+            except AttributeError:
+                gradients = tf.gradients(total_loss, var_list)
+                gvs = zip(gradients, variables)
 
             # remove nans in gradients and replace these with zeros
             if 'remove_nan_gradients' in opt_config:
@@ -511,7 +517,8 @@ class NNModel(object):
             else:
                 remove_nan_gradients = False
             if remove_nan_gradients:
-                gvs = [(tf.where(tf.math.is_nan(grad), tf.zeros_like(grad), grad),
+                gvs = [(tf.where(
+                            tf.math.is_nan(grad), tf.zeros_like(grad), grad),
                         var) for grad, var in gvs if grad is not None]
 
             if 'clip_gradients_value' in opt_config:

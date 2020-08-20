@@ -69,14 +69,15 @@ def main(config_files, output_folder, data_settings, logs):
     # load trafo model from file
     data_transformer.load_trafo_model(config['trafo_model_path'])
 
-    # create NN model
-    model = NNModel(is_training=True,
-                    config=config,
-                    data_handler=data_handler,
-                    data_transformer=data_transformer)
+    with tf.Graph().as_default():
+        # create NN model
+        model = NNModel(is_training=True,
+                        config=config,
+                        data_handler=data_handler,
+                        data_transformer=data_transformer)
 
-    # compile model: define loss function and optimizer
-    model.compile()
+        # compile model: define loss function and optimizer
+        model.compile()
 
     # -------------------------
     # Export latest checkpoints

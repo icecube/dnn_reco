@@ -81,24 +81,26 @@ def main(config_files):
     # load trafo model from file
     data_transformer.load_trafo_model(config['trafo_model_path'])
 
-    # create NN model
-    model = NNModel(is_training=True,
-                    config=config,
-                    data_handler=data_handler,
-                    data_transformer=data_transformer)
+    with tf.Graph().as_default():
 
-    # compile model: define loss function and optimizer
-    model.compile()
+        # create NN model
+        model = NNModel(is_training=True,
+                        config=config,
+                        data_handler=data_handler,
+                        data_transformer=data_transformer)
 
-    # restore model weights
-    if config['model_restore_model']:
-        model.restore()
+        # compile model: define loss function and optimizer
+        model.compile()
 
-    # train model
-    model.fit(num_training_iterations=config['num_training_iterations'],
-              train_data_generator=train_data_generator,
-              val_data_generator=val_data_generator,
-              evaluation_methods=None,)
+        # restore model weights
+        if config['model_restore_model']:
+            model.restore()
+
+        # train model
+        model.fit(num_training_iterations=config['num_training_iterations'],
+                  train_data_generator=train_data_generator,
+                  val_data_generator=val_data_generator,
+                  evaluation_methods=None,)
 
 
 if __name__ == '__main__':
