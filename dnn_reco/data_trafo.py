@@ -380,8 +380,7 @@ class DataTransformer:
             Path to trafo model file.
         """
         with open(model_path, 'wb') as handle:
-            pickle.dump(self.trafo_model, handle,
-                        protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.trafo_model, handle, protocol=2)
 
     def _check_settings(self, data, data_type):
         """Check settings and return necessary parameters for trafo and inverse
