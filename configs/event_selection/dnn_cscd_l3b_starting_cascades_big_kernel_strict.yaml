@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'dnn_cscd_l3b_starting_cascades'
+'unique_name': 'dnn_cscd_l3b_starting_cascades_big_kernel'
 
 #---------------------------
 # General settings
@@ -257,7 +257,7 @@
 # These values will then be added to the misc values under the name:
 #     'hdf key'_'column'
 'misc_load_dict': {
-  'DeepLearningReco_event_selection_cscdl3_300m_01': 'p_starting_300m',
+  'DeepLearningReco_event_selection_dnn_cscd_l3a_starting_events_03': 'p_starting_300m',
   'CscdL3_Cont_Tag': 'value',
   'CscdL3': 'value',
   'LabelsDeepLearning': ['p_outside_cascade', 'p_starting_300m'],
@@ -314,7 +314,7 @@
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
-    'DeepLearningReco_event_selection_cscdl3_300m_01_p_starting_300m': 0.8,
+    'DeepLearningReco_event_selection_dnn_cscd_l3a_starting_events_03_p_starting_300m': 0.99,
 }
 # For events to pass filter, the following must be True: misc[key] < value
 'filter_less_than': {
@@ -461,12 +461,11 @@
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 10000
-'trafo_model_path' : '../data/trafo_models/dnn_reco_dnn_cscd_l3b_starting_cascades_01.npy'
+'trafo_model_path' : '../data/trafo_models/dnn_reco_dnn_cscd_l3b_starting_cascades_big_kernel_01.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False
-'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False,
-                        False, False, False, False, False, False]
+'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
                          }
 'trafo_log_misc_bins' : False
