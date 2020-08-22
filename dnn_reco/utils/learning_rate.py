@@ -4,9 +4,9 @@ from dnn_reco import misc
 
 try:
     # Note: this is only available in TF version >2
-    from tf.optimizers.schedules import LearningRateSchedule
+    from tensorflow.optimizers.schedules import LearningRateSchedule
 except ImportError:
-    from tf.compat.v2.optimizers.schedules import LearningRateSchedule
+    from tensorflow.compat.v2.optimizers.schedules import LearningRateSchedule
 
 
 class MultiLearningRateScheduler(LearningRateSchedule):
