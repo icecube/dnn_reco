@@ -24,7 +24,7 @@ def ApplyDNNRecos(
         measure_time=True,
         batch_size=1,
         num_cpus=1,
-        verbose=True,
+        verbose=False,
         ):
     """Apply DNN reco
 
