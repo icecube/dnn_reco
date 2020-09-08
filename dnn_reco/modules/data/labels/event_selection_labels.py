@@ -87,6 +87,12 @@ def astroness(input_data, config, label_names=None, *args, **kwargs):
         astroness = (_weights['weight_E250'] /
                      (_weights['weight_E250'] + _weights['weight_conv']))
         assert (is_neutrino).all(), 'Expected only Neutrinos!'
+    elif 'weights_mese_flux' in _weights:
+        astroness = (
+            _weights['weights_mese_flux'] /
+            (_weights['weights_mese_flux'] +
+             _weights['weights_honda2006_gaisserH4a_elbert_conv_NNFlux']))
+        assert (is_neutrino).all(), 'Expected only Neutrinos!'
     else:
         astroness = np.zeros_like(is_neutrino)
         assert np.sum(is_neutrino) == 0, 'Expected no Neutrinos!'
