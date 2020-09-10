@@ -232,8 +232,8 @@
 # --------------
 
 # define which starting cascade labels to create
-'labels_starting_cascades_lengths': [100.],
-'labels_starting_cascades_distances': [150.],
+'labels_starting_cascades_lengths': [100.]
+'labels_starting_cascades_distances': [150.]
 
 # initialize label weights with this value
 'label_weight_initialization': 0.

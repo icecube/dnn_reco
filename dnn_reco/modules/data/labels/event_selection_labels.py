@@ -180,8 +180,7 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
             _labels_m60 = f['LabelsDeepLearning_m60']
         if 150. in distances:
             _labels_p150 = f['LabelsDeepLearning_p150']
-        if 0. in distances or 300. in distances or float('inf') in distances:
-            _labels = f['LabelsDeepLearning']
+        _labels = f['LabelsDeepLearning']
         _primary = f['MCPrimary']
 
     # check if event is a neutrino
