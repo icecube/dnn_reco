@@ -128,7 +128,7 @@
   # 'CscdL3_Cont_Tag': 'value',
   # 'CscdL3': 'value',
   'LabelsDeepLearning': ['p_outside_cascade', 'p_starting', 'p_starting_300m'],
-  'LabelsDeepLearning_p150': ['p_outside_cascade', 'p_starting_300m'],
+  'LabelsDeepLearning_p150': ['p_outside_cascade', 'p_starting_300m', 'p_starting'],
   'FilterMask': ['MuonFilter', 'CascadeFilter'],
   'weights': ['GaisserH4a_atmod12_SIBYLL',  # MuonGun
               'GaisserH4a_atmod12_DPMJET_C',  # MuonGun
@@ -181,7 +181,7 @@
 'filter_equal': {
   # 'LabelsDeepLearning_p_outside_cascade': False,
   # 'FilterMask_CascadeFilter': True,
-  'p_starting': True,
+  'LabelsDeepLearning_p150_p_starting': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
