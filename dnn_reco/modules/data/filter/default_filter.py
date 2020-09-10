@@ -99,6 +99,10 @@ def general_filter(data_handler, input_data, config,  x_ic70, x_deepcore,
             For events to pass this filter, the following must be True:
                     misc_data[key] < value
 
+    Optionally, a list of MC Primary PDG encodings may be provided to limit
+    the application of the filter to events with the provided PDG encodings.
+    The PDG encodings are provided via config['filter_apply_on_pdg_encodings'].
+
     Parameters
     ----------
     data_handler : :obj: of class DataHandler
@@ -162,5 +166,18 @@ def general_filter(data_handler, input_data, config,  x_ic70, x_deepcore,
             mask_true = np.logical_and(
                 mask_true,
                 misc_data[:, data_handler.misc_name_dict[key]] < value)
+
+    # Only run the filter on events with MC Primaries of specified PDG encoding
+    if 'filter_apply_on_pdg_encodings' in config:
+        pdg_encodings = config['filter_apply_on_pdg_encodings']
+
+        if pdg_encodings:
+            pdg_key = 'MCPrimary_pdg_encoding'
+
+            pdg_values = misc_data[:, data_handler.misc_name_dict[pdg_key]]
+            mask_pdg = np.array([p not in pdg_encodings for p in pdg_values])
+
+            # undo filtering of events that are not of specifided PDG encoding
+            mask_true[mask_pdg] = True
 
     return mask_true

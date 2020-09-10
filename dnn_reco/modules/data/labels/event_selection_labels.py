@@ -115,19 +115,22 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
 
     Will create the following labels:
         - p_starting_cascade_L{l}_Dm60:
-            Neutrino event with hull distance < -60 meter and Length < 25 meter
+            Neutrino event with hull distance < -60 meter and Length < l meter
         - p_starting_cascade_L{l}_D0:
-            Neutrino event with hull distance < 0 meter and Length < 25 meter
+            Neutrino event with hull distance < 0 meter and Length < l meter
         - p_starting_cascade_L{l}_D60:
-            Neutrino event with hull distance < 60 meter and Length < 25 meter
+            Neutrino event with hull distance < 60 meter and Length < l meter
         - p_starting_cascade_L{l}_D300:
-            Neutrino event with hull distance < 300 meter and Length < 25 meter
+            Neutrino event with hull distance < 300 meter and Length < l meter
         - p_starting_cascade_L{l}_Dinf:
-            Neutrino event with hull distance < inf meter and Length < 25 meter
+            Neutrino event with hull distance < inf meter and Length < l meter
 
     for each length l in config['labels_starting_cascades_lengths'].
     If 'labels_starting_cascades_lengths' is not provided in config, the
     default values: [25, 50, 100] will be chosen.
+    To change the distances which should be added,
+    config['labels_starting_cascades_distances'] may be added. Possible
+    elements of this list are [-60., 0., 60, 150., 300., float('inf')]
 
     Parameters
     ----------
@@ -160,10 +163,25 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
     else:
         lengths = [25, 50, 100]
 
+    if 'labels_starting_cascades_distances' in config:
+        distances = [
+            float(l) for l in config['labels_starting_cascades_distances']]
+    else:
+        distances = [-60., 0., 60, 300., float('inf')]
+
+    # make sure the provdied distances are allowed
+    allowed_distances = [-60., 0., 60, 150., 300., float('inf')]
+    assert np.all([d in allowed_distances for d in distances]), distances
+
     with pd.HDFStore(input_data,  mode='r') as f:
-        _labels_p60 = f['LabelsDeepLearning_p60']
-        _labels_m60 = f['LabelsDeepLearning_m60']
-        _labels = f['LabelsDeepLearning']
+        if 60. in distances:
+            _labels_p60 = f['LabelsDeepLearning_p60']
+        if -60. in distances:
+            _labels_m60 = f['LabelsDeepLearning_m60']
+        if 150. in distances:
+            _labels_p150 = f['LabelsDeepLearning_p150']
+        if 0. in distances or 300. in distances or float('inf') in distances:
+            _labels = f['LabelsDeepLearning']
         _primary = f['MCPrimary']
 
     # check if event is a neutrino
@@ -180,29 +198,40 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
         mask = np.logical_and(is_neutrino, cascade_lengths <= l)
 
         # get hull distance -60m
-        name = label_name_base.format(l, 'm60')
-        label_names_list.append(name)
-        label_dict[name] = np.logical_and(mask, _labels_m60['p_starting'])
+        if -60. in distances:
+            name = label_name_base.format(l, 'm60')
+            label_names_list.append(name)
+            label_dict[name] = np.logical_and(mask, _labels_m60['p_starting'])
 
         # get hull distance 0m
-        name = label_name_base.format(l, '0')
-        label_names_list.append(name)
-        label_dict[name] = np.logical_and(mask, _labels['p_starting'])
+        if 0. in distances:
+            name = label_name_base.format(l, '0')
+            label_names_list.append(name)
+            label_dict[name] = np.logical_and(mask, _labels['p_starting'])
 
         # get hull distance 60m
-        name = label_name_base.format(l, '60')
-        label_names_list.append(name)
-        label_dict[name] = np.logical_and(mask, _labels_p60['p_starting'])
+        if 60. in distances:
+            name = label_name_base.format(l, '60')
+            label_names_list.append(name)
+            label_dict[name] = np.logical_and(mask, _labels_p60['p_starting'])
+
+        # get hull distance 150m
+        if 150. in distances:
+            name = label_name_base.format(l, '150')
+            label_names_list.append(name)
+            label_dict[name] = np.logical_and(mask, _labels_p150['p_starting'])
 
         # get hull distance 300m
-        name = label_name_base.format(l, '300')
-        label_names_list.append(name)
-        label_dict[name] = np.logical_and(mask, _labels['p_starting_300m'])
+        if 300. in distances:
+            name = label_name_base.format(l, '300')
+            label_names_list.append(name)
+            label_dict[name] = np.logical_and(mask, _labels['p_starting_300m'])
 
         # get inf hull distance
-        name = label_name_base.format(l, 'inf')
-        label_names_list.append(name)
-        label_dict[name] = mask
+        if float('inf') in distances:
+            name = label_name_base.format(l, 'inf')
+            label_names_list.append(name)
+            label_dict[name] = mask
 
     if label_names is None:
         label_names = label_names_list
