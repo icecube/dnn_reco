@@ -21,19 +21,39 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/NuGen/new/Nu*/*energy/*/l2/*/*.hdf5',
 
     # Manuel's MuonGun
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/2131*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/2131*/*/*.hdf5',
 
     # biased MuonGun
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/7700*/*/*.hdf5',
 
     # Simprod Corsika
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/1105*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/1105*/*/*.hdf5',
 
     # Simprd MuonGun
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/12370/0.99_eff/*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/12401/0.99_eff/*/*.hdf5',
+
+    # Add background 9 additional times to slightly even out file numbers
+    # [22656 NuGen vs 308 MuonGun+Corsika files]
+    # ToDo: add weighting scheme for file name patterns
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
 
   ]
 'trafo_data_file' : [
@@ -58,6 +78,28 @@
     # Simprd MuonGun
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/12370/0.99_eff/*/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/12401/0.99_eff/*/*.hdf5',
+
+    # Add background 9 additional times to slightly even out file numbers
+    # [22656 NuGen vs 308 MuonGun+Corsika files]
+    # ToDo: add weighting scheme for file name patterns
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/MuonGun/*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3c/Corsika/*/*/*.hdf5',
 
   ]
 'validation_data_file' : [
@@ -84,9 +126,9 @@
 'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 12
-'file_capacity' : 50
+'file_capacity' : 10
 'batch_capacity' : 400
-'num_add_files' : 100
+'num_add_files' : 20
 'num_repetitions' : 3
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
