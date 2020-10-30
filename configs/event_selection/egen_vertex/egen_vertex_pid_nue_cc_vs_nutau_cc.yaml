@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'egen_vertex_pid_nue_cc_nutau'
+'unique_name': 'egen_vertex_pid_nue_cc_vs_nutau_cc'
 
 #---------------------------
 # General settings
@@ -202,14 +202,13 @@
 
 # only apply filter on these PDG encodings of the MC Primary
 # (All other events are accepted regardless)
-'filter_apply_on_pdg_encodings': [-12, 12]
+# 'filter_apply_on_pdg_encodings': [-12, 12, -14, 14, -16, 16]
 
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
   # 'LabelsDeepLearning_p_outside_cascade': False,
   # 'FilterMask_CascadeFilter': True,
-  # 'LabelsDeepLearning_p150_p_starting': True,
-  'LabelsDeepLearning_p150_p_starting_cc_e': True,
+  'LabelsDeepLearning_p150_p_starting_cc': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
@@ -235,7 +234,7 @@
     # Select biased event if: label[key] < value
     'label_less': {},
     # Select biased event if: label[key] == value
-    'label_equal': {'p_starting_cc_e': True},
+    'label_equal': {'p_starting_cc_tau': True},
     # Select biased event if: label[key] != value
     'label_unequal': {},
     # Select biased event if: (true - pred)[key] > value
@@ -274,7 +273,7 @@
   # 'VertexY': 1,
   # 'VertexZ': 1,
   # 'p_starting_nc': 1,
-  'p_starting_cc_e': 1,
+  'p_starting_cc_tau': 1,
   # 'p_starting_cc_mu': 1,
   # 'p_starting_cc_tau': 1,
   # 'p_starting': 1,
@@ -359,7 +358,7 @@
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 10000
-'trafo_model_path' : '../data/trafo_models/egen_vertex_pid_nue_cc_nutau_01.npy'
+'trafo_model_path' : '../data/trafo_models/egen_vertex_pid_nue_cc_vs_nutau_cc_01.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False
