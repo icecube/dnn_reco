@@ -1,0 +1,544 @@
+---
+##############
+# Test config
+#
+# Detailed information on the parameters are given in the SetupManager
+# class located in dnn_reco/setup_manager.py.
+##############
+
+# Provide a unique name for the model
+'unique_name': 'egen_vertex_pid_nue_cc_nue_nc'
+
+#---------------------------
+# General settings
+#---------------------------
+'training_data_file' : [
+
+    # Manuel's NuGen
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/2121*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*.hdf5',
+
+    # Nancy's NuGen
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/Nu*/*energy/*/l2/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/NuE/*energy/*/l2/*/*.hdf5',
+
+    # # Manuel's MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*.hdf5',
+
+    # # biased MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/7700*/*/*.hdf5',
+
+    # # Simprod Corsika
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*/*.hdf5',
+
+    # # Simprd MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12370/0.99_eff/*/*.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12401/0.99_eff/*/*.hdf5',
+
+  ]
+'trafo_data_file' : [
+
+    # Manuel's NuGen
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/2121*/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*.hdf5',
+
+    # Nancy's NuGen
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/Nu*/*energy/*/l2/*/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/NuE/*energy/*/l2/*/*.hdf5',
+    # # Manuel's MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*.hdf5',
+
+    # # biased MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/7700*/*/*.hdf5',
+
+    # # Simprod Corsika
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*/*.hdf5',
+
+    # # Simprd MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12370/0.99_eff/*/*.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12401/0.99_eff/*/*.hdf5',
+
+  ]
+'validation_data_file' : [
+    # WARNING: This is the same as training data!!!!
+    # Manuel's NuGen
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/2121*/*/*00.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*00.hdf5',
+
+    # # Manuel's MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*0000.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*00.hdf5',
+
+  ]
+'test_data_file' : [
+    # WARNING: This is the same as training data!!!!
+    # Manuel's NuGen
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/2121*/*/*00.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*00.hdf5',
+
+    # # Manuel's MuonGun
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*0000.hdf5',
+    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*00.hdf5',
+
+  ]
+
+'tf_random_seed': 42
+'float_precision': float32
+'num_jobs' : 12
+'file_capacity' : 5
+'batch_capacity' : 200
+'num_add_files' : 10
+'num_repetitions' : 3
+#'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
+'batch_size' : 32
+
+'log_path' : "../logs/\
+                {unique_name}/\
+                {model_file}__\
+                {model_name}"
+
+#----------------------
+# Data Handler settings
+#----------------------
+# Name of data bin values key (e.g. DOMPulseBinValues, dnn_data_bin_values)
+'data_handler_bin_values_name': dnn_data_bin_values
+# Name of data bin indices key (e.g. DOMPulseBinIndices, dnn_data_bin_indices)
+'data_handler_bin_indices_name': dnn_data_bin_indices
+# Name of data global time offset key (e.g. DOMPulseTimeRangeStart, dnn_data_global_time_offset)
+'data_handler_time_offset_name': dnn_data_global_time_offset
+
+'data_handler_num_bins': 14
+
+# Number of splits to make for a loaded file --> reduce size of batch for queue
+'data_handler_num_splits': 10
+
+'data_handler_label_file': 'default_labels'
+'data_handler_label_name': 'simple_label_loader'
+'data_handler_misc_file': 'default_misc'
+'data_handler_misc_name': 'general_misc_loader'
+'data_handler_filter_file': 'default_filter'
+'data_handler_filter_name': 'general_filter'
+
+
+'data_handler_label_key': 'LabelsDeepLearning_p150'
+
+
+# must be a list of keys or empty list
+'data_handler_relative_time_keys': []
+# lower case pattern
+'data_handler_relative_time_key_pattern': 'time'
+
+# --------------
+# Misc settings
+# --------------
+# The general_misc_loader will load the keys defined in the misc_load_dict
+# from the training files. The pattern is: 'hdf key': 'column'
+# or a list of columns: 'hdf key': ['column1', 'column2']
+# These values will then be added to the misc values under the name:
+#     'hdf key'_'column'
+'misc_load_dict': {
+  # 'CscdL3_Cont_Tag': 'value',
+  # 'CscdL3': 'value',
+  'LabelsDeepLearning': ['p_outside_cascade', 'p_starting', 'p_starting_300m'],
+  'LabelsDeepLearning_p150': [
+    'p_starting_cc_e', 'p_starting_cc_mu', 'p_starting_cc_tau',
+    'p_starting_cc', 'p_starting_nc',
+    'p_outside_cascade', 'p_starting_300m', 'p_starting',
+    'LengthInDetector',
+  ],
+  'FilterMask': ['MuonFilter', 'CascadeFilter'],
+  'weights': ['GaisserH4a_atmod12_SIBYLL',  # MuonGun
+              'GaisserH4a_atmod12_DPMJET_C',  # MuonGun
+              'GaisserH3aWeight',  # Corsika
+              'GaisserH4aWeight',  # Corsika
+              'honda2006_gaisserH4a_elbert_conv_NNFlux', # NuGen conv
+              'honda2006_gaisserH3a_elbert_conv_NNFlux', # NuGen conv
+              'aachen_flux_8yr', # NuGen astro
+              'cscd_hans', # NuGen astro
+              'mese_flux', # NuGen astro
+              'hese_flux', # NuGen astro
+              'hese6', # NuGen astro
+              'sarcevic_std_gaisserH3a_elbert_prompt_NNFlux',  # NuGen prompt
+              'sarcevic_std_gaisserH4a_elbert_prompt_NNFlux',  # NuGen prompt
+             ],
+  'MCPrimary': ['pdg_encoding'],
+}
+
+# Define a fill value for key column pairs that do not exist.
+# If key column pair does not exist in file and no fill value is provided,
+# an error will be thrown.
+'misc_fill_values': {
+  'weights_GaisserH4a_atmod12_SIBYLL': 0.,  # MuonGun
+  'weights_GaisserH4a_atmod12_DPMJET_C': 0.,  # MuonGun
+  'weights_GaisserH3aWeight': 0.,  # Corsika
+  'weights_GaisserH4aWeight': 0.,  # Corsika
+  'weights_honda2006_gaisserH4a_elbert_conv_NNFlux': 0., # NuGen conv
+  'weights_honda2006_gaisserH3a_elbert_conv_NNFlux': 0., # NuGen conv
+  'weights_aachen_flux_8yr': 0., # NuGen astro
+  'weights_cscd_hans': 0., # NuGen astro
+  'weights_mese_flux': 0., # NuGen astro
+  'weights_hese_flux': 0., # NuGen astro
+  'weights_hese6': 0., # NuGen astro
+  'weights_sarcevic_std_gaisserH3a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
+  'weights_sarcevic_std_gaisserH4a_elbert_prompt_NNFlux': 0.,  # NuGen prompt
+}
+
+# --------------
+# Filter settings
+# --------------
+# The general_filter will filter events according to the key value pairs
+# defined in the dicts filter_equal, filter_greater_than, filter_less_than
+# The keys used here must exist in the loaded misc names.
+
+# only apply filter on these PDG encodings of the MC Primary
+# (All other events are accepted regardless)
+# 'filter_apply_on_pdg_encodings': [-12, 12, -14, 14, -16, 16]
+
+# For events to pass filter, the following must be True: misc[key] == value
+'filter_equal': {
+  # 'LabelsDeepLearning_p_outside_cascade': False,
+  # 'FilterMask_CascadeFilter': True,
+  'LabelsDeepLearning_p150_p_starting': True,
+}
+# For events to pass filter, the following must be True: misc[key] > value
+'filter_greater_than': {
+}
+# For events to pass filter, the following must be True: misc[key] < value
+'filter_less_than': {
+}
+
+# ----------------
+# Biased Selection
+# ----------------
+# Filter events based on the curent reconstruction performance on these
+# by defining key, value pairs and a biased fraction.
+# Events will be put in queues, such that biased_fraction of all events
+# passes one of the defined cuts.
+# If apply_biased_selection is False, no biased selection will be performed.
+'nn_biased_selection': {
+    'apply_biased_selection': True,
+    'reload_frequency': 100,
+    'biased_fraction': 0.5,
+    # Select biased event if: label[key] > value
+    'label_greater': {},
+    # Select biased event if: label[key] < value
+    'label_less': {},
+    # Select biased event if: label[key] == value
+    'label_equal': {'p_starting_nc': True},
+    # Select biased event if: label[key] != value
+    'label_unequal': {},
+    # Select biased event if: (true - pred)[key] > value
+    'true_minus_pred_greater': {},
+    # Select biased event if: (true - pred)[key] < value
+    'true_minus_pred_less': {},
+    # Select biased event if: transformed(true - pred)[key] > value
+    'true_minus_pred_trafo_greater': {},
+    # Select biased event if: transformed(true - pred)[key] > value
+    'true_minus_pred_trafo_less': {},
+    # Select biased event if: abs(true - pred)[key] >= value
+    'cut_abs_diff': {},
+    # Select biased event if: abs(transformed(true - pred))[key] >= value
+    'cut_abs_diff_trafo': {},
+    # Select biased event if: abs((true - pred) / unc)[key] >= value
+    'cut_unc_weighted_diff_trafo': {},
+}
+
+# --------------
+# Label settings
+# --------------
+# initialize label weights with this value
+'label_weight_initialization': 0.
+# Weights of each label are initialized with label_weight_initialization,
+# unless defined otherwise here
+'label_weight_dict': {
+  # 'EnergyVisible': 1,
+  # 'VertexTime': 1,
+  # 'LengthInDetector': 1,
+  # 'PrimaryAzimuth': 1,
+  # 'PrimaryZenith': 1,
+  # 'PrimaryDirectionX': 3,
+  # 'PrimaryDirectionY': 3,
+  # 'PrimaryDirectionZ': 3,
+  # 'VertexX': 1,
+  # 'VertexY': 1,
+  # 'VertexZ': 1,
+  # 'p_starting_nc': 1,
+  'p_starting_cc_e': 1,
+  # 'p_starting_cc_mu': 1,
+  # 'p_starting_cc_tau': 1,
+  # 'p_starting': 1,
+  # 'p_starting_300m': 1,
+  # 'p_is_track': 1,
+  # 'p_entering': 1,
+  # 'p_entering_muon_single': 1,
+  # 'p_entering_muon_bundle': 1,
+  # 'p_outside_cascade': 1,
+}
+# Keys to use for I3Particle
+'label_particle_keys': {
+  # 'energy': EnergyVisible,
+  # 'time': VertexTime,
+  # 'length': LengthInDetector,
+  # 'dir_x': PrimaryDirectionX,
+  # 'dir_y': PrimaryDirectionY,
+  # 'dir_z': PrimaryDirectionZ,
+  # 'pos_x': VertexX,
+  # 'pos_y': VertexY,
+  # 'pos_z': VertexZ,
+}
+# Update label weights during training
+'label_update_weights': True
+# Scale median absolute residuals for tukey loss
+'label_scale_tukey': False
+# Name of zenith direction label if it exists
+'label_zenith_key': PrimaryZenith
+# Name of azimuth direction label if it exists
+'label_azimuth_key': PrimaryAzimuth
+# Name of direction vector x-component label if it exists
+'label_dir_x_key': PrimaryDirectionX
+# Name of direction vector x-component label if it exists
+'label_dir_y_key': PrimaryDirectionY
+# Name of direction vector x-component label if it exists
+'label_dir_z_key': PrimaryDirectionZ
+# Add direction vector components as labels
+'label_add_dir_vec': False
+# Add position at the provided relative time (relative to time range start)
+'label_position_at_rel_time':
+# Define pid keys. The labels defined here will be forced to range [0, 1]
+# (depends on the chosen neural network model)
+'label_pid_keys': [
+    'p_cc_e', 'p_cc_mu', 'p_cc_tau', 'p_nc',
+    'p_starting', 'p_starting_300m', 'p_starting_glashow',
+    'p_starting_nc', 'p_starting_cc', 'p_starting_cc_e',
+    'p_starting_cc_mu', 'p_starting_cc_tau',
+    'p_starting_cc_tau_muon_decay', 'p_is_track',
+    'p_starting_cc_tau_double_bang', 'p_entering',
+    'p_entering_muon_single', 'p_entering_muon_bundle',
+    'p_outside_cascade', 'p_entering_muon_single_stopping',
+]
+# smooth pid labels as defined in 'label_pid_keys':
+# new_labels = labels * (1 - label_smoothing) + label_smoothing / 2.
+'label_pid_smooth_labels':
+
+# ---------------------
+# Event weight settings
+# ---------------------
+'event_weight_file': 'event_weights'
+'event_weight_name': 'clipped_astroness_weights'
+
+# NuGen astro and conv weights
+'event_weights_nugen_astro_weight': 'weights_mese_flux'
+'event_weights_nugen_conv_weight': 'weights_honda2006_gaisserH4a_elbert_conv_NNFlux'
+
+
+#---------------------------
+# General Training settings
+#---------------------------
+'num_training_iterations' : 2001000
+'validation_frequency' : 100
+'save_frequency' : 500
+'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
+# A custom evaluation method can be defined here.
+# If defined, this method will be run during each validation step.
+'evaluation_file': #default_evaluation
+'evaluation_name': #eval_direction
+
+#---------------------------
+# Trafo settings
+#---------------------------
+'trafo_num_jobs' : 25
+'trafo_num_batches' : 10000
+'trafo_model_path' : '../data/trafo_models/egen_vertex_pid_nue_cc_nue_nc_01.npy'
+'trafo_normalize_dom_data' : True
+'trafo_normalize_label_data' : True
+'trafo_normalize_misc_data' : False
+'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False,
+                        False, False, False, False, False, False]
+'trafo_log_label_bins' : {
+                         }
+'trafo_log_misc_bins' : False
+'trafo_treat_doms_equally' : True
+'trafo_norm_constant' : 0.0001
+
+#------------------
+# NN Model Training
+#------------------
+'model_checkpoint_path' : "../checkpoints/nn_model/\
+                              {model_file}__\
+                              {model_name}/\
+                              {unique_name}/model"
+'model_restore_model' : True
+'model_save_model' : True
+
+# Define a dictionary of dictionaries of optimizers here.
+# Each optimizer has to define the following fields:
+#   'optimizer': name of tf.train.Optimizer, e.g. 'AdamOptimizer'
+#   'optimizer_settings': a dictionary of settings for the optimizer
+#   'vars': str or list of str specifying the variables the optimizer is
+#           adujusting. E.g. ['unc', 'pred'] to optimize weights of the
+#           main prediction network and the uncertainty subnetwork.
+#   'loss_file': str or list of str, defines file of loss function
+#   'loss_name': str or list of str, defines name of loss function
+#                If loss_file and loss_name are lists, they must have the same
+#                length. In this case, a sum of each loss will be performed
+#   'l1_regularization': Regularization strength (lambda) for L1-Regularization
+#   'l2_regularization': Regularization strength (lambda) for L2-Regularization
+# This structure might seem a bit confusing, but it enables the use of
+# different tensorflow optimizer operations, which can each apply to
+# different weights of the network and wrt different loss functions.
+'model_optimizer_dict': {
+
+  # define an arbitrary name of optimizer here
+  'TrainingStep1': {
+        'optimizer': 'Adam',
+        'optimizer_settings': {
+            # 'amsgrad': True,
+            'learning_rate': {
+                'full_class_string': 'dnn_reco.utils.learning_rate.MultiLearningRateScheduler',
+                'settings':{
+                    'boundaries': [1000, 1001000],
+                    'scheduler_settings': [
+                        {
+                        'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
+                        'settings': {
+                            'initial_learning_rate': 0.00001,
+                            'end_learning_rate': 0.001,
+                            'decay_steps': 1000,
+                            },
+                        },
+                        {
+                        'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
+                        'settings': {
+                            'initial_learning_rate': 0.001,
+                            'end_learning_rate': 0.001,
+                            'decay_steps': 1000000,
+                            'power': 2,
+                            },
+                        },
+                        {
+                        'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
+                        'settings': {
+                            'initial_learning_rate': 0.001,
+                            'end_learning_rate': 0.000001,
+                            'decay_steps': 1000000,
+                            'power': 2,
+                            },
+                        },
+                    ]
+                },
+            },
+        },
+        'vars' : ['unc', 'pred'],
+        'loss_file': 'default_loss',
+        'loss_name': 'mse_and_cross_entropy',
+        'l1_regularization': 0.,
+        'l2_regularization': 0.,
+        'clip_gradients_value': 1.,
+        'remove_nan_gradients': False,
+    },
+  # 'gaussian_unc': {
+  #                 'optimizer': 'AdamOptimizer',
+  #                 'optimizer_settings': {'learning_rate': 0.000001,},
+  #                 'vars' : ['unc'],
+  #                 'loss_file': 'default_loss',
+  #                 'loss_name': 'gaussian_likelihood',
+  #                 'l1_regularization': 0.,
+  #                 'l2_regularization': 0.00001,
+  #                 'clip_gradients_value': ,
+  #                 'remove_nan_gradients': False,
+  #               },
+}
+
+#----------------------
+# NN Model Architecture
+#----------------------
+'model_file' : 'general_IC86_models'
+'model_name' : 'general_model_IC86_opt4'
+'model_is_training' : True
+'model_enforce_direction_norm': False
+
+# 2D convolutional layer of upper DeepCore
+'conv_upper_DeepCore_settings': {
+    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3]],
+    'num_filters_list': [30, 30, 30, 10],
+    'pooling_type_list': [False, 'avg', False, 'avg'],
+    'pooling_strides_list': [1, 1, 2, 1],
+    'pooling_ksize_list': [1, 1, 2, 1],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+}
+
+# 2D convolutional layer of lower DeepCore
+'conv_lower_DeepCore_settings': {
+    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3],
+                         [1, 3], [1, 3], [1, 3], [1, 3]],
+    'num_filters_list': [30, 30, 30, 30, 30, 30, 30, 10],
+    'pooling_type_list': [False, 'avg',
+                          False, 'avg',
+                          False, 'avg',
+                          False, 'avg'],
+    'pooling_strides_list': [1, 1, 2, 1],
+    'pooling_ksize_list': [1, 1, 2, 1],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+}
+
+# 3D hexagonal convolution over main IceCube array (IC78)
+'conv_IC78_settings' : {
+    'filter_size_list': [[2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
+                         [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3]],
+    'num_filters_list': [50, 50, 50, 50, 50, 50, 50, 10],
+    'pooling_type_list': [False, 'avg', False, 'avg',
+                          False, 'avg', False, 'avg'],
+    'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
+    'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
+    'use_dropout_list': True,
+    'padding_list': 'SAME',
+    'strides_list': [1, 1, 1, 1, 1],
+    'use_batch_normalisation_list': False,
+    'activation_list': 'elu',
+    'use_residual_list': True,
+    'hex_zero_out_list': False,
+    'dilation_rate_list': ,
+    'hex_num_rotations_list': 1,
+}
+
+# Fully connected layer settings (Combine results from convolutions)
+'fc_settings': {
+    'fc_sizes': [50, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', ''],
+    'use_batch_normalisation_list': False,
+    'use_residual_list': [False, True],
+    'max_out_size_list': ,
+}
+
+# Fully connected layer settings for uncertainty subnetwork
+'fc_unc_settings': {
+    'fc_sizes': [50, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', 'abs'],
+    'use_batch_normalisation_list': False,
+    'use_residual_list': False,
+    'max_out_size_list': ,
+}
+
+...
