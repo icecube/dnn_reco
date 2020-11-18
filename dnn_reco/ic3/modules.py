@@ -416,6 +416,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                                             results[particle_keys['pos_y']],
                                             results[particle_keys['pos_z']])
 
+            # transform zenith and azimuth to proper range:
+            particle.dir = dataclasses.I3Direction(
+                particle.dir.x, particle.dir.y, particle.dir.z)
+
             frame[self._output_key + '_I3Particle'] = particle
 
         # write time measurement to frame
