@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import pickle
 import tensorflow as tf
+from tqdm import tqdm
 
 from dnn_reco import detector
 
@@ -242,10 +243,7 @@ class DataTransformer:
             misc_mean = np.zeros(self.trafo_model['misc_shape'])
             misc_M2 = np.zeros(self.trafo_model['misc_shape'])
 
-        for i in range(num_batches):
-
-            if i % 100 == 0:
-                print('At batch {} of {}'.format(i, num_batches))
+        for i in tqdm(range(num_batches), total=num_batches):
 
             x_ic78, x_deepcore, label, misc_data = next(data_iterator)
 
