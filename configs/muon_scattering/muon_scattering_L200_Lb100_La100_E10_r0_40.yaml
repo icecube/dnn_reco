@@ -355,7 +355,7 @@ data_handler_nan_fill_value: 0.  #----------------------- Use this with CAUTION!
 # Trafo settings
 #---------------------------
 'trafo_num_jobs' : 25
-'trafo_num_batches' : 10000
+'trafo_num_batches' : 1000
 'trafo_model_path' : '../data/trafo_models/dnn_reco_muon_scattering_L200_Lb100_La100_E10_r0_40_01.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
