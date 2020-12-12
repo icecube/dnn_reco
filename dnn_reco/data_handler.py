@@ -403,9 +403,16 @@ class DataHandler(object):
                 mask, np.isfinite(np.sum(labels,
                                          axis=tuple(range(1, labels.ndim)))))
             if not mask.all():
-                misc.print_warning('Found NaNs. ' +
-                                   'Removing {} events from batch.'.format(
-                                                len(mask) - np.sum(mask)))
+                misc.print_warning(
+                    'Found NaNs. ' +
+                    'Removing {} events from batch of {}.'.format(
+                        len(mask) - np.sum(mask), len(mask)))
+                misc.print_warning(
+                    'NaN-free x_ic78: {}, x_deepcore: {}, labels: {}'.format(
+                        np.isfinite(x_ic78).all(),
+                        np.isfinite(x_deepcore).all(),
+                        np.isfinite(labels).all(),
+                        ))
 
                 x_ic78 = x_ic78[mask]
                 x_deepcore = x_deepcore[mask]
