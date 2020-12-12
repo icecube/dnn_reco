@@ -102,7 +102,7 @@
 'data_handler_num_bins': 9
 
 # Number of splits to make for a loaded file --> reduce size of batch for queue
-'data_handler_num_splits': 10
+'data_handler_num_splits': 1
 
 'data_handler_label_file': 'muon_scattering_labels'
 'data_handler_label_name': 'muon_scattering'
