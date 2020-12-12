@@ -138,7 +138,6 @@
     'p_outside_cascade', 'p_starting_300m', 'p_starting',
     'LengthInDetector',
   ],
-  'FilterMask': ['MuonFilter', 'CascadeFilter'],
   'weights': ['GaisserH4a_atmod12_SIBYLL',  # MuonGun
               'GaisserH4a_atmod12_DPMJET_C',  # MuonGun
               'GaisserH3aWeight',  # Corsika
@@ -189,7 +188,6 @@
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
   # 'LabelsDeepLearning_p_outside_cascade': False,
-  # 'FilterMask_CascadeFilter': True,
   # 'LabelsDeepLearning_p150_p_starting': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
