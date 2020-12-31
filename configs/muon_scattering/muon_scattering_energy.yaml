@@ -32,6 +32,10 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/21432/northern_tracks/0012000-0012999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/21432/northern_tracks/0013000-0013999/*.hdf5',
 
+    # biased sets
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/60030/northern_tracks/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/60031/northern_tracks/00000-00999/*.hdf5',
+
   ]
 'trafo_data_file' : [
     # NuGen SnowStorm Aachen Diffuse Final level
@@ -51,6 +55,10 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/21432/northern_tracks/0011000-0011999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/21432/northern_tracks/0012000-0012999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/21432/northern_tracks/0013000-0013999/*.hdf5',
+
+    # biased sets
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/60030/northern_tracks/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_scattering/L200_Lb100_La100_E10_r0_40/NuGen/60031/northern_tracks/00000-00999/*.hdf5',
 
   ]
 'validation_data_file' : [
@@ -102,7 +110,7 @@
 'data_handler_num_bins': 9
 
 # Number of splits to make for a loaded file --> reduce size of batch for queue
-'data_handler_num_splits': 1
+'data_handler_num_splits': 10
 
 'data_handler_label_file': 'muon_scattering_labels'
 'data_handler_label_name': 'muon_scattering'
