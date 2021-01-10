@@ -263,7 +263,7 @@ data_handler_nan_fill_value : 0.
 #---------------------------
 # General Training settings
 #---------------------------
-'num_training_iterations' : 100000000
+'num_training_iterations' : 2000000
 'validation_frequency' : 100
 'save_frequency' : 500
 'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
@@ -324,7 +324,7 @@ data_handler_nan_fill_value : 0.
             'learning_rate': {
                 'full_class_string': 'dnn_reco.utils.learning_rate.MultiLearningRateScheduler',
                 'settings':{
-                    'boundaries': [1000],
+                    'boundaries': [1000, 1000000],
                     'scheduler_settings': [
                         {
                         'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
@@ -339,6 +339,15 @@ data_handler_nan_fill_value : 0.
                         'settings': {
                             'initial_learning_rate': 0.001,
                             'end_learning_rate': 0.001,
+                            'decay_steps': 1000000,
+                            'power': 2,
+                            },
+                        },
+                        {
+                        'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
+                        'settings': {
+                            'initial_learning_rate': 0.001,
+                            'end_learning_rate': 0.000001,
                             'decay_steps': 1000000,
                             'power': 2,
                             },
