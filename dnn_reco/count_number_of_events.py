@@ -30,7 +30,7 @@ def count_num_events(data):
 @click.option('--n_jobs', '-j',
               default=1, help='Number of jobs to run in parallel.')
 def main(config_files, n_jobs):
-    """Script to count number of files.
+    """Script to count number of events.
 
     Parameters
     ----------
