@@ -24,6 +24,12 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/NuGen/new/Nu*/*energy/IC86_flasher_p10.3_p20.0/l2/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/NuGen/new/Nu*/*energy/IC86_flasher_p10.3_p20.0/l2/01000-01999/*.hdf5',
 
+    # NuGen with uncorrelated muon
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/03000-03999/*.hdf5',
+
     # NuGen with veto Muon
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/NuGen/2121*/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/NuGen/2121*/01000-01999/*.hdf5',
@@ -54,6 +60,12 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/NuGen/new/Nu*/*energy/IC86_flasher_p10.3_p20.0/l2/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/NuGen/new/Nu*/*energy/IC86_flasher_p10.3_p20.0/l2/01000-01999/*.hdf5',
 
+    # NuGen with uncorrelated muon
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/00000-00999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/01000-01999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/02000-02999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/03000-03999/*.hdf5',
+
     # NuGen with veto Muon
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/NuGen/2121*/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/NuGen/2121*/01000-01999/*.hdf5',
@@ -77,6 +89,9 @@
     # NuGen
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/NuGen/2121*/0004000-0004999/*.hdf5',
 
+    # NuGen with uncorrelated muon
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/04000-04999/*.hdf5',
+
     # NuGen with veto Muon
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/NuGen/2121*/04000-04999/*.hdf5',
 
@@ -88,6 +103,9 @@
 
     # NuGen
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/NuGen/2121*/0004000-0004999/*.hdf5',
+
+    # NuGen with uncorrelated muon
+    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/uncorrelated_oversize_05/NuGen/2121*/04000-04999/*.hdf5',
 
     # NuGen with veto Muon
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/veto_classifier/egen_fast_cascade_based_veto/veto/NuGen/2121*/04000-04999/*.hdf5',
