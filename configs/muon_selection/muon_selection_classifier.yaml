@@ -15,20 +15,20 @@
 'training_data_file' : [
 
     # NuGen - high energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0000000-0000999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0001000-0001999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0002000-0002999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0003000-0003999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0004000-0004999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0005000-0005999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0006000-0006999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0000000-0000999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0001000-0001999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0002000-0002999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0003000-0003999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0004000-0004999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0005000-0005999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0006000-0006999/*.hdf5',
 
     # NuGen - medium energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0000000-0000999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0001000-0001999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0000000-0000999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0001000-0001999/*.hdf5',
 
     # NuGen - low energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0000000-0000999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0000000-0000999/*.hdf5',
 
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/Corsika/11057/0*000-0*999/*.hdf5',
@@ -44,20 +44,20 @@
 'trafo_data_file' : [
 
     # NuGen - high energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0000000-0000999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0001000-0001999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0002000-0002999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0003000-0003999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0004000-0004999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0005000-0005999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0006000-0006999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0000000-0000999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0001000-0001999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0002000-0002999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0003000-0003999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0004000-0004999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0005000-0005999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0006000-0006999/*.hdf5',
 
     # NuGen - medium energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0000000-0000999/*.hdf5 ',
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0001000-0001999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0000000-0000999/*.hdf5',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0001000-0001999/*.hdf5',
 
     # NuGen - low energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0000000-0000999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0000000-0000999/*.hdf5',
 
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/Corsika/11057/0*000-0*999/*.hdf5',
@@ -73,13 +73,13 @@
 'validation_data_file' : [
 
     # NuGen - high energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0007000-0007999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0007000-0007999/*.hdf5',
 
     # NuGen - medium energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0002000-0002999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0002000-0002999/*.hdf5',
 
     # NuGen - low energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0001000-0001999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0001000-0001999/*.hdf5',
 
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/Corsika/11057/10000-10999/*.hdf5',
@@ -91,13 +91,13 @@
 'test_data_file' : [
 
     # NuGen - high energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0007000-0007999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21432/0007000-0007999/*.hdf5',
 
     # NuGen - medium energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0002000-0002999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21431/0002000-0002999/*.hdf5',
 
     # NuGen - low energy
-    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0001000-0001999/*.hdf5 ',
+    '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/NuGen/21430/0001000-0001999/*.hdf5',
 
     # Corsika - 11057
     '/net/big-tank/POOL/users/mhuennefeld/data/dnn_reco/muon_selection/reduced_summary_stats/Corsika/11057/10000-10999/*.hdf5',
