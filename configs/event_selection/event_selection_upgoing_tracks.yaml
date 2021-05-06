@@ -393,6 +393,8 @@
   # 'VertexZ': 1,
   'is_upgoing_track': 1,
   'is_neutrino_selection': 1,
+  'is_neutrino': 1,
+  'is_numu': 1,
   # 'p_starting': 1,
   # 'p_starting_300m': 1,
   # 'p_is_track': 1,
@@ -442,7 +444,7 @@
     'p_starting_cc_tau_double_bang', 'p_entering',
     'p_entering_muon_single', 'p_entering_muon_bundle',
     'p_outside_cascade', 'p_entering_muon_single_stopping',
-    'is_upgoing_track', 'is_neutrino_selection',
+    'is_upgoing_track', 'is_neutrino_selection', 'is_numu', 'is_neutrino',
 ]
 # smooth pid labels as defined in 'label_pid_keys':
 # new_labels = labels * (1 - label_smoothing) + label_smoothing / 2.

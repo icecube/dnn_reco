@@ -251,6 +251,10 @@ def upgoing_tracks(input_data, config, label_names=None, *args, **kwargs):
     """Upgoing Tracks and general neutrino selection (upgoing or starting)
 
     Will create the following labels:
+        - is_neutrino:
+            True if neutrino event (PDG in [-12, -14, -16, 12, 14, 16])
+        - is_numu:
+            True if NuMu event (PDG in [-14, 14])
         - is_upgoing_track:
             upgoing track (zenith > 85 degree, length in p60 > 100)
         - is_neutrino_selection:
@@ -286,6 +290,11 @@ def upgoing_tracks(input_data, config, label_names=None, *args, **kwargs):
         _labels = f[config['data_handler_label_key']]
         _primary = f['MCPrimary']
 
+    # check if event is a neutrino
+    abs_pdg_code = np.abs(_primary['pdg_encoding'])
+    mask = np.logical_or(abs_pdg_code == 12, abs_pdg_code == 14)
+    is_neutrino = np.logical_or(mask, abs_pdg_code == 16)
+
     mask = _labels['PrimaryZenith'] > np.deg2rad(85)
     mask = np.logical_and(mask, _labels['LengthInDetector'] > 100)
     is_numu = np.logical_or(_primary['pdg_encoding'] == -14,
@@ -295,8 +304,12 @@ def upgoing_tracks(input_data, config, label_names=None, *args, **kwargs):
     is_neutrino_selection = np.logical_or(is_upgoing_track, is_starting)
 
     if label_names is None:
-        label_names = ['is_upgoing_track', 'is_neutrino_selection']
-        labels = [is_upgoing_track, is_neutrino_selection]
+        label_names = [
+            'is_upgoing_track', 'is_neutrino_selection',
+            'is_numu', 'is_neutrino'
+        ]
+        labels = [
+            is_upgoing_track, is_neutrino_selection, is_numu, is_neutrino]
     else:
         labels = []
         for name in label_names:
@@ -304,6 +317,10 @@ def upgoing_tracks(input_data, config, label_names=None, *args, **kwargs):
                 labels.append(is_upgoing_track)
             elif name == 'is_neutrino_selection':
                 labels.append(is_neutrino_selection)
+            elif name == 'is_numu':
+                labels.append(is_numu)
+            elif name == 'is_neutrino':
+                labels.append(is_neutrino)
             else:
                 raise KeyError('Label {!r} does not exist!'.format(name))
 
