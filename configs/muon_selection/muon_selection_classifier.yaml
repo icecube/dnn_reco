@@ -177,7 +177,7 @@
               'hese6', # NuGen astro
               'sarcevic_std_gaisserH3a_elbert_prompt_NNFlux',  # NuGen prompt
               'sarcevic_std_gaisserH4a_elbert_prompt_NNFlux',  # NuGen prompt
-             ]
+             ],
   'MCPrimary': ['pdg_encoding'],
 }
 
