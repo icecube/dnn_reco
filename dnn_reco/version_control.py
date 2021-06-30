@@ -10,10 +10,11 @@ def get_git_infos():
         repo = git.Repo(path=os.getcwd(), search_parent_directories=True)
     except git.InvalidGitRepositoryError:
         return None, None, None, False
-    sha = repo.head.object.hexsha
-    short_sha = repo.git.rev_parse(sha, short=7)
+    sha = str(repo.head.object.hexsha)
+    short_sha = str(repo.git.rev_parse(sha, short=7))
     try:
-        origin = repo.git.execute(["git", "remote", "get-url", "origin"])
+        origin = str(
+            repo.git.execute(["git", "config", "--get", "remote.origin.url"]))
     except git.exc.GitCommandError:
         origin = None
     uncommitted_changes = repo.is_dirty()
