@@ -25,11 +25,16 @@ created during the installation steps (see :ref:`Installation and Requirements`)
     export DNN_HOME=/data/user/${USER}/DNN_tutorial
 
     # load icecube environment if not already loaded
-    eval $(/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh)
-    source /cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/RHEL_7_x86_64/metaprojects/icerec/V05-02-04/env-shell.sh
+    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/setup.sh)
+    source /cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/metaprojects/combo/V01-01-01/env-shell.sh
+
+    # set I3_BUILD and I3_SRC to correct directories if not set correctly
+    export I3_BUILD=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/metaprojects/combo/V01-01-01/
+    export I3_SRC=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/metaprojects/combo/V01-01-01/
 
     # Activate virtual environment if not already activated
-    source ${DNN_HOME}/dnn_reco_env/bin/activate
+    source ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
+
 
 .. note::
     It is important to first load the icecube environment and then

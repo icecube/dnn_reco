@@ -2,6 +2,10 @@
 
 .. _create_training_data:
 
+.. note::
+    If you already have training data files available, then you can skip to the :ref:`next section<Train Model>`. You may also use the training files
+    located here: ``/data/user/mhuennefeld/DNN_reco/tutorials/training_data``.
+
 Create Training Data
 ********************
 
@@ -13,18 +17,15 @@ You are free to include these modules in your processing set up of choice.
 Here we will use
 `these processing scripts <https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/sandbox/mhuennefeld/processing_scripts>`_.
 
-.. note::
-    :ref:`If you already have training data files available, then you can skip
-    to the next section<Train Model>`
-
 The tray segment ``ic3_data.segements.CreateDNNData`` can write out different
 types of input data.
-Options include:
+Options include (more available):
 
 * ``charge_bins``: Histogram charge in time bins as given by 'TimeBins'
 * ``charge_weighted_time_quantiles``: Calculate charge weighted time quantiles for the quantiles specified in 'TimeQuantiles'
-* ``autoencoder``: Encodes pulse data with an autoencoder
-* ``pulse_summmary_clipped``: Calculate summary values from pulses
+* ``autoencoder``: Encodes pulse data with an autoencoder (deprecated)
+* ``pulse_summmary_clipped``: Calculates 9 summary values from pulses (used in `DNN-reco paper <https://arxiv.org//abs/2101.11589>`_, see paper for more information)
+* ``reduced_summary_statistics_data``: Total charge, time of first pulse, std. deviation of pulse times. These are computed entirely in c++. If you need a NN that executes in < 1ms/event, then this is a good choice.
 
 If your application needs different input data, you can easily add a function
 in ``ic3_data.data_formats``.
@@ -33,6 +34,11 @@ defines which function in ``ic3_data.data_formats`` will be used
 to create the input data.
 The only requirement is that the input data must be a vector of length n for
 each DOM.
+
+.. note::
+    Recommended data input formats are ``pulse_summmary_clipped`` or
+    ``reduced_summary_statistics_data``. Support for ``ml_suite``-based
+    input data will be added in the future.
 
 We will use ``pulse_summmary_clipped`` in this tutorial.
 The input data to our network will therefore consist of summary values

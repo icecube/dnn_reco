@@ -15,7 +15,7 @@ network models, but also enables their application and distribution.
     cascade angular reconstruction.
     A comparison to the standard reconstruction method (Monopod)
     in IceCube is shown.
-    The convolutional neural newtork (CNN) trained within the |dnn_reco|
+    The convolutional neural network (CNN) trained within the |dnn_reco|
     framework can outperform the standard reconstruction method at higher
     energies, while reducing the runtime by two to three orders of magnitude.
 
@@ -49,7 +49,7 @@ correct settings and input parameters.
 
 * `ICRC 2017 <https://pos.sissa.it/cgi-bin/reader/contribution.cgi?id=PoS(ICRC2017)1057>`_
 
-* |dnn_reco| paper [coming soon]
+* `DNN-reco paper <https://arxiv.org//abs/2101.11589>`_
 
 .. fad
     .. figure:: figures/runtime-1.png

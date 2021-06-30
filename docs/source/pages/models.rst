@@ -39,6 +39,9 @@ A good staring point could be 32 or 64.
 The models described in the following are located in
 ``/data/user/mhuennefeld/DNN_reco/models/exported_models/``.
 In the future these might also be made available in the user_cvmfs space.
+There are also a number of models used for the ``DNNCascade`` selection.
+These are described `here <https://wiki.icecube.wisc.edu/index.php/Cascade_Neutrino_Source_Dataset/Machine_Learning_Models#DNN_reco_Models>`_
+and available at ``/data/ana/PointSource/DNNCascade/utils/exported_models/<version>/dnn_reco/``
 
 
 **List of trained models:**

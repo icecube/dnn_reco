@@ -42,6 +42,10 @@ $DNN_HOME:
 
     sed -i -e 's,{insert_DNN_HOME},'"$DNN_HOME"',g' $CONFIG_DIR/getting_started.yaml
 
+Keep in mind that you have to point to a different path, if you are using
+the data in ``/data/user/mhuennefeld/DNN_reco/tutorials/training_data``, or
+if your data is located elsewhere.
+
 
 Create Data Transformation Model
 ================================
@@ -179,8 +183,8 @@ You can also define your own neural network architecture, by changing the keys
 During training, we can provide weights to each of the labels.
 That way we can force the training to focus on the labels that we care about.
 In this tutorial we will focus on reconstructing the visible energy in the
-detector (``EnergyVisible``).
-For throughgoing muons, this is the energy of the muon as it enters the
+detector (``EnergyVisible``), while also providing a smaller weight to the primary energy of the neutrino (``PrimaryEnergy``).
+For throughgoing muons, ``EnergyVisible`` is the energy of the muon as it enters the
 detector.
 For starting muons, this is the sum of the deposited energy by the cascade
 plus the energy of the outgoing muon.
@@ -191,13 +195,7 @@ We can specify the weight of certain variables with the ``label_weight_dict``
 key.
 
 .. note::
-    The default weight is chosen to be  0.00001 and not zero.
-    This is because, even though we are not focusing on the other loaded labels,
-    we do not want the predictions of those to go drastically out of range,
-    which can cause NaNs in our transformation methods
-    (especially for the labels we apply the logarithm/exponential to).
-    However, we should not have to do this.
-    This will be fixed in a future version.
+    If certain variables are included in the logarithm/exponential transformation of the data transformer, but not trained, e.g. weights set to zero, then it can happen that the values for these drift out of bound leading to NaNs. If this happens, you can also set the weights of the affected variables to very small positive weights such as 0.00001
 
 Other important settings for the training procedure are the ``batch_size``
 and the choice of loss functions and minimizers which are defined
@@ -228,6 +226,17 @@ To start training we run:
     # want to use by setting the CUDA_VISIBLE_DEVICES to the the device number
     # In this case, we will run on GPU 0.
     CUDA_VISIBLE_DEVICES=0 python train_model.py $CONFIG_DIR/getting_started.yaml
+
+.. note::
+    Running this on one of the cobalts should work,
+    but will be extremely slow.
+    Training on a GPU is highly recommended.
+    NPX isn't suited well for training, since the job ideally needs
+    1 GPU in addition to ~10 CPUs. However, this will be hard to obtain
+    on NPX. Reducing the number of requested CPUs may help.
+    In this case, the number of worker jobs for the data input pipeline should be reduced by setting the ``num_jobs`` key in the configuration.
+    If possible, it is recommended to run this on other resources,
+    if available.
 
 This will run for ``num_training_iterations`` many iterations or
 until we kill the process via ``ctrl + c``.

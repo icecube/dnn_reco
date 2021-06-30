@@ -1,5 +1,12 @@
 .. IceCube DNN reconstruction
 
+.. note::
+    This tutorial was specifically created for the DNN Bootcamp at the 2019 Madison meeting. The virtual machine is no longer available.
+    You can still run this tutorial, but will have to create new training
+    data files and setup the environment elsewhere. Please refer to
+    :ref:`Getting Started tutorial<getting_started>` and
+    :ref:`Installation and Requirements<installation_and_requirements>`.
+
 IceCube DNN Bootcamp
 ********************
 
