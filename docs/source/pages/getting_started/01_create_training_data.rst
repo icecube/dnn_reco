@@ -142,7 +142,7 @@ Create the job files via:
     cd $DNN_HOME/processing
 
     # create job files (--help for more options)
-    python create_job_files.py configs/tutorial_dnn_reco/getting_started/create_training_data_01.yaml -d $DNN_HOME/training_data/
+    python create_job_files.py configs/tutorial_dnn_reco/getting_started/create_training_data_01_py3-v4.1.1.yaml -d $DNN_HOME/training_data/
 
 This will write the exectuable job files and the configuration file that was used
 to the directory ``$DNN_HOME/training_data/processing``.
