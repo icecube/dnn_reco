@@ -59,6 +59,10 @@ want to check the stats you can run:
 
 .. code-block:: bash
 
+    # cd into the dnn_reco directory
+    cd $DNN_HOME/repositories/dnn_reco/dnn_reco
+
+    # count number of events
     python count_number_of_events.py $CONFIG_DIR/getting_started.yaml
 
 to count the number of events that are found for the provided keys.
@@ -197,12 +201,13 @@ Train Neural Network Model
 The network architecture that will be used in this tutorial is the
 ``general_model_IC86`` architecture which is defined in the module
 ``dnn_reco.modules.models.general_IC86_models``.
-This is a deep convolutional neural network with 8 convolutional layers for
-the upper and 14 convolutional layers for the lower DeepCore part.
-20 convolutional layers are performed over the main IceCube array.
+This is a smaller convolutional neural network with 4 convolutional layers for
+the upper and 8 convolutional layers for the lower DeepCore part.
+8 convolutional layers are performed over the main IceCube array.
+Every convolutional layer uses 10 kernels.
 The three output tensors of each of these convolutional blocks are then
-concatenated and fed into a fully connected sub network of 3 layers.
-Additionally, we define a second fully connected sub network of 3 layers, that
+concatenated and fed into a fully connected sub network of 2 layers.
+Additionally, we define a second fully connected sub network of 2 layers, that
 is used to predict the uncertainties on each of the reconstructed quantities.
 You may change the architecture by modifying the settings below
 ::
@@ -235,24 +240,28 @@ key.
 Other important settings for the training procedure are the ``batch_size``
 and the choice of loss functions and minimizers which are defined
 in the ``model_optimizer_dict``.
-For now we will use a simple Mean Squared Error (MSE) for the prediction and
-uncertainty estimate.
+Here, we will use a Gaussian Likelihood as the loss function for the prediction and uncertainty estimate.
 The structure of the setting ``model_optimizer_dict`` is a bit complicated,
 but it is very powerful.
 We can define as many optimizers with as many loss funtions as we like.
 A few basic loss functions are already implemented in
 ``dnn_reco.modules.loss``.
+Amongst others, these include the Mean Squared Error (MSE) and cross-entropy
+for classification tasks.
 You are free to add your custom loss functions by adding a file/function in
 the ``dnn_reco.modules.loss`` module and by then adjusting the ``loss_file``
 and ``loss_name`` keys.
+Other more advanced features are available such as defining learning rate
+schedulers, but these are not covered in this tutorial.
 
-It generally helps to start off with something robust such as MSE and a
-learning rate of 0.001.
-After this training step has converged
-(see :ref:`Monitor Progress<bootcamp_monitor>`),
-we can reduce the learning rate and/or change the loss function to something
-more robust towards outliers such as tukey loss
-(https://arxiv.org/abs/1505.06606).
+Sometimes the Gaussian Likelihood can be quite sensitive, especially when
+the values are initially random.
+Limiting the value range of the uncertainty output can help, or one can
+also start with a more robust loss function such as MSE or the
+tukey loss (https://arxiv.org/abs/1505.06606),
+which is more robust to outliers.
+The learning rate of 0.001 with the Adam optimizer are almost always good
+choices.
 To start training we run:
 
 .. code-block:: bash

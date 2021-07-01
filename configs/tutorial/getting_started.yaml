@@ -171,7 +171,7 @@
 #---------------------------
 # General Training settings
 #---------------------------
-'num_training_iterations' : 100000000
+'num_training_iterations' : 1000000
 'validation_frequency' : 100
 'save_frequency' : 500
 'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
@@ -227,15 +227,17 @@
 'model_optimizer_dict': {
 
   # define an arbitrary name of optimizer here
-  'simple_mse': {
-                  'optimizer': 'AdamOptimizer',
-                  'optimizer_settings': {'learning_rate': 0.001,},
-                  'vars' : ['pred', 'unc'],
-                  'loss_file': 'default_loss',
-                  'loss_name': 'mse',
-                  'l1_regularization': 0.,
-                  'l2_regularization': 0.00000001,
-                },
+    'simple_mse': {
+        'optimizer': 'Adam',
+        'optimizer_settings': {'learning_rate': 0.001,},
+        'vars' : ['pred', 'unc'],
+        'loss_file': 'default_loss',
+        'loss_name': 'gaussian_likelihood',
+        'l1_regularization': 0.,
+        'l2_regularization': 0.,
+        'clip_gradients_value': 1.,
+        'remove_nan_gradients': False,
+    },
   # 'gaussian_unc': {
   #                 'optimizer': 'AdamOptimizer',
   #                 'optimizer_settings': {'learning_rate': 0.001,},
@@ -256,10 +258,9 @@
 
 # 2D convolutional layer of upper DeepCore
 'conv_upper_DeepCore_settings': {
-    'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 7], [1, 7], [1, 7], [1, 5],
-                         [1, 5], [1, 5], [1, 1], [1, 1]],
-    'num_filters_list': [80, 80, 100, 100, 100, 100, 100, 100],
-    'pooling_type_list': [False, False, 'max', False, False, 'max', False, False],
+    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3]],
+    'num_filters_list': [10, 10, 10, 10],
+    'pooling_type_list': [False, 'avg', False, 'avg'],
     'pooling_strides_list': [1, 1, 2, 1],
     'pooling_ksize_list': [1, 1, 2, 1],
     'use_dropout_list': True,
@@ -272,15 +273,13 @@
 
 # 2D convolutional layer of lower DeepCore
 'conv_lower_DeepCore_settings': {
-    'filter_size_list': [[1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 9],
-                         [1, 9], [1, 9], [1, 9], [1, 9], [1, 9], [1, 1], [1, 1]],
-    'num_filters_list': [80, 80, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-                         100, 100, 100],
-    'pooling_type_list': [False, False, 'max',
-                          False, False, 'max',
-                          False, False, 'max',
-                          False, False, 'max',
-                          False, False],
+    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3],
+                         [1, 3], [1, 3], [1, 3], [1, 3]],
+    'num_filters_list': [10, 10, 10, 10, 10, 10, 10, 10],
+    'pooling_type_list': [False, 'avg',
+                          False, 'avg',
+                          False, 'avg',
+                          False, 'avg'],
     'pooling_strides_list': [1, 1, 2, 1],
     'pooling_ksize_list': [1, 1, 2, 1],
     'use_dropout_list': True,
@@ -293,29 +292,19 @@
 
 # 3D hexagonal convolution over main IceCube array (IC78)
 'conv_IC78_settings' : {
-    'filter_size_list': [[3, 0, 7], [3, 0, 7], [3, 0, 7], [3, 0, 7], [2, 0, 17],
-                         [3, 0, 7], [3, 0, 7], [2, 0, 17], [3, 0, 7], [2, 0, 5],
-                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5], [2, 0, 5],
-                         [2, 0, 5], [2, 0, 5], [2, 0, 5], [1, 0, 3], [1, 0, 1]],
-    'num_filters_list': [10, 10, 20, 20, 20, 20, 20, 20, 80, 80, 80, 80, 80,
-                         80, 100, 100, 100, 100, 100, 100],
-    'pooling_type_list': [False, False, 'max', False, False, False, False,
-                          False,'max', False, False, False, False, False, 'max',
-                          False, False, 'max', False, False],
-    'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
-    'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
+    'filter_size_list': [[2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
+                         [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3]],
+    'num_filters_list': [10, 10, 10, 10, 10, 10, 10, 10],
+    'pooling_type_list': [False, 'avg', False, 'avg',
+                          False, 'avg', False, 'avg'],
+    'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
+    'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
     'use_dropout_list': True,
     'padding_list': 'SAME',
     'strides_list': [1, 1, 1, 1, 1],
@@ -329,21 +318,21 @@
 
 # Fully connected layer settings (Combine results from convolutions)
 'fc_settings': {
-    'fc_sizes': [300, 300, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, True, False],
-    'activation_list': ['elu', 'elu', ''],
+    'fc_sizes': [50, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', ''],
     'use_batch_normalisation_list': False,
-    'use_residual_list': [False, True, True],
+    'use_residual_list': [False, True],
     'max_out_size_list': ,
 }
 
 # Fully connected layer settings for uncertainty subnetwork
 'fc_unc_settings': {
-    'fc_sizes': [300, 300, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, True, False],
-    'activation_list': ['elu', 'elu', 'abs'],
+    'fc_sizes': [50, -1], # last one will be overwritten with num labels
+    'use_dropout_list': [True, False],
+    'activation_list': ['elu', 'abs'],
     'use_batch_normalisation_list': False,
-    'use_residual_list': [False, True, True],
+    'use_residual_list': False,
     'max_out_size_list': ,
 }
 
