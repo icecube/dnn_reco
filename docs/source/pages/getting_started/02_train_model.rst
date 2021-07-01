@@ -273,12 +273,21 @@ To start training we run:
 
 .. note::
     Running this on one of the cobalts should work,
-    but will be extremely slow.
+    but will be extremely slow. In addition, tensorflow will distribute
+    the workload on all CPUs it can find. This can be changed, but
+    isn't currently a setting for the training (just for the I3Module).
+    Hence, we can run this for a few iterations on the cobalts for
+    debugging purposes, but it shouldn't run for longer amount of times.
+    When debugging, make sure to keep an eye on the usage via ``htop`` to
+    ensure that the cluster is usable for others.
     Training on a GPU is highly recommended.
     NPX isn't suited well for training, since the job ideally needs
-    1 GPU in addition to ~10 CPUs. However, this will be hard to obtain
+    1 GPU in addition to multiple CPUs.
+    However, this may be difficult to obtain
     on NPX. Reducing the number of requested CPUs may help.
     In this case, the number of worker jobs for the data input pipeline should be reduced by setting the ``num_jobs`` key in the configuration.
+    More info on how to run this on an interactive GPU session is provided
+    :ref:`further below<train_model_interactive_gpu>`.
     If possible, it is recommended to run this on other resources,
     if available.
 
@@ -316,3 +325,56 @@ each of your models.
     More information on the exchangable modules is provided in
     :ref:`Code Documentation`.
 
+
+Running in interactive GPU session
+==================================
+
+.. _train_model_interactive_gpu:
+
+Although not ideal, it is possible to run this on NPX.
+Here we will show how to obtain an interactive GPU session with
+4 CPUs and 6GB of RAM.
+We will then start the training in this interactive session.
+First, we need to ask for an interactive job.
+For this we must log on to the submit node (submitter.icecube.wisc.edu).
+Then we will define our requirements and submit the request via:
+
+.. code-block:: bash
+
+    condor_submit -i -a request_cpus=4 -a request_gpus=1 -a request_memory=6GB
+
+This may take a while, depending on how busy the cluster is.
+Reducing the number of requested CPUs and RAM may help to get a free
+slot quicker. In this case, the input data pipeline must be adjusted
+to use less worker nodes and possibly a smaller input queue.
+If the job suddenly closes, this is often due to larger memory usage
+than requested.
+
+When we have successfully obtained a job, we can now activate the
+environment and start training:
+
+.. code-block:: bash
+
+    # Recreate environment variable
+    export DNN_HOME=/data/user/${USER}/DNN_tutorial
+
+    # load virtual environment (we don't need icecube env for this)
+    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/setup.sh)
+    source ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
+
+    # add paths to CUDA installation so that we can use the GPU
+    export CUDA_HOME=/data/user/mhuennefeld/software/cuda/cuda-10.1
+    export PATH=$PATH:${CUDA_HOME}/bin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64
+
+    # we need to turn file locking off
+    export HDF5_USE_FILE_LOCKING='FALSE'
+
+    # go into directory
+    cd $DNN_HOME/repositories/dnn_reco/dnn_reco
+
+    # now we can start training
+    # condor will have already set `CUDA_VISIBLE_DEVICES` to the
+    # appropriate GPU that is meant for us. Therefore, we do not
+    # need to prepend this as done further above in the tutorial.
+    python train_model.py $DNN_HOME/configs/training/getting_started.yaml

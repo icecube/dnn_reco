@@ -177,8 +177,8 @@
 'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
-'evaluation_file': default_evaluation
-'evaluation_name': eval_direction
+'evaluation_file':
+'evaluation_name':
 
 #---------------------------
 # Trafo settings
@@ -259,7 +259,7 @@
 # 2D convolutional layer of upper DeepCore
 'conv_upper_DeepCore_settings': {
     'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3]],
-    'num_filters_list': [10, 10, 10, 10],
+    'num_filters_list': [5, 5, 5, 5],
     'pooling_type_list': [False, 'avg', False, 'avg'],
     'pooling_strides_list': [1, 1, 2, 1],
     'pooling_ksize_list': [1, 1, 2, 1],
@@ -275,7 +275,7 @@
 'conv_lower_DeepCore_settings': {
     'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3],
                          [1, 3], [1, 3], [1, 3], [1, 3]],
-    'num_filters_list': [10, 10, 10, 10, 10, 10, 10, 10],
+    'num_filters_list': [5, 5, 5, 5, 5, 5, 5, 5],
     'pooling_type_list': [False, 'avg',
                           False, 'avg',
                           False, 'avg',
@@ -294,7 +294,7 @@
 'conv_IC78_settings' : {
     'filter_size_list': [[2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
                          [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3]],
-    'num_filters_list': [10, 10, 10, 10, 10, 10, 10, 10],
+    'num_filters_list': [5, 5, 5, 5, 5, 5, 5, 5],
     'pooling_type_list': [False, 'avg', False, 'avg',
                           False, 'avg', False, 'avg'],
     'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],

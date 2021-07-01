@@ -254,7 +254,8 @@ try to create a tensorflow session and to import |dnn_reco|.
 .. code-block:: bash
 
     # the following should successfully create a tensorflow session
-    python -c 'import tensorflow as tf; print(tf.__version__); tf.Session()'
+    # (if running with TF1, use tf.Session() instead)
+    python -c 'import tensorflow as tf; print(tf.__version__); tf.compat.v1.Session()'
 
     # try to import dnn_reco (This should run without giving any output)
     python -c 'import dnn_reco; import tfscripts; import ic3_labels; import ic3_data'
