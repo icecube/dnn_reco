@@ -47,6 +47,41 @@ the data in ``/data/user/mhuennefeld/DNN_reco/tutorials/training_data``, or
 if your data is located elsewhere.
 
 
+Cross-Check input data
+======================
+
+For convenience, there is a script that will count the number of events
+provided in the input files defined in the keys
+``training_data_file``, ``trafo_data_file``, ``validation_data_file``,
+``test_data_file``.
+If you have a broad idea of how many events to expect, or if you simply
+want to check the stats you can run:
+
+.. code-block:: bash
+
+    python count_number_of_events.py $CONFIG_DIR/getting_started.yaml
+
+to count the number of events that are found for the provided keys.
+The output will look something like this:
+
+.. code-block:: bash
+
+    [...]
+    ===============================
+    = Completed Counting Events:  =
+    ===============================
+    Found 7485 events for 'test_data_file'
+    Found 7485 events for 'validation_data_file'
+    Found 753802 events for 'training_data_file'
+    Found 753802 events for 'trafo_data_file'
+
+
+For advanced users: one can add filters to apply when loading input data
+via the ``filter_*`` keys in the configs. The file counting currently
+does *not* take these filters into consideration, i.e. it counts all
+events available in the files.
+
+
 Create Data Transformation Model
 ================================
 
