@@ -384,7 +384,7 @@ class NNModel(object):
         self.shared_objects['label_loss_dict'] = {}
 
         # create each optimizer
-        for name, opt_config in optimizer_dict.items():
+        for name, opt_config in sorted(optimizer_dict.items()):
 
             # sanity check: make sure loss file and name have same length
             if isinstance(opt_config['loss_file'], str):
@@ -853,7 +853,8 @@ class NNModel(object):
                     'y_unc_trafo': self.shared_objects['y_unc_trafo'],
                 }
                 result_msg = ''
-                for k, loss in self.shared_objects['label_loss_dict'].items():
+                for k, loss in sorted(
+                        self.shared_objects['label_loss_dict'].items()):
                     if k[:9] == 'loss_sum_':
                         eval_dict[k] = loss
                         result_msg += k + ': {' + k + ':2.3f} '
@@ -889,7 +890,8 @@ class NNModel(object):
                 print('\t[Validation] '+result_msg.format(**results_val))
 
                 # print info for each label
-                for name, index in self.data_handler.label_name_dict.items():
+                for name, index in sorted(
+                        self.data_handler.label_name_dict.items()):
                     if updated_weights[index] > 0:
 
                         unc_pull_train = np.std(
