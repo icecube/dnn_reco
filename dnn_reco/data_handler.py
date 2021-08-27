@@ -922,6 +922,9 @@ class DataHandler(object):
 
         self._mp_managers = []
 
+    def __del__(self):
+        self.kill()
+
     def _create_model(self, cfg, cfg_sel):
         """Helper function for biased selection. Creates a new DNN model in an
         independent graph
