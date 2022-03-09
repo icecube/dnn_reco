@@ -81,8 +81,11 @@ def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):
         ignore_columns.extend(['rel_pos_x', 'rel_pos_y', 'rel_pos_z'])
 
     if label_names is None:
-        label_names = [n for n in _labels.keys().tolist()
-                       if n not in ignore_columns]
+        if 'label_keys_to_load' in config:
+            name_list = config['label_keys_to_load']
+        else:
+            name_list = _labels.keys().tolist()
+        label_names = [n for n in name_list if n not in ignore_columns]
 
     labels = [_labels[name] for name in label_names
               if name not in ignore_columns]
