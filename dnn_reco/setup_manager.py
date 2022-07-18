@@ -7,6 +7,12 @@ import ruamel.yaml as yaml
 from dnn_reco import misc
 from dnn_reco import version_control
 
+# suppress natural naming warnings
+import warnings
+from tables import NaturalNameWarning
+
+warnings.filterwarnings('ignore', category=NaturalNameWarning)
+
 
 class SetupManager:
     """Setup Manager for DNN reco project
