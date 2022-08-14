@@ -7,7 +7,7 @@ Cgenerator_excluded_doms:
 - CalibrationErrata
 Cgenerator_model_names:
 - cascades_1000X_charge_bins_177_vertex_implicit_autoencoder_all_doms
-Cgenerator_models_dir: /mnt/lfs7/user/mhuennefeld/exported_models/cgenerator
+Cgenerator_models_dir: /data/user/mhuennefeld/exported_models/cgenerator
 Cgenerator_partial_exclusion: true
 Cgenerator_pulse_key: InIceDSTPulses
 DNN_cascade_key: cscd_classification_base_L5MonopodFit4
@@ -16,7 +16,7 @@ DNN_excluded_doms:
 - SaturationWindows
 - BadDomsList
 - CalibrationErrata
-DNN_models_dir: /mnt/lfs7/user/mhuennefeld/DNN_reco/models/exported_models
+DNN_models_dir: /data/user/mhuennefeld/DNN_reco/models/exported_models
 DNN_partial_exclusion: true
 DNN_reco_configs:
 - DNN_model_names:
@@ -309,9 +309,9 @@ pulse_time_binning:
 - 3000.0
 - inf
 pulse_time_quantiles: null
-python_user_base: /mnt/lfs7/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py2-v3.0.1
-python_user_base_cpu: /mnt/lfs7/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_cpu_py2-v3.0.1
-python_user_base_gpu: /mnt/lfs7/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py2-v3.0.1
+python_user_base: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py2-v3.0.1
+python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_cpu_py2-v3.0.1
+python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py2-v3.0.1
 relative_time_method: cascade_vertex
 resources:
   cpus: 1
@@ -319,7 +319,7 @@ resources:
   memory: 2gb
 runs_range: *id002
 scratchfile_pattern: DNN_{level}_{run_number:08d}
-script_folder: /mnt/lfs7/user/mhuennefeld/scripts/processing_scripts/processing
+script_folder: /data/user/mhuennefeld/scripts/processing_scripts/processing
 script_name: dnn_reco_create_data.py
 systematic_addition: _holeice_30_v4
 write_hdf5: true

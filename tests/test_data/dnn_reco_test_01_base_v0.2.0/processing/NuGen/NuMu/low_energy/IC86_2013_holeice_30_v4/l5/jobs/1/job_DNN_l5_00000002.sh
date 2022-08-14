@@ -16,7 +16,7 @@ WRITE_I3=False
 
 echo 'Loading py2-v3.0.1'
 eval `/cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/setup.sh`
-export PYTHONUSERBASE=/mnt/lfs7/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py2-v3.0.1
+export PYTHONUSERBASE=/data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py2-v3.0.1
 echo 'Using PYTHONUSERBASE: '${PYTHONUSERBASE}
 
 
@@ -27,9 +27,9 @@ export PYTHONPATH=$PYTHONUSERBASE/lib/python2.7/site-packages:$PYTHONPATH
 #-----------------------------------------------------------
 # Work-around for nodes which do not have correct paths set
 #-----------------------------------------------------------
-export CUDA_HOME=/mnt/lfs7/user/mhuennefeld/software/condor_cuda3/cuda-8.0;
-export PATH=$PATH:/mnt/lfs7/user/mhuennefeld/software/condor_cuda3/cuda-8.0/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/lfs7/user/mhuennefeld/software/condor_cuda3/cuda-8.0/lib64
+export CUDA_HOME=/data/user/mhuennefeld/software/condor_cuda3/cuda-8.0;
+export PATH=$PATH:/data/user/mhuennefeld/software/condor_cuda3/cuda-8.0/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/data/user/mhuennefeld/software/condor_cuda3/cuda-8.0/lib64
 
 # check if CUDA_HOME is set
 if [ -z ${CUDA_HOME+x} ]; then
@@ -44,7 +44,7 @@ echo $FINAL_OUT
 if [ -z ${PBS_JOBID} ] && [ -z ${_CONDOR_SCRATCH_DIR} ]
 then
     echo 'Running Script w/o temporary scratch'
-    /mnt/lfs7/user/mhuennefeld/scripts/processing_scripts/processing/scripts/dnn_reco_create_data.py /data/user/mhuennefeld/to_delete/unit_tests/dnn_reco_test_01_base/processing/NuGen/NuMu/low_energy/IC86_2013_holeice_30_v4/l5/dnn_reco_test_01_base.yaml_0002 2 --no-scratch
+    /data/user/mhuennefeld/scripts/processing_scripts/processing/scripts/dnn_reco_create_data.py /data/user/mhuennefeld/to_delete/unit_tests/dnn_reco_test_01_base/processing/NuGen/NuMu/low_energy/IC86_2013_holeice_30_v4/l5/dnn_reco_test_01_base.yaml_0002 2 --no-scratch
     ICETRAY_RC=$?
     echo 'IceTray finished with Exit Code: ' $ICETRAY_RC
     if [ $ICETRAY_RC -ne 0 ] && [ "$KEEP_CRASHED_FILES" = "False" ] ; then
@@ -60,7 +60,7 @@ else
     else
         cd ${_CONDOR_SCRATCH_DIR}
     fi
-    /mnt/lfs7/user/mhuennefeld/scripts/processing_scripts/processing/scripts/dnn_reco_create_data.py /data/user/mhuennefeld/to_delete/unit_tests/dnn_reco_test_01_base/processing/NuGen/NuMu/low_energy/IC86_2013_holeice_30_v4/l5/dnn_reco_test_01_base.yaml_0002 2 --scratch
+    /data/user/mhuennefeld/scripts/processing_scripts/processing/scripts/dnn_reco_create_data.py /data/user/mhuennefeld/to_delete/unit_tests/dnn_reco_test_01_base/processing/NuGen/NuMu/low_energy/IC86_2013_holeice_30_v4/l5/dnn_reco_test_01_base.yaml_0002 2 --scratch
     ICETRAY_RC=$?
     echo 'IceTray finished with Exit Code: ' $ICETRAY_RC
     if [ $ICETRAY_RC -eq 0 ] || [ $KEEP_CRASHED_FILES -eq 1 ]; then
