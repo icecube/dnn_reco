@@ -1,3 +1,7 @@
+| Documentation | DOI     |
+| :-----------: | :-----: |
+| [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://user-web.icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/) | [![DOI](https://zenodo.org/badge/144996337.svg)](https://zenodo.org/badge/latestdoi/144996337) |
+
 # dnn_reco
 IceCube DNN reconstruction
 
