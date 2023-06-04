@@ -1,0 +1,5 @@
+__version__ = "1.0.1"
+__author__ = "Mirco Huennefeld"
+__author_email__ = "mirco.huennefeld@tu-dortmund.de"
+__description__ = "IceCube DNN-reco"
+__url__ = "https://github.com/icecube/dnn_reco"

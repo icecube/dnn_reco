@@ -1,4 +1,1 @@
-"""Contains the package version number
-"""
-
-__version__ = '1.0.0-dev'
+from dnn_reco.__about__ import __version__, __description__, __url__
