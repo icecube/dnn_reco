@@ -434,7 +434,19 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         else:
             enforce_direction_norm = config['model_enforce_direction_norm']
 
-        if enforce_direction_norm:
+        if 'model_dir_z_independent' not in config:
+            # backward compatibility
+            model_dir_z_independent = False
+        else:
+            model_dir_z_independent = config['model_dir_z_independent']
+
+        if 'model_limit_dir_vec' not in config:
+            # backward compatibility
+            model_limit_dir_vec = None
+        else:
+            model_limit_dir_vec = config['model_limit_dir_vec']
+
+        if enforce_direction_norm or model_limit_dir_vec:
 
             index_dir_x = \
                 data_handler.get_label_index(config['label_dir_x_key'])
@@ -447,16 +459,41 @@ def general_model_IC86_opt4(is_training, config, data_handler,
             index_azimuth = \
                 data_handler.get_label_index(config['label_azimuth_key'])
 
+            # limit direction vector components to certain value range
+            if model_limit_dir_vec is not None:
+                y_pred_list[index_dir_x] = tf.math.tanh(
+                    y_pred_list[index_dir_x]) * model_limit_dir_vec
+                y_pred_list[index_dir_y] = tf.math.tanh(
+                    y_pred_list[index_dir_y]) * model_limit_dir_vec
+                y_pred_list[index_dir_z] = tf.math.tanh(
+                    y_pred_list[index_dir_z]) * model_limit_dir_vec
+
             trafo_indices = [index_dir_x, index_dir_y, index_dir_z,
                              index_azimuth, index_zenith]
 
-            norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
-                           y_pred_list[index_dir_y]**2 +
-                           y_pred_list[index_dir_z]**2)
+            if enforce_direction_norm:
+                if model_dir_z_independent:
+                    # since we are not normalizing the direction-z component
+                    # we need to ensure that the allowed value range is
+                    # within [-1, 1]. We'll leave a little bit of leeway
+                    # to allow for [-1.1, 1.1] due to asymptotic behavior
+                    # of tanh
+                    assert np.abs(model_limit_dir_vec - 1) < 0.1
+                    norm_xy = tf.math.sqrt(
+                        (y_pred_list[index_dir_x]**2 +
+                            y_pred_list[index_dir_y]**2) /
+                        (1 - tf.stop_gradient(y_pred_list[index_dir_z])**2)
+                    )
+                    y_pred_list[index_dir_x] /= norm_xy
+                    y_pred_list[index_dir_y] /= norm_xy
+                else:
+                    norm = tf.sqrt(y_pred_list[index_dir_x]**2 +
+                                   y_pred_list[index_dir_y]**2 +
+                                   y_pred_list[index_dir_z]**2)
 
-            y_pred_list[index_dir_x] /= norm
-            y_pred_list[index_dir_y] /= norm
-            y_pred_list[index_dir_z] /= norm
+                    y_pred_list[index_dir_x] /= norm
+                    y_pred_list[index_dir_y] /= norm
+                    y_pred_list[index_dir_z] /= norm
 
             # calculate zenith
             y_pred_list[index_zenith] = tf.acos(tf.clip_by_value(
@@ -470,7 +507,9 @@ def general_model_IC86_opt4(is_training, config, data_handler,
         else:
             trafo_indices = []
 
+        # -----------------------------------
         # limit PID variables to range 0 to 1
+        # -----------------------------------
 
         # safety check
         for k in data_handler.label_names:
