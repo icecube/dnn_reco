@@ -18,7 +18,7 @@ requires-python = ">=2.7"  # Note: unfortunately need python >=2.7
 dependencies = [
     'numpy', 'pandas', 'click', 'ruamel.yaml',
     'gitpython', 'tfscripts', 'h5py', 'tqdm',
-    'uncertainties', 'tables',
+    'uncertainties', 'tables', 'tensorflow',
 ]
 
 classifiers = [

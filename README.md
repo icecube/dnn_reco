@@ -1,6 +1,6 @@
-| Documentation | DOI     |
-| :-----------: | :-----: |
-| [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://user-web.icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/) | [![DOI](https://zenodo.org/badge/144996337.svg)](https://zenodo.org/badge/latestdoi/144996337) |
+| Testing | Coverage | Documentation | DOI     |
+| :-----: | :------: | :-----------: | :-----: |
+| [![Unit Tests](https://github.com/icecube/dnn_reco/actions/workflows/test_suite.yml/badge.svg)](https://github.com/icecube/dnn_reco/actions/workflows/test_suite.yml) | [![codecov](https://codecov.io/github/icecube/dnn_reco/graph/badge.svg?token=ZQ6K8V9F4U)](https://codecov.io/github/icecube/dnn_reco) | [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://user-web.icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/) | [![DOI](https://zenodo.org/badge/144996337.svg)](https://zenodo.org/badge/latestdoi/144996337) |
 
 # dnn_reco
 IceCube DNN reconstruction
