@@ -420,7 +420,7 @@ class DNN_LLH_Base(object):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given zenith/azimuth pairs.
+            The cumulative probability for the given zenith/azimuth pairs.
         """
         dir_x, dir_y, dir_z = self.get_dir_vec(zenith, azimuth)
         return self.cdf_dir(dir_x, dir_y, dir_z)
@@ -440,12 +440,12 @@ class DNN_LLH_Base(object):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given direction vectors.
+            The cumulative probability for the given direction vectors.
         """
         raise NotImplementedError
 
     def _get_level_indices(self, level=0.5, delta=0.01):
-        """Get indices of sampled diections, which belong to the specified
+        """Get indices of sampled directions, which belong to the specified
         contour as defined by: level +- delta.
 
         Parameters
@@ -824,7 +824,7 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given zenith/azimuth pairs.
+            The cumulative probability for the given zenith/azimuth pairs.
         """
         neg_llh = -self.log_prob(zenith, azimuth)
         pos = np.searchsorted(self.neg_llh_values, neg_llh)
@@ -846,12 +846,12 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given direction vectors.
+            The cumulative probability for the given direction vectors.
         """
         return self.cdf(*self.get_zenith_azimuth(dir_x, dir_y, dir_z))
 
     def _get_level_indices(self, level=0.5, delta=0.01):
-        """Get indices of sampled diections, which belong to the specified
+        """Get indices of sampled directions, which belong to the specified
         contour as defined by: level +- delta.
 
         Parameters

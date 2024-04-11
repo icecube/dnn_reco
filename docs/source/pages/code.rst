@@ -18,8 +18,8 @@ IceCube Detector Specifics
 .. automodule:: dnn_reco.detector
    :members:
 
-Miscellanous Module
-===================
+Miscellaneous Module
+====================
 .. automodule:: dnn_reco.misc
    :members:
 
@@ -51,8 +51,8 @@ Loss Functions
 .. automodule:: dnn_reco.modules.loss.utils.loss_utils
    :members:
 
-Evalution Functions
-===================
+Evaluation Functions
+====================
 .. automodule:: dnn_reco.modules.evaluation.default_evaluation
    :members:
 

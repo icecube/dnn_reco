@@ -18,7 +18,7 @@ def preprocess_icecube_data(is_training, shared_objects):
     is_training : bool
         True if model is in training mode, false if in inference mode.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
 
     Returns

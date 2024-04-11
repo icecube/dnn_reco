@@ -18,7 +18,7 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/new/Nu*/*_energy/*/l2/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/new/Nu*/*_energy/*/l2/01000-01999/*.hdf5',
 
-    # Manuels NuGen Spice3.2.1 (with coincident events)
+    # Manuel's NuGen Spice3.2.1 (with coincident events)
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0000000-0000999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0001000-0001999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0002000-0002999/*.hdf5',
@@ -30,7 +30,7 @@
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/new/Nu*/*_energy/*/l2/00000-00999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/new/Nu*/*_energy/*/l2/01000-01999/*.hdf5',
 
-    # Manuels NuGen Spice3.2.1 (with coincident events)
+    # Manuel's NuGen Spice3.2.1 (with coincident events)
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0000000-0000999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0001000-0001999/*.hdf5',
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0002000-0002999/*.hdf5',
@@ -39,13 +39,13 @@
   ]
 'validation_data_file' : [
 
-    # Manuels NuGen Spice3.2.1 (with coincident events)
+    # Manuel's NuGen Spice3.2.1 (with coincident events)
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0004000-0004999/*.hdf5',
 
   ]
 'test_data_file' : [
 
-    # Manuels NuGen Spice3.2.1 (with coincident events)
+    # Manuel's NuGen Spice3.2.1 (with coincident events)
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/egen_seed/NuGen/2121*/0004000-0004999/*.hdf5',
 
   ]
@@ -166,7 +166,7 @@
 # ----------------
 # Biased Selection
 # ----------------
-# Filter events based on the curent reconstruction performance on these
+# Filter events based on the current reconstruction performance on these
 # by defining key, value pairs and a biased fraction.
 # Events will be put in queues, such that biased_fraction of all events
 # passes one of the defined cuts.

@@ -11,7 +11,7 @@ All label functions must have the following parameters and return values:
     label_names : None, optional
         The names of the labels. This defines which labels to include as well
         as the ordering.
-        If label_names is None (e.g. first call to initate name list), then
+        If label_names is None (e.g. first call to initiate name list), then
         a list of label names needs to be created and returned.
     *args
         Variable length argument list.
@@ -171,7 +171,7 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
     else:
         distances = [-60.0, 0.0, 60, 300.0, float("inf")]
 
-    # make sure the provdied distances are allowed
+    # make sure the provided distances are allowed
     allowed_distances = [-60.0, 0.0, 60, 150.0, 300.0, float("inf")]
     assert np.all([d in allowed_distances for d in distances]), distances
 

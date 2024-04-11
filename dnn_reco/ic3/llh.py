@@ -700,7 +700,7 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given direction vectors.
+            The cumulative probability for the given direction vectors.
         """
         if not self.is_normalized(dir_x, dir_y, dir_z):
             print("cdf_dir is normalizing direction vectors")
@@ -714,7 +714,7 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         return cdf
 
     def _get_level_indices(self, level=0.5, delta=0.01):
-        """Get indices of sampled diections, which belong to the specified
+        """Get indices of sampled directions, which belong to the specified
         contour as defined by: level +- delta.
 
         Parameters
@@ -1047,7 +1047,7 @@ class DNN_LLH(DNN_LLH_Base):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given direction vectors.
+            The cumulative probability for the given direction vectors.
         """
         if not self.is_normalized(dir_x, dir_y, dir_z):
             print("cdf_dir is normalizing direction vectors")
@@ -1059,7 +1059,7 @@ class DNN_LLH(DNN_LLH_Base):
         return cdf
 
     def _get_level_indices(self, level=0.5, delta=0.001):
-        """Get indices of sampled diections, which belong to the specified
+        """Get indices of sampled directions, which belong to the specified
         contour as defined by: level +- delta.
 
         Parameters

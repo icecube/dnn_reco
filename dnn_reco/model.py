@@ -30,7 +30,7 @@ class NNModel(object):
     saver : tensorflow.train.Saver
         A tensorflow saver used to save and load model weights.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     """
 
@@ -75,7 +75,7 @@ class NNModel(object):
         # create tensorflow placeholders for input data
         self._setup_placeholders()
 
-        # initalize label weights and non zero mask
+        # initialize label weights and non zero mask
         self._intialize_label_weights()
 
         # build NN architecture
@@ -632,7 +632,7 @@ class NNModel(object):
         )
 
     def _initialize_and_finalize_model(self):
-        """Initalize and finalize model weights"""
+        """Initialize and finalize model weights"""
 
         # initialize variables
         self.sess.run(tf.compat.v1.global_variables_initializer())
@@ -879,7 +879,7 @@ class NNModel(object):
             train_result = self.sess.run(train_ops, feed_dict=feed_dict)
 
             # -------------------------------------
-            # calculate variabels for tukey scaling
+            # calculate variables for tukey scaling
             # -------------------------------------
             if self.config["label_scale_tukey"]:
                 batch_median_abs_dev = np.median(
@@ -899,7 +899,7 @@ class NNModel(object):
                 )
 
             # --------------------------------------------
-            # calculate online variabels for label weights
+            # calculate online variables for label weights
             # --------------------------------------------
             if self.config["label_update_weights"]:
                 mse_values_trafo = train_result["mse_values_trafo"]
@@ -1151,7 +1151,7 @@ class NNModel(object):
         Parameters
         ----------
         var_list : list of tf.Tensors, optional
-            A list of tensorflow tensors for which to calculate the nubmer of
+            A list of tensorflow tensors for which to calculate the number of
             trainable parameters. If None, then all trainable parameters
             available will be counted.
 

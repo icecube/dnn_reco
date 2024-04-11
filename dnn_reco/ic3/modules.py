@@ -23,7 +23,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
     ----------
     batch_size : int, optional
         The number of events to accumulate and pass through the network in
-        parallel. A higher batch size than 1 can usually improve recontruction
+        parallel. A higher batch size than 1 can usually improve reconstruction
         runtime, but will also increase the memory footprint.
     config : dict
         Dictionary with configuration settings
@@ -94,11 +94,11 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._output_key = self.GetParameter("OutputBaseName")
         self._measure_time = self.GetParameter("MeasureTime")
         self._parallelism_threads = self.GetParameter("ParallelismThreads")
-        self._ingore_list = self.GetParameter(
+        self._ignore_list = self.GetParameter(
             "IgnoreMisconfiguredSettingsList"
         )
-        if self._ingore_list is None:
-            self._ingore_list = []
+        if self._ignore_list is None:
+            self._ignore_list = []
 
         # read in and combine config files and set up
         training_files = glob.glob(
@@ -176,10 +176,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 continue
 
             if not self._container.config[k] == data_config[k]:
-                if k in self._ingore_list:
+                if k in self._ignore_list:
                     msg = "Warning: parameter {!r} is set to {!r} which "
                     msg += "differs from the model [{!r}] default value {!r}. "
-                    msg += "This mismatch will be ingored since the parameter "
+                    msg += "This mismatch will be ignored since the parameter "
                     msg += "is in the IgnoreMisconfiguredSettingsList. "
                     msg += "Make sure this is what you intend to do!"
                     logging.warning(
@@ -273,7 +273,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 sess=sess,
             )
 
-            # compile model: initalize and finalize graph
+            # compile model: initialize and finalize graph
             self.model.compile()
 
             # restore model weights

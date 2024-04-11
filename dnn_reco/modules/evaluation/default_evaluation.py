@@ -24,7 +24,7 @@ All defined evaluation functions must have the following signature:
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -75,7 +75,7 @@ def eval_direction(
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -178,7 +178,7 @@ def eval_direction(
             )
         )
 
-        # Test weighted corection: [very much beta version]
+        # Test weighted correction: [very much beta version]
         def get_weighted_normed_dir_vector(
             dir_x, dir_y, dir_z, dir_x_unc, dir_y_unc, dir_z_unc
         ):

@@ -11,7 +11,7 @@ All label functions must have the following parameters and return values:
     label_names : None, optional
         The names of the labels. This defines which labels to include as well
         as the ordering.
-        If label_names is None (e.g. first call to initate name list), then
+        If label_names is None (e.g. first call to initiate name list), then
         a list of label names needs to be created and returned.
     *args
         Variable length argument list.

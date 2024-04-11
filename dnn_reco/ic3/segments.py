@@ -74,7 +74,7 @@ def ApplyDNNRecos(
         If True, the run-time will be measured.
     batch_size : int, optional
         The number of events to accumulate and pass through the network in
-        parallel. A higher batch size than 1 can usually improve recontruction
+        parallel. A higher batch size than 1 can usually improve reconstruction
         runtime, but will also increase the memory footprint.
     num_cpus : int, optional
         Number of CPU cores to use if CPUs are used instead of a GPU.

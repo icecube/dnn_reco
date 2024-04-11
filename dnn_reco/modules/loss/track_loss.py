@@ -12,7 +12,7 @@ All defined models must have the following signature:
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -55,7 +55,7 @@ def track_pos_mse(
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -114,7 +114,7 @@ def track_pos_mse(
     # scalar product s = a*d, s is distance to closest point on infinite track
     s = a1 * dir_x_true + a2 * dir_y_true + a3 * dir_z_true
 
-    # caculate r = s*d -a = (p + s*d) - x
+    # calculate r = s*d -a = (p + s*d) - x
     r1 = s * dir_x_true - a1
     r2 = s * dir_y_true - a2
     r3 = s * dir_z_true - a3
@@ -209,7 +209,7 @@ def track_pos_gaussian(
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -268,7 +268,7 @@ def track_pos_gaussian(
     # scalar product s = a*d, s is distance to closest point on infinite track
     s = a1 * dir_x_true + a2 * dir_y_true + a3 * dir_z_true
 
-    # caculate r = s*d -a = (p + s*d) - x
+    # calculate r = s*d -a = (p + s*d) - x
     r1 = s * dir_x_true - a1
     r2 = s * dir_y_true - a2
     r3 = s * dir_z_true - a3

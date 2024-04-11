@@ -32,7 +32,7 @@ If run on a CPU, the number of CPUs to run the model on may be passed
 via ``num_cpus``.
 Especially if on a GPU, it is advisable to run the |dnn_reco| on batches of
 events at a time. This can be controlled via ``batch_size`` which defines the
-number of events to reconstruct simulatenously.
+number of events to reconstruct simulateneously.
 The best settings depend on the hardware setup.
 A good staring point could be 32 or 64.
 

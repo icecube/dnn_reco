@@ -37,7 +37,7 @@ class DataHandler(object):
     misc_data_exists : bool
         If true, misc data exists and is != None.
     misc_names : list of str
-        Names of misc names. If no misc data exists, this is an emtpy list.
+        Names of misc names. If no misc data exists, this is an empty list.
     misc_shape : list of int
         Shape of misc data without batch dimension.
     num_bins : int
@@ -243,7 +243,7 @@ class DataHandler(object):
             Entries with nan values will be replaced by this value.
             If None, no replacement will be performed.
         init_values : float, optional
-            The x_ic78 array will be initalized with these values via:
+            The x_ic78 array will be initialized with these values via:
             np.zeros_like(x_ic78) * np.array(init_values)
         verbose : bool, optional
             Print out additional information on runtimes for loading and
@@ -521,7 +521,7 @@ class DataHandler(object):
 
             2) Another worker aggregates the events of several files
                (number of files defined by 'num_add_files') together
-               by dequeing elements from the 'data_batch_queue'.
+               by dequeuing elements from the 'data_batch_queue'.
                It then creates batches from these events
                (randomly if sample_randomly == True ).
                These batches are then put onto the 'final_batch_queue'.
@@ -559,16 +559,16 @@ class DataHandler(object):
             of size 'batch_size'. This queue is what is used to obtain the
             final batches, which the generator yields.
         num_jobs : int, optional
-            Number of jobs to run in parrallel to load and process input files.
+            Number of jobs to run in parallel to load and process input files.
         num_add_files : int, optional
-            Defines how many files are additionaly loaded at once.
+            Defines how many files are additionally loaded at once.
             Batches will be generated among events of these
             (1 + num_add_files) files
         num_repetitions : int, optional
             Number of times the events in a loaded file are to be used, before
             new files are loaded.
         init_values : float, optional
-            The x_ic78 array will be initalized with these values via:
+            The x_ic78 array will be initialized with these values via:
             np.zeros_like(x_ic78) * np.array(init_values)
         num_splits : int, optional
             If num_splits is given, the loaded file will be divided into
@@ -1067,7 +1067,7 @@ class DataHandler(object):
                 sess=sess,
             )
 
-            # compile model: initalize and finalize graph
+            # compile model: initialize and finalize graph
             model.compile()
 
             # restore model weights

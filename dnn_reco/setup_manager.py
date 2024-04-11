@@ -58,7 +58,7 @@ class SetupManager:
             The shape of the DOM response tensor excluding the batch dimension.
             E.g.: [x_dim, y_dim, z_dim, num_bins]
         DOM_init_values: float or array-like
-            The x_ic78 and deepcore array will be initalized with these
+            The x_ic78 and deepcore array will be initialized with these
             values via:
             np.zeros_like(x_ic78) * np.array(init_values)
         batch_size : int
@@ -111,7 +111,7 @@ class SetupManager:
                       specified by the 'trafo_data' key.
         trafo_save_model : bool
             If true, the transformation model will be saved to the file
-                     specfied by the 'trafo_model_path' key.
+                     specified by the 'trafo_model_path' key.
                      Note: This will overwrite the file!
         trafo_normalize : bool
             If true, data will be normalized to have a mean of 0 and a variance
@@ -172,7 +172,7 @@ class SetupManager:
     config : dictionary
         Dictionary with defined settings.
     shared_objects : dictionary
-        Dictionary with additional objects that are availabe in all modules.
+        Dictionary with additional objects that are available in all modules.
         Keys:
             'data_transformer' : DataTransformer object used to transform data.
             'keep_prob_list' : Tensorflow placeholders for keep probabilities

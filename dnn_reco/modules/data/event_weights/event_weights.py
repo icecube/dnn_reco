@@ -12,7 +12,7 @@ All event weighting functions must have the following signature:
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -47,7 +47,7 @@ def event_selection_weight(
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -106,7 +106,7 @@ def clipped_astroness_weights(
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.

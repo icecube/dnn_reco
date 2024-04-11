@@ -10,14 +10,14 @@ Create Training Data
 ********************
 
 To create the training data we will use the tray
-segment ``ic3_data.segements.CreateDNNData`` from the |ic3_data| project
+segment ``ic3_data.segments.CreateDNNData`` from the |ic3_data| project
 and for the labels we will use ``ic3_labels.labels.modules.MCLabelsCascades``
 from the |ic3_labels| repository.
 You are free to include these modules in your processing set up of choice.
 Here we will use
 `these processing scripts <https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/sandbox/mhuennefeld/processing_scripts>`_.
 
-The tray segment ``ic3_data.segements.CreateDNNData`` can write out different
+The tray segment ``ic3_data.segments.CreateDNNData`` can write out different
 types of input data.
 Options include (more available):
 
@@ -29,7 +29,7 @@ Options include (more available):
 
 If your application needs different input data, you can easily add a function
 in ``ic3_data.data_formats``.
-The 'DataFormat' key of the tray segment ``ic3_data.segements.CreateDNNData``
+The 'DataFormat' key of the tray segment ``ic3_data.segments.CreateDNNData``
 defines which function in ``ic3_data.data_formats`` will be used
 to create the input data.
 The only requirement is that the input data must be a vector of length n for
@@ -155,7 +155,7 @@ Create the job files via:
     # create job files (--help for more options)
     python create_job_files.py configs/tutorial_dnn_reco/getting_started/create_training_data_01_py3-v4.1.1.yaml -d $DNN_HOME/training_data/
 
-This will write the exectuable job files and the configuration file that was used
+This will write the executable job files and the configuration file that was used
 to the directory ``$DNN_HOME/training_data/processing``.
 The output files will be written to ``$DNN_HOME/training_data/datasets``.
 You may also write DAGMan files if you pass the option ``--dagman``.

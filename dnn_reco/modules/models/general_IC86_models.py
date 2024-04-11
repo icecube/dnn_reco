@@ -14,7 +14,7 @@ All defined models must have the following signature:
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -74,7 +74,7 @@ def general_model_IC86(
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.
@@ -357,7 +357,7 @@ def general_model_IC86_opt4(
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     *args
         Variable length argument list.

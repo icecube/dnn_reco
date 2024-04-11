@@ -26,7 +26,9 @@ repos:
     rev: v2.2.6
     hooks:
       - id: codespell
-        args: [-L, livetime]
+        args: [--toml, pyproject.toml]
+        additional_dependencies:
+          - tomli
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:

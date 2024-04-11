@@ -71,7 +71,7 @@ directories to find packages before it looks inside the virtual environment.
 We want to avoid this and enforce that packages from our virtual environment
 are used first. To do this we need to prepend the path to our virtual
 environment in the ``$PYTHONPATH``. Since we don't want to do this manually
-everytime we load the environment, we can add this to the ``activate`` shell
+every time we load the environment, we can add this to the ``activate`` shell
 script that starts the virtual environment.
 We will need to add the following to the ``deactivate ()`` function
 
@@ -111,7 +111,7 @@ pip is being used, you can execute the following.
 .. code-block:: bash
 
     # make sure that your virtualenv is activated
-    # you can check this by exectuting
+    # you can check this by executing
     which pip
     # It should point to:
     echo ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/pip

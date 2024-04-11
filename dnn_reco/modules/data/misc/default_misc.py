@@ -11,7 +11,7 @@ All misc functions must have the following parameters and return values:
     misc_names : None, optional
         The names of the misc variables. This defines which variables to
         include as well as the ordering.
-        If misc_names is None (e.g. first call to initate name list), then
+        If misc_names is None (e.g. first call to initiate name list), then
         a list of misc names needs to be created and returned.
     *args
         Variable length argument list.
@@ -47,7 +47,7 @@ def dummy_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
     misc_names : None, optional
         The names of the misc variables. This defines which variables to
         include as well as the ordering.
-        If misc_names is None (e.g. first call to initate name list), then
+        If misc_names is None (e.g. first call to initiate name list), then
         a list of misc names needs to be created and returned.
     *args
         Variable length argument list.
@@ -78,7 +78,7 @@ def general_misc_loader(input_data, config, misc_names=None, *args, **kwargs):
     misc_names : None, optional
         The names of the misc variables. This defines which variables to
         include as well as the ordering.
-        If misc_names is None (e.g. first call to initate name list), then
+        If misc_names is None (e.g. first call to initiate name list), then
         a list of misc names needs to be created and returned.
     *args
         Variable length argument list.

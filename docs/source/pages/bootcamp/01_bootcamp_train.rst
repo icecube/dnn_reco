@@ -96,7 +96,7 @@ We are going to highlight a few options in the following:
     Path to which the transformation model will be saved.
 
 ``trafo_normalize_dom_data``/ ``trafo_normalize_label_data``/ ``trafo_normalize_misc_data``:
-    If true, the input data per DOM, labels, and miscellanous data will be
+    If true, the input data per DOM, labels, and miscellaneous data will be
     normalized to have a mean of zero and a standard deviation of one.
 
 ``trafo_log_dom_bins``:
@@ -130,7 +130,7 @@ because the mean and standard deviation depend on the data.
     # create the transformation Model
     python create_trafo_model.py $CONFIG_DIR/getting_started.yaml
 
-Upon succesful completion this should print:
+Upon successful completion this should print:
 
 .. code-block:: php
 
@@ -197,7 +197,7 @@ For now we will use a simple Mean Squared Error (MSE) for the prediction and
 uncertainty estimate.
 The structure of the setting ``model_optimizer_dict`` is a bit complicated,
 but it is very powerful.
-We can define as many optimizers with as many loss funtions as we like.
+We can define as many optimizers with as many loss functions as we like.
 A few basic loss functions are already implemented in
 ``dnn_reco.modules.loss``.
 You are free to add your custom loss functions by adding a file/function in
@@ -231,7 +231,7 @@ This means that you do not have to keep track yourself.
 Moreover, the currently installed python packages and
 the git revision is logged.
 This information will be exported together with the model, to ensure
-reproducability.
+reproducibility.
 The keys ``model_checkpoint_path`` and ``log_path`` define where the model
 checkpoints and the tensorboard log files will be saved to.
 The ``model_checkpoint_path`` also defines the path from which the weights of
@@ -251,5 +251,5 @@ each of your models.
     Therefore you can easily swap out modules and create custom ones.
     We have briefly touched the option to create your own neural network
     architecture here as well as the option to add custom loss functions.
-    More information on the exchangable modules is provided in
+    More information on the exchangeable modules is provided in
     :ref:`Code Documentation`.

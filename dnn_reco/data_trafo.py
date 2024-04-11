@@ -68,7 +68,7 @@ class DataTransformer:
             The natural logarithm is applied to the misc data bins prior
             to normalization.
             If a list is given, the length of the list must match the number of
-            misc variabels misc_shape[-1]. The logarithm is applied to bin i
+            misc variables misc_shape[-1]. The logarithm is applied to bin i
             if the ith entry of the log_misc_bins list is True.
             If a dictionary is provided, a list of length label_shape[-1] will
             be initialized with False and only the values of the labels as
@@ -200,7 +200,7 @@ class DataTransformer:
         Parameters
         ----------
         log_bins : list of bool
-            Defines whether the natural logarithm is appllied to bins along
+            Defines whether the natural logarithm is applied to bins along
             last axis. Must have same length as data_batch.shape[-1].
         data_batch : numpy ndarray
             A batch of data for which to update the variance variables of the
@@ -308,7 +308,7 @@ class DataTransformer:
         # combine DOM data over all DOMs if desired
         if self.trafo_model["treat_doms_equally"]:
 
-            # initalize with zeros
+            # initialize with zeros
             self.trafo_model["ic78_mean"] = np.zeros(self._ic78_shape)
             self.trafo_model["ic78_std"] = np.zeros(self._ic78_shape)
 
@@ -425,7 +425,7 @@ class DataTransformer:
         ------
         ValueError
             If DataTransformer object has not created or loaded a trafo model.
-            If provided data_type is unkown.
+            If provided data_type is unknown.
         """
         dtype = data.dtype
         data_type = data_type.lower()
@@ -506,7 +506,7 @@ class DataTransformer:
         ----------------
         ValueError
             If DataTransformer object has not created or loaded a trafo model.
-            If provided data_type is unkown.
+            If provided data_type is unknown.
         """
         data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = (
             self._check_settings(data, data_type)
@@ -570,14 +570,14 @@ class DataTransformer:
         Returns
         -------
         type(data)
-            Returns the inverse transformed DOM respones and
+            Returns the inverse transformed DOM responses and
             cascade_parameters.
 
         No Longer Raises
         ----------------
         ValueError
             If DataTransformer object has not created or loaded a trafo model.
-            If provided data_type is unkown.
+            If provided data_type is unknown.
         """
         data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = (
             self._check_settings(data, data_type)

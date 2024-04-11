@@ -78,10 +78,10 @@ for dir_test in test_dirs:
                         rtol=5e-4,
                     ):
                         if key == "LabelsDeepLearning":
-                            warning("\t\tWarning: mis-match for {}".format(k))
+                            warning("\t\tWarning: mismatch for {}".format(k))
                             got_warning = True
                         else:
-                            error("\t\tError: mis-match for {}".format(k))
+                            error("\t\tError: mismatch for {}".format(k))
                             passed_test = False
                         print(
                             "\t\t",

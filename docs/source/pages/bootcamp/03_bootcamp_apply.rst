@@ -107,7 +107,7 @@ following:
             model_names = [str(model_names)]
         output_names = ["DeepLearningReco_{}".format(m) for m in model_names]
 
-        # Make sure DNN reco will be writen to hdf5 file
+        # Make sure DNN reco will be written to hdf5 file
         for outbox in output_names:
             if outbox not in HDF_keys:
                 HDF_keys.append(outbox)

@@ -10,7 +10,7 @@ from dnn_reco import misc
 
 
 def add_logging_info(data_handler, shared_objects):
-    """Add some TensorBoard logging infor for the labels.
+    """Add some TensorBoard logging info for the labels.
 
     Adds Tf.summary.scalars of the RMSE for each label.
 
@@ -20,7 +20,7 @@ def add_logging_info(data_handler, shared_objects):
         An instance of the DataHandler class. The object is used to obtain
         meta data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
     """
 
@@ -32,7 +32,7 @@ def add_logging_info(data_handler, shared_objects):
         mse_values = tf.reduce_mean(input_tensor=tf.square(y_diff), axis=0)
         rmse_values = tf.sqrt(mse_values)
 
-        # calcuate RMSE of transformed values
+        # calculate RMSE of transformed values
         y_diff_trafo = (
             shared_objects["y_pred_trafo"] - shared_objects["y_true_trafo"]
         )
@@ -136,7 +136,7 @@ def get_y_diff_trafo(config, data_handler, data_transformer, shared_objects):
         An instance of the DataTransformer class. The object is used to
         transform data.
     shared_objects : dict
-        A dictionary containg settings and objects that are shared and passed
+        A dictionary containing settings and objects that are shared and passed
         on to sub modules.
 
     Returns

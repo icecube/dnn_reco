@@ -81,5 +81,8 @@ lint.ignore = [
 line-length = 79
 target-version = "py38"
 
+[tool.codespell]
+ignore-words-list = "hese,mese,livetime"
+
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
