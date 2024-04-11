@@ -23,10 +23,10 @@ def get_angle_deviation(azimuth1, zenith1, azimuth2, zenith2):
         The opening angle in rad between the vector 1 and 2.
         Same shape as input vectors.
     """
-    cos_dist = (np.cos(azimuth1 - azimuth2) *
-                np.sin(zenith1) * np.sin(zenith2) +
-                np.cos(zenith1) * np.cos(zenith2))
-    cos_dist = np.clip(cos_dist, -1., 1.)
+    cos_dist = np.cos(azimuth1 - azimuth2) * np.sin(zenith1) * np.sin(
+        zenith2
+    ) + np.cos(zenith1) * np.cos(zenith2)
+    cos_dist = np.clip(cos_dist, -1.0, 1.0)
     return np.arccos(cos_dist)
 
 
@@ -50,10 +50,10 @@ def tf_get_angle_deviation(azimuth1, zenith1, azimuth2, zenith2):
         The opening angle in rad between the vector 1 and 2.
         Same shape as input vectors.
     """
-    cos_dist = (tf.cos(azimuth1 - azimuth2) *
-                tf.sin(zenith1) * tf.sin(zenith2) +
-                tf.cos(zenith1) * tf.cos(zenith2))
-    cos_dist = tf.clip_by_value(cos_dist, -1., 1.)
+    cos_dist = tf.cos(azimuth1 - azimuth2) * tf.sin(zenith1) * tf.sin(
+        zenith2
+    ) + tf.cos(zenith1) * tf.cos(zenith2)
+    cos_dist = tf.clip_by_value(cos_dist, -1.0, 1.0)
     return tf.acos(cos_dist)
 
 
@@ -84,10 +84,12 @@ def get_angle(vec1, vec2, dtype=np.float64):
     vec1 = np.array(vec1, dtype=dtype)
     vec2 = np.array(vec2, dtype=dtype)
 
-    assert vec1.shape[-1] == 3, \
-        "Expect shape [?,3] or [3], but got {}".format(vec1.shape)
-    assert vec2.shape[-1] == 3, \
-        "Expect shape [?,3] or [3], but got {}".format(vec2.shape)
+    assert vec1.shape[-1] == 3, "Expect shape [?,3] or [3], but got {}".format(
+        vec1.shape
+    )
+    assert vec2.shape[-1] == 3, "Expect shape [?,3] or [3], but got {}".format(
+        vec2.shape
+    )
 
     norm1 = np.linalg.norm(vec1, axis=-1, keepdims=True)
     norm2 = np.linalg.norm(vec2, axis=-1, keepdims=True)
@@ -97,6 +99,6 @@ def get_angle(vec1, vec2, dtype=np.float64):
     tmp3 = np.linalg.norm(tmp1 - tmp2, axis=-1)
     tmp4 = np.linalg.norm(tmp1 + tmp2, axis=-1)
 
-    theta = 2*np.arctan2(tmp3, tmp4)
+    theta = 2 * np.arctan2(tmp3, tmp4)
 
     return theta

@@ -30,6 +30,3 @@ rsync -avP madisonData:/data/user/mhuennefeld/to_delete/unit_tests/dnn_reco_test
 
 # run test
 python test.py
-
-
-

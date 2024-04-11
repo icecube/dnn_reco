@@ -18,17 +18,18 @@ from dnn_reco.data_trafo import DataTransformer
 def count_num_events(data):
     input_data, config = data
     try:
-        with pd.HDFStore(input_data,  mode='r') as f:
-            time_offset = f[config['data_handler_time_offset_name']]['value']
+        with pd.HDFStore(input_data, mode="r") as f:
+            time_offset = f[config["data_handler_time_offset_name"]]["value"]
         return len(time_offset)
     except KeyError:
         return 0
 
 
 @click.command()
-@click.argument('config_files', type=click.Path(exists=True), nargs=-1)
-@click.option('--n_jobs', '-j',
-              default=1, help='Number of jobs to run in parallel.')
+@click.argument("config_files", type=click.Path(exists=True), nargs=-1)
+@click.option(
+    "--n_jobs", "-j", default=1, help="Number of jobs to run in parallel."
+)
 def main(config_files, n_jobs):
     """Script to count number of events.
 
@@ -44,12 +45,16 @@ def main(config_files, n_jobs):
     setup_manager = SetupManager(config_files)
     config = setup_manager.get_config()
 
-    names = ['test_data_file', 'validation_data_file',
-             'training_data_file', 'trafo_data_file']
+    names = [
+        "test_data_file",
+        "validation_data_file",
+        "training_data_file",
+        "trafo_data_file",
+    ]
     num_events_list = []
     for name in names:
         # get files
-        print('Creating file list for {!r}'.format(name))
+        print("Creating file list for {!r}".format(name))
         input_data = config[name]
         if isinstance(input_data, list):
             input_data = set(input_data)
@@ -60,25 +65,30 @@ def main(config_files, n_jobs):
             file_list = glob.glob(input_data)
         file_list = set(file_list)
 
-        print('Starting counting')
+        print("Starting counting")
         pool = Pool(processes=n_jobs)
         num_files = len(file_list)
         num_events = 0
         with tqdm(total=num_files) as pbar:
-            for i, n in tqdm(enumerate(pool.imap_unordered(
-                            count_num_events, [(f, config) for f in file_list]))):
+            for i, n in tqdm(
+                enumerate(
+                    pool.imap_unordered(
+                        count_num_events, [(f, config) for f in file_list]
+                    )
+                )
+            ):
                 pbar.update()
                 num_events += n
 
         num_events_list.append(num_events)
-        print('Found {!r} events for {!r}\n'.format(num_events, name))
+        print("Found {!r} events for {!r}\n".format(num_events, name))
 
-    print('\n===============================')
-    print('= Completed Counting Events:  =')
-    print('===============================')
+    print("\n===============================")
+    print("= Completed Counting Events:  =")
+    print("===============================")
     for num_events, name in zip(num_events_list, names):
-        print('Found {!r} events for {!r}'.format(num_events, name))
+        print("Found {!r} events for {!r}".format(num_events, name))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -253,4 +253,3 @@ each of your models.
     architecture here as well as the option to add custom loss functions.
     More information on the exchangable modules is provided in
     :ref:`Code Documentation`.
-

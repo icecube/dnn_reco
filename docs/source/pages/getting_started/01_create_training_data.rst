@@ -62,11 +62,14 @@ The settings we will use to achieve this are:
 
     from ic3_data.segments import CreateDNNData
 
-    tray.AddSegment(CreateDNNData, 'CreateDNNData',
-                    NumDataBins=9,
-                    RelativeTimeMethod='time_range',
-                    DataFormat='pulse_summmary_clipped',
-                    PulseKey='InIceDSTPulses')
+    tray.AddSegment(
+        CreateDNNData,
+        "CreateDNNData",
+        NumDataBins=9,
+        RelativeTimeMethod="time_range",
+        DataFormat="pulse_summmary_clipped",
+        PulseKey="InIceDSTPulses",
+    )
 
 To be able to train our neural network, we must also define labels.
 In this tutorial we will use:
@@ -75,11 +78,14 @@ In this tutorial we will use:
 
     from ic3_labels.labels.modules import MCLabelsCascades
 
-    tray.AddModule(MCLabelsCascades, 'MCLabelsCascades',
-                   PulseMapString='InIceDSTPulses',
-                   PrimaryKey='MCPrimary',
-                   ExtendBoundary=0.,
-                   OutputKey='LabelsDeepLearning')
+    tray.AddModule(
+        MCLabelsCascades,
+        "MCLabelsCascades",
+        PulseMapString="InIceDSTPulses",
+        PrimaryKey="MCPrimary",
+        ExtendBoundary=0.0,
+        OutputKey="LabelsDeepLearning",
+    )
 
 This will create a number of different labels and
 write them to an I3MapStringDouble.
@@ -105,14 +111,19 @@ Now we are ready to save the training data to hdf5 files:
 
     from icecube import hdfwriter
 
-    tray.AddSegment(hdfwriter.I3HDFWriter, 'hdf',
-                    Output='name_of_output_file.hdf5',
-                    CompressionLevel=9,
-                    Keys=['dnn_data_bin_values',
-                          'dnn_data_bin_indices',
-                          'dnn_data_global_time_offset',
-                          'LabelsDeepLearning'],
-                    SubEventStreams=['InIceSplit'])
+    tray.AddSegment(
+        hdfwriter.I3HDFWriter,
+        "hdf",
+        Output="name_of_output_file.hdf5",
+        CompressionLevel=9,
+        Keys=[
+            "dnn_data_bin_values",
+            "dnn_data_bin_indices",
+            "dnn_data_global_time_offset",
+            "LabelsDeepLearning",
+        ],
+        SubEventStreams=["InIceSplit"],
+    )
 
 We can now put these modules together in a script and process the dataset 11883.
 To facilitate this process, we will use the mentioned `processing scripts <https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/sandbox/mhuennefeld/processing_scripts>`_, in which this is already done.
@@ -174,4 +185,3 @@ To test the rest of the tutorial, it is enough to process one file
 from the training and validation set.
 However, the network will overfit on the training data which then only consists
 of about 700 events.
-

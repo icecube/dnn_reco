@@ -36,8 +36,9 @@ All defined models must have the following signature:
 """
 
 
-def track_pos_mse(config, data_handler, data_transformer, shared_objects,
-                  *args, **kwargs):
+def track_pos_mse(
+    config, data_handler, data_transformer, shared_objects, *args, **kwargs
+):
     """The MSE of the 4-vector distance of the predicted vertex (x, y, z, t)
     and the infinite track given by the true direction.
 
@@ -70,37 +71,41 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
         Shape: label_shape (same shape as labels)
 
     """
-    index_dir_x = data_handler.get_label_index(config['label_dir_x_key'])
-    index_dir_y = data_handler.get_label_index(config['label_dir_y_key'])
-    index_dir_z = data_handler.get_label_index(config['label_dir_z_key'])
+    index_dir_x = data_handler.get_label_index(config["label_dir_x_key"])
+    index_dir_y = data_handler.get_label_index(config["label_dir_y_key"])
+    index_dir_z = data_handler.get_label_index(config["label_dir_z_key"])
 
     index_pos_x = data_handler.get_label_index(
-        config['label_particle_keys']['pos_x'])
+        config["label_particle_keys"]["pos_x"]
+    )
     index_pos_y = data_handler.get_label_index(
-        config['label_particle_keys']['pos_y'])
+        config["label_particle_keys"]["pos_y"]
+    )
     index_pos_z = data_handler.get_label_index(
-        config['label_particle_keys']['pos_z'])
+        config["label_particle_keys"]["pos_z"]
+    )
     index_time = data_handler.get_label_index(
-        config['label_particle_keys']['time'])
+        config["label_particle_keys"]["time"]
+    )
 
-    dir_x_true = shared_objects['y_true'][:, index_dir_x]
-    dir_y_true = shared_objects['y_true'][:, index_dir_y]
-    dir_z_true = shared_objects['y_true'][:, index_dir_z]
+    dir_x_true = shared_objects["y_true"][:, index_dir_x]
+    dir_y_true = shared_objects["y_true"][:, index_dir_y]
+    dir_z_true = shared_objects["y_true"][:, index_dir_z]
 
-    x_true = shared_objects['y_true'][:, index_pos_x]
-    y_true = shared_objects['y_true'][:, index_pos_y]
-    z_true = shared_objects['y_true'][:, index_pos_z]
-    time_true = shared_objects['y_true'][:, index_time]
+    x_true = shared_objects["y_true"][:, index_pos_x]
+    y_true = shared_objects["y_true"][:, index_pos_y]
+    z_true = shared_objects["y_true"][:, index_pos_z]
+    time_true = shared_objects["y_true"][:, index_time]
 
-    x_pred = shared_objects['y_pred'][:, index_pos_x]
-    y_pred = shared_objects['y_pred'][:, index_pos_y]
-    z_pred = shared_objects['y_pred'][:, index_pos_z]
-    time_pred = shared_objects['y_pred'][:, index_time]
+    x_pred = shared_objects["y_pred"][:, index_pos_x]
+    y_pred = shared_objects["y_pred"][:, index_pos_y]
+    z_pred = shared_objects["y_pred"][:, index_pos_z]
+    time_pred = shared_objects["y_pred"][:, index_time]
 
-    x_unc = shared_objects['y_unc'][:, index_pos_x]
-    y_unc = shared_objects['y_unc'][:, index_pos_y]
-    z_unc = shared_objects['y_unc'][:, index_pos_z]
-    time_unc = shared_objects['y_unc'][:, index_time]
+    x_unc = shared_objects["y_unc"][:, index_pos_x]
+    y_unc = shared_objects["y_unc"][:, index_pos_y]
+    z_unc = shared_objects["y_unc"][:, index_pos_z]
+    time_unc = shared_objects["y_unc"][:, index_time]
 
     # x: predicted point, p: true point on track, d: true unit direction vector
     # calculate a = x - p
@@ -109,12 +114,12 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
     a3 = z_pred - z_true
 
     # scalar product s = a*d, s is distance to closest point on infinite track
-    s = a1*dir_x_true + a2*dir_y_true + a3*dir_z_true
+    s = a1 * dir_x_true + a2 * dir_y_true + a3 * dir_z_true
 
     # caculate r = s*d -a = (p + s*d) - x
-    r1 = s*dir_x_true - a1
-    r2 = s*dir_y_true - a2
-    r3 = s*dir_z_true - a3
+    r1 = s * dir_x_true - a1
+    r2 = s * dir_y_true - a2
+    r3 = s * dir_z_true - a3
 
     # calculate time diff [meter] at closest approach point on infinite track
     c = 0.299792458  # in m /ns
@@ -125,13 +130,33 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
     unc_diff_z = tf.stop_gradient(r3) - z_unc
     unc_diff_t = tf.stop_gradient(rt) - time_unc
 
-    if 'event_weights' in shared_objects:
-        weights = shared_objects['event_weights']
+    if "event_weights" in shared_objects:
+        weights = shared_objects["event_weights"]
         w_sum = tf.reduce_sum(input_tensor=weights, axis=0)
-        loss_x = tf.reduce_sum(input_tensor=(r1**2 + unc_diff_x**2) * weights, axis=0) / w_sum
-        loss_y = tf.reduce_sum(input_tensor=(r2**2 + unc_diff_y**2) * weights, axis=0) / w_sum
-        loss_z = tf.reduce_sum(input_tensor=(r3**2 + unc_diff_z**2) * weights, axis=0) / w_sum
-        loss_t = tf.reduce_sum(input_tensor=(rt**2 + unc_diff_t**2) * weights, axis=0) / w_sum
+        loss_x = (
+            tf.reduce_sum(
+                input_tensor=(r1**2 + unc_diff_x**2) * weights, axis=0
+            )
+            / w_sum
+        )
+        loss_y = (
+            tf.reduce_sum(
+                input_tensor=(r2**2 + unc_diff_y**2) * weights, axis=0
+            )
+            / w_sum
+        )
+        loss_z = (
+            tf.reduce_sum(
+                input_tensor=(r3**2 + unc_diff_z**2) * weights, axis=0
+            )
+            / w_sum
+        )
+        loss_t = (
+            tf.reduce_sum(
+                input_tensor=(rt**2 + unc_diff_t**2) * weights, axis=0
+            )
+            / w_sum
+        )
     else:
         loss_x = tf.reduce_mean(input_tensor=r1**2 + unc_diff_x**2, axis=0)
         loss_y = tf.reduce_mean(input_tensor=r2**2 + unc_diff_y**2, axis=0)
@@ -143,16 +168,16 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
     loss_all_list = []
     for label in data_handler.label_names:
 
-        if label == config['label_particle_keys']['pos_x']:
+        if label == config["label_particle_keys"]["pos_x"]:
             loss_all_list.append(loss_x)
 
-        elif label == config['label_particle_keys']['pos_y']:
+        elif label == config["label_particle_keys"]["pos_y"]:
             loss_all_list.append(loss_y)
 
-        elif label == config['label_particle_keys']['pos_z']:
+        elif label == config["label_particle_keys"]["pos_z"]:
             loss_all_list.append(loss_z)
 
-        elif label == config['label_particle_keys']['time']:
+        elif label == config["label_particle_keys"]["time"]:
             loss_all_list.append(loss_t)
 
         else:
@@ -165,8 +190,9 @@ def track_pos_mse(config, data_handler, data_transformer, shared_objects,
     return loss_all
 
 
-def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
-                       *args, **kwargs):
+def track_pos_gaussian(
+    config, data_handler, data_transformer, shared_objects, *args, **kwargs
+):
     """The Gaussian Likelihood loss of the 4-vector distance of the predicted
     vertex (x, y, z, t) and the infinite track given by the true direction.
 
@@ -199,37 +225,41 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
         Shape: label_shape (same shape as labels)
 
     """
-    index_dir_x = data_handler.get_label_index(config['label_dir_x_key'])
-    index_dir_y = data_handler.get_label_index(config['label_dir_y_key'])
-    index_dir_z = data_handler.get_label_index(config['label_dir_z_key'])
+    index_dir_x = data_handler.get_label_index(config["label_dir_x_key"])
+    index_dir_y = data_handler.get_label_index(config["label_dir_y_key"])
+    index_dir_z = data_handler.get_label_index(config["label_dir_z_key"])
 
     index_pos_x = data_handler.get_label_index(
-        config['label_particle_keys']['pos_x'])
+        config["label_particle_keys"]["pos_x"]
+    )
     index_pos_y = data_handler.get_label_index(
-        config['label_particle_keys']['pos_y'])
+        config["label_particle_keys"]["pos_y"]
+    )
     index_pos_z = data_handler.get_label_index(
-        config['label_particle_keys']['pos_z'])
+        config["label_particle_keys"]["pos_z"]
+    )
     index_time = data_handler.get_label_index(
-        config['label_particle_keys']['time'])
+        config["label_particle_keys"]["time"]
+    )
 
-    dir_x_true = shared_objects['y_true'][:, index_dir_x]
-    dir_y_true = shared_objects['y_true'][:, index_dir_y]
-    dir_z_true = shared_objects['y_true'][:, index_dir_z]
+    dir_x_true = shared_objects["y_true"][:, index_dir_x]
+    dir_y_true = shared_objects["y_true"][:, index_dir_y]
+    dir_z_true = shared_objects["y_true"][:, index_dir_z]
 
-    x_true = shared_objects['y_true'][:, index_pos_x]
-    y_true = shared_objects['y_true'][:, index_pos_y]
-    z_true = shared_objects['y_true'][:, index_pos_z]
-    time_true = shared_objects['y_true'][:, index_time]
+    x_true = shared_objects["y_true"][:, index_pos_x]
+    y_true = shared_objects["y_true"][:, index_pos_y]
+    z_true = shared_objects["y_true"][:, index_pos_z]
+    time_true = shared_objects["y_true"][:, index_time]
 
-    x_pred = shared_objects['y_pred'][:, index_pos_x]
-    y_pred = shared_objects['y_pred'][:, index_pos_y]
-    z_pred = shared_objects['y_pred'][:, index_pos_z]
-    time_pred = shared_objects['y_pred'][:, index_time]
+    x_pred = shared_objects["y_pred"][:, index_pos_x]
+    y_pred = shared_objects["y_pred"][:, index_pos_y]
+    z_pred = shared_objects["y_pred"][:, index_pos_z]
+    time_pred = shared_objects["y_pred"][:, index_time]
 
-    x_unc = shared_objects['y_unc'][:, index_pos_x]
-    y_unc = shared_objects['y_unc'][:, index_pos_y]
-    z_unc = shared_objects['y_unc'][:, index_pos_z]
-    time_unc = shared_objects['y_unc'][:, index_time]
+    x_unc = shared_objects["y_unc"][:, index_pos_x]
+    y_unc = shared_objects["y_unc"][:, index_pos_y]
+    z_unc = shared_objects["y_unc"][:, index_pos_z]
+    time_unc = shared_objects["y_unc"][:, index_time]
 
     # x: predicted point, p: true point on track, d: true unit direction vector
     # calculate a = x - p
@@ -238,24 +268,24 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
     a3 = z_pred - z_true
 
     # scalar product s = a*d, s is distance to closest point on infinite track
-    s = a1*dir_x_true + a2*dir_y_true + a3*dir_z_true
+    s = a1 * dir_x_true + a2 * dir_y_true + a3 * dir_z_true
 
     # caculate r = s*d -a = (p + s*d) - x
-    r1 = s*dir_x_true - a1
-    r2 = s*dir_y_true - a2
-    r3 = s*dir_z_true - a3
+    r1 = s * dir_x_true - a1
+    r2 = s * dir_y_true - a2
+    r3 = s * dir_z_true - a3
 
     # calculate time diff [meter] at closest approach point on infinite track
     c = 0.299792458  # in m /ns
     rt = (time_true + (s / c) - time_pred) * c
 
-    gl_x = 2*tf.math.log(x_unc) + (r1 / x_unc)**2
-    gl_y = 2*tf.math.log(y_unc) + (r2 / y_unc)**2
-    gl_z = 2*tf.math.log(z_unc) + (r3 / z_unc)**2
-    gl_t = 2*tf.math.log(time_unc) + (rt / time_unc)**2
+    gl_x = 2 * tf.math.log(x_unc) + (r1 / x_unc) ** 2
+    gl_y = 2 * tf.math.log(y_unc) + (r2 / y_unc) ** 2
+    gl_z = 2 * tf.math.log(z_unc) + (r3 / z_unc) ** 2
+    gl_t = 2 * tf.math.log(time_unc) + (rt / time_unc) ** 2
 
-    if 'event_weights' in shared_objects:
-        weights = shared_objects['event_weights']
+    if "event_weights" in shared_objects:
+        weights = shared_objects["event_weights"]
         w_sum = tf.reduce_sum(input_tensor=weights, axis=0)
         loss_x = tf.reduce_sum(input_tensor=gl_x * weights, axis=0) / w_sum
         loss_y = tf.reduce_sum(input_tensor=gl_y * weights, axis=0) / w_sum
@@ -272,16 +302,16 @@ def track_pos_gaussian(config, data_handler, data_transformer, shared_objects,
     loss_all_list = []
     for label in data_handler.label_names:
 
-        if label == config['label_particle_keys']['pos_x']:
+        if label == config["label_particle_keys"]["pos_x"]:
             loss_all_list.append(loss_x)
 
-        elif label == config['label_particle_keys']['pos_y']:
+        elif label == config["label_particle_keys"]["pos_y"]:
             loss_all_list.append(loss_y)
 
-        elif label == config['label_particle_keys']['pos_z']:
+        elif label == config["label_particle_keys"]["pos_z"]:
             loss_all_list.append(loss_z)
 
-        elif label == config['label_particle_keys']['time']:
+        elif label == config["label_particle_keys"]["time"]:
             loss_all_list.append(loss_t)
 
         else:

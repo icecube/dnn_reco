@@ -32,8 +32,9 @@ All event weighting functions must have the following signature:
 """
 
 
-def nersc_gnn_weight(config, data_handler, data_transformer, shared_objects,
-                     *args, **kwargs):
+def nersc_gnn_weight(
+    config, data_handler, data_transformer, shared_objects, *args, **kwargs
+):
     """Event weight as calculated for nersc gnn comparison.
 
     Parameters
@@ -62,17 +63,17 @@ def nersc_gnn_weight(config, data_handler, data_transformer, shared_objects,
 
     """
     # get indices
-    index_weight = data_handler.get_misc_index('nersc_gnn_info_weight')
-    index_signal = data_handler.get_label_index('is_signal')
+    index_weight = data_handler.get_misc_index("nersc_gnn_info_weight")
+    index_signal = data_handler.get_label_index("is_signal")
 
     # weight for 10 years of livetime
-    weight = shared_objects['x_misc'][:, index_weight] * 86400 * 365 * 10
-    is_nugen = shared_objects['y_true'][:, index_signal] > .5
+    weight = shared_objects["x_misc"][:, index_weight] * 86400 * 365 * 10
+    is_nugen = shared_objects["y_true"][:, index_signal] > 0.5
 
     event_weights = tf.where(
         is_nugen,
-        weight / config['nersc_gnn_weight_num_nugen_files'],
-        weight / config['nersc_gnn_weight_num_corsika_files'],
-        )
+        weight / config["nersc_gnn_weight_num_nugen_files"],
+        weight / config["nersc_gnn_weight_num_corsika_files"],
+    )
 
     return tf.expand_dims(event_weights, axis=-1)

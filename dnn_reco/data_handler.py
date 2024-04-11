@@ -67,7 +67,7 @@ class DataHandler(object):
 
         # read input data
         self._config = dict(deepcopy(config))
-        self.num_bins = config['data_handler_num_bins']
+        self.num_bins = config["data_handler_num_bins"]
 
         # keep track of multiprocessing processes and managers
         self._mp_processes = []
@@ -76,17 +76,19 @@ class DataHandler(object):
         self.is_setup = False
 
     def _setup_time_keys(self):
-        """Add relative time keys
-        """
-        self.relative_time_keys = \
-            self._config['data_handler_relative_time_keys']
+        """Add relative time keys"""
+        self.relative_time_keys = self._config[
+            "data_handler_relative_time_keys"
+        ]
 
-        pattern = self._config['data_handler_relative_time_key_pattern']
+        pattern = self._config["data_handler_relative_time_key_pattern"]
         if pattern is not None:
-            self.relative_time_keys.extend([n for n in self.label_names
-                                            if pattern in n.lower()])
-            self.relative_time_keys.extend([n for n in self.misc_names
-                                            if pattern in n.lower()])
+            self.relative_time_keys.extend(
+                [n for n in self.label_names if pattern in n.lower()]
+            )
+            self.relative_time_keys.extend(
+                [n for n in self.misc_names if pattern in n.lower()]
+            )
 
     def setup_with_test_data(self, test_input_data):
         """Setup the datahandler with a test input file.
@@ -126,32 +128,32 @@ class DataHandler(object):
         NotImplementedError
             Description
         """
-        with open(config_file, 'r') as stream:
+        with open(config_file, "r") as stream:
             config_meta = yaml.safe_load(stream)
 
-        self.label_names = config_meta['label_names']
-        self.label_name_dict = config_meta['label_name_dict']
-        self.label_shape = config_meta['label_shape']
-        self.num_labels = config_meta['num_labels']
-        self.misc_names = config_meta['misc_names']
-        self.misc_name_dict = config_meta['misc_name_dict']
-        self.misc_data_exists = config_meta['misc_data_exists']
-        self.misc_shape = config_meta['misc_shape']
-        self.num_misc = config_meta['num_misc']
+        self.label_names = config_meta["label_names"]
+        self.label_name_dict = config_meta["label_name_dict"]
+        self.label_shape = config_meta["label_shape"]
+        self.num_labels = config_meta["num_labels"]
+        self.misc_names = config_meta["misc_names"]
+        self.misc_name_dict = config_meta["misc_name_dict"]
+        self.misc_data_exists = config_meta["misc_data_exists"]
+        self.misc_shape = config_meta["misc_shape"]
+        self.num_misc = config_meta["num_misc"]
 
         self._setup_time_keys()
         self.is_setup = True
 
     def _get_label_meta_data(self):
-        """Loads labels from a sample file to obtain label meta data.
-        """
-        class_string = 'dnn_reco.modules.data.labels.{}.{}'.format(
-                            self._config['data_handler_label_file'],
-                            self._config['data_handler_label_name'],
-                        )
+        """Loads labels from a sample file to obtain label meta data."""
+        class_string = "dnn_reco.modules.data.labels.{}.{}".format(
+            self._config["data_handler_label_file"],
+            self._config["data_handler_label_name"],
+        )
         label_reader = misc.load_class(class_string)
-        labels, label_names = label_reader(self.test_input_data[0],
-                                           self._config)
+        labels, label_names = label_reader(
+            self.test_input_data[0], self._config
+        )
 
         self.label_names = label_names
         self.label_name_dict = {n: i for i, n in enumerate(label_names)}
@@ -159,15 +161,15 @@ class DataHandler(object):
         self.num_labels = int(np.prod(self.label_shape))
 
     def _get_misc_meta_data(self):
-        """Loads misc data from a sample file to obtain misc meta data.
-        """
-        class_string = 'dnn_reco.modules.data.misc.{}.{}'.format(
-                            self._config['data_handler_misc_file'],
-                            self._config['data_handler_misc_name'],
-                        )
+        """Loads misc data from a sample file to obtain misc meta data."""
+        class_string = "dnn_reco.modules.data.misc.{}.{}".format(
+            self._config["data_handler_misc_file"],
+            self._config["data_handler_misc_name"],
+        )
         misc_reader = misc.load_class(class_string)
-        misc_data, misc_names = misc_reader(self.test_input_data[0],
-                                            self._config)
+        misc_data, misc_names = misc_reader(
+            self.test_input_data[0], self._config
+        )
 
         self.misc_names = misc_names
         self.misc_name_dict = {n: i for i, n in enumerate(misc_names)}
@@ -227,8 +229,9 @@ class DataHandler(object):
         """
         return self.misc_name_dict[misc_name]
 
-    def read_icecube_data(self, input_data, nan_fill_value=None,
-                          init_values=0., verbose=False):
+    def read_icecube_data(
+        self, input_data, nan_fill_value=None, init_values=0.0, verbose=False
+    ):
         """Read IceCube hdf5 data files
 
         Parameters
@@ -267,107 +270,125 @@ class DataHandler(object):
             Description
         """
         if not self.is_setup:
-            raise ValueError('DataHandler needs to be set up first!')
+            raise ValueError("DataHandler needs to be set up first!")
 
         start_time = timeit.default_timer()
 
         try:
-            with pd.HDFStore(input_data,  mode='r') as f:
-                bin_values = f[self._config['data_handler_bin_values_name']]
-                bin_indices = f[self._config['data_handler_bin_indices_name']]
-                _time_range = f[self._config['data_handler_time_offset_name']]
+            with pd.HDFStore(input_data, mode="r") as f:
+                bin_values = f[self._config["data_handler_bin_values_name"]]
+                bin_indices = f[self._config["data_handler_bin_indices_name"]]
+                _time_range = f[self._config["data_handler_time_offset_name"]]
 
         except Exception as e:
             print(e)
-            print('Skipping file: {}'.format(input_data))
+            print("Skipping file: {}".format(input_data))
             return None
 
-        time_range_start = _time_range['value']
+        time_range_start = _time_range["value"]
 
         # create Dictionary with eventIDs
-        size = len(_time_range['Event'])
+        size = len(_time_range["Event"])
         eventIDDict = {}
         for row in _time_range.iterrows():
             eventIDDict[(row[1][0], row[1][1], row[1][2], row[1][3])] = row[0]
 
         # Create arrays for input data
-        x_ic78 = np.ones([size, 10, 10, 60, self.num_bins],
-                         dtype=self._config['np_float_precision'],
-                         ) * np.array(init_values)
-        x_deepcore = np.ones([size, 8, 60, self.num_bins],
-                             dtype=self._config['np_float_precision'],
-                             ) * np.array(init_values)
+        x_ic78 = np.ones(
+            [size, 10, 10, 60, self.num_bins],
+            dtype=self._config["np_float_precision"],
+        ) * np.array(init_values)
+        x_deepcore = np.ones(
+            [size, 8, 60, self.num_bins],
+            dtype=self._config["np_float_precision"],
+        ) * np.array(init_values)
 
         # ------------------
         # get DOM input data
         # ------------------
-        for value_row, index_row in zip(bin_values.itertuples(),
-                                        bin_indices.itertuples()):
+        for value_row, index_row in zip(
+            bin_values.itertuples(), bin_indices.itertuples()
+        ):
             if value_row[1:5] != index_row[1:5]:
                 raise ValueError(
-                        'Event headers do not match! HDF5 version error?')
+                    "Event headers do not match! HDF5 version error?"
+                )
             string = index_row[6]
             dom = index_row[7] - 1
             index = eventIDDict[(index_row[1:5])]
             if string > 78:
                 # deep core
-                x_deepcore[index, string - 78 - 1, dom, index_row[10]] = \
+                x_deepcore[index, string - 78 - 1, dom, index_row[10]] = (
                     value_row[10]
+                )
             else:
                 # IC78
                 a, b = self._get_indices_from_string(string)
                 # Center of Detector is a,b = 0,0
                 # a goes from -4 to 5
                 # b goes from -5 to 4
-                x_ic78[index, a+4, b+5, dom, index_row[10]] = value_row[10]
+                x_ic78[index, a + 4, b + 5, dom, index_row[10]] = value_row[10]
 
         # --------------
         # read in labels
         # --------------
-        class_string = 'dnn_reco.modules.data.labels.{}.{}'.format(
-                            self._config['data_handler_label_file'],
-                            self._config['data_handler_label_name'],
-                        )
+        class_string = "dnn_reco.modules.data.labels.{}.{}".format(
+            self._config["data_handler_label_file"],
+            self._config["data_handler_label_name"],
+        )
         label_reader = misc.load_class(class_string)
-        labels, _ = label_reader(input_data, self._config,
-                                 label_names=self.label_names)
+        labels, _ = label_reader(
+            input_data, self._config, label_names=self.label_names
+        )
         assert list(labels.shape) == [size] + self.label_shape
 
         # perform label smoothing if provided in config
-        if 'label_pid_smooth_labels' in self._config:
-            smoothing = self._config['label_pid_smooth_labels']
+        if "label_pid_smooth_labels" in self._config:
+            smoothing = self._config["label_pid_smooth_labels"]
             if smoothing is not None:
                 for key, i in self.label_name_dict.items():
-                    if key in self._config['label_pid_keys']:
-                        assert ((labels[:, i] >= 0.).all()
-                                and (labels[:, i] <= 1.).all()), \
-                            'Values outside of [0, 1] for {!r}'.format(key)
-                        labels[:, i] = \
-                            labels[:, i] * (1 - smoothing) + smoothing / 2.
+                    if key in self._config["label_pid_keys"]:
+                        assert (labels[:, i] >= 0.0).all() and (
+                            labels[:, i] <= 1.0
+                        ).all(), "Values outside of [0, 1] for {!r}".format(
+                            key
+                        )
+                        labels[:, i] = (
+                            labels[:, i] * (1 - smoothing) + smoothing / 2.0
+                        )
 
         # -------------------
         # read in misc values
         # -------------------
-        class_string = 'dnn_reco.modules.data.misc.{}.{}'.format(
-                            self._config['data_handler_misc_file'],
-                            self._config['data_handler_misc_name'],
-                        )
+        class_string = "dnn_reco.modules.data.misc.{}.{}".format(
+            self._config["data_handler_misc_file"],
+            self._config["data_handler_misc_name"],
+        )
         misc_reader = misc.load_class(class_string)
-        misc_data, _ = misc_reader(input_data, self._config,
-                                   misc_names=self.misc_names)
+        misc_data, _ = misc_reader(
+            input_data, self._config, misc_names=self.misc_names
+        )
         if self.misc_data_exists:
             assert list(misc_data.shape) == [size, self.num_misc]
 
         # -------------
         # filter events
         # -------------
-        class_string = 'dnn_reco.modules.data.filter.{}.{}'.format(
-                            self._config['data_handler_filter_file'],
-                            self._config['data_handler_filter_name'],
-                        )
+        class_string = "dnn_reco.modules.data.filter.{}.{}".format(
+            self._config["data_handler_filter_file"],
+            self._config["data_handler_filter_name"],
+        )
         filter_func = misc.load_class(class_string)
-        mask = filter_func(self, input_data, self._config, x_ic78, x_deepcore,
-                           labels, misc_data, time_range_start)
+        mask = filter_func(
+            self,
+            input_data,
+            self._config,
+            x_ic78,
+            x_deepcore,
+            labels,
+            misc_data,
+            time_range_start,
+        )
 
         # mask out events not passing filter:
         x_ic78 = x_ic78[mask]
@@ -398,21 +419,26 @@ class DataHandler(object):
         if nan_fill_value is None:
             mask = np.isfinite(np.sum(x_ic78, axis=(1, 2, 3, 4)))
             mask = np.logical_and(
-                mask, np.isfinite(np.sum(x_deepcore, axis=(1, 2, 3))))
+                mask, np.isfinite(np.sum(x_deepcore, axis=(1, 2, 3)))
+            )
             mask = np.logical_and(
-                mask, np.isfinite(np.sum(labels,
-                                         axis=tuple(range(1, labels.ndim)))))
+                mask,
+                np.isfinite(np.sum(labels, axis=tuple(range(1, labels.ndim)))),
+            )
             if not mask.all():
                 misc.print_warning(
-                    'Found NaNs. ' +
-                    'Removing {} events from batch of {}.'.format(
-                        len(mask) - np.sum(mask), len(mask)))
+                    "Found NaNs. "
+                    + "Removing {} events from batch of {}.".format(
+                        len(mask) - np.sum(mask), len(mask)
+                    )
+                )
                 misc.print_warning(
-                    'NaN-free x_ic78: {}, x_deepcore: {}, labels: {}'.format(
+                    "NaN-free x_ic78: {}, x_deepcore: {}, labels: {}".format(
                         np.isfinite(x_ic78).all(),
                         np.isfinite(x_deepcore).all(),
                         np.isfinite(labels).all(),
-                        ))
+                    )
+                )
 
                 x_ic78 = x_ic78[mask]
                 x_deepcore = x_deepcore[mask]
@@ -425,20 +451,29 @@ class DataHandler(object):
             # This should never be the case!
             mask = np.isfinite(np.sum(x_ic78, axis=(1, 2, 3, 4)))
             mask = np.logical_and(
-                mask, np.isfinite(np.sum(x_deepcore, axis=(1, 2, 3))))
+                mask, np.isfinite(np.sum(x_deepcore, axis=(1, 2, 3)))
+            )
             if not mask.all():
-                raise ValueError('Found NaN values in input data!')
+                raise ValueError("Found NaN values in input data!")
 
             # Fixing NaNs in labels and misc data is ok, but warn about this
-            mask = np.isfinite(np.sum(labels,
-                                      axis=tuple(range(1, labels.ndim))))
+            mask = np.isfinite(
+                np.sum(labels, axis=tuple(range(1, labels.ndim)))
+            )
             if self.misc_data_exists:
-                mask = np.logical_and(mask, np.isfinite(
-                    np.sum(misc_data, axis=tuple(range(1, misc_data.ndim)))))
+                mask = np.logical_and(
+                    mask,
+                    np.isfinite(
+                        np.sum(misc_data, axis=tuple(range(1, misc_data.ndim)))
+                    ),
+                )
             if not mask.all():
-                misc.print_warning('Found NaNs in labels and/or misc data. ' +
-                                   'Replacing NaNs in {} events'.format(
-                                                len(mask) - np.sum(mask)))
+                misc.print_warning(
+                    "Found NaNs in labels and/or misc data. "
+                    + "Replacing NaNs in {} events".format(
+                        len(mask) - np.sum(mask)
+                    )
+                )
             labels[~np.isfinite(labels)] = nan_fill_value
             if self.misc_data_exists:
                 misc_data[~np.isfinite(misc_data)] = nan_fill_value
@@ -446,27 +481,32 @@ class DataHandler(object):
 
         if verbose:
             final_time = timeit.default_timer() - start_time
-            print("=== Time needed to process Data: {:5.3f} seconds ==".format(
-                                                                final_time))
+            print(
+                "=== Time needed to process Data: {:5.3f} seconds ==".format(
+                    final_time
+                )
+            )
 
         return x_ic78, x_deepcore, labels, misc_data
 
-    def get_batch_generator(self,
-                            input_data,
-                            batch_size,
-                            sample_randomly=True,
-                            pick_random_files_forever=True,
-                            file_capacity=1,
-                            batch_capacity=5,
-                            num_jobs=1,
-                            num_add_files=0,
-                            num_repetitions=1,
-                            init_values=0.,
-                            num_splits=None,
-                            nan_fill_value=None,
-                            verbose=False,
-                            *args, **kwargs
-                            ):
+    def get_batch_generator(
+        self,
+        input_data,
+        batch_size,
+        sample_randomly=True,
+        pick_random_files_forever=True,
+        file_capacity=1,
+        batch_capacity=5,
+        num_jobs=1,
+        num_add_files=0,
+        num_repetitions=1,
+        init_values=0.0,
+        num_splits=None,
+        nan_fill_value=None,
+        verbose=False,
+        *args,
+        **kwargs
+    ):
         """Get an IceCube data batch generator.
 
         This is a multiprocessing data iterator.
@@ -560,7 +600,7 @@ class DataHandler(object):
             Description
         """
         if not self.is_setup:
-            raise ValueError('DataHandler needs to be set up first!')
+            raise ValueError("DataHandler needs to be set up first!")
 
         if isinstance(input_data, list):
             file_list = []
@@ -570,9 +610,9 @@ class DataHandler(object):
             file_list = glob.glob(input_data)
 
         # define shared memory variables
-        num_files_processed = multiprocessing.Value('i')
-        processed_all_files = multiprocessing.Value('b')
-        data_left_in_queue = multiprocessing.Value('b')
+        num_files_processed = multiprocessing.Value("i")
+        processed_all_files = multiprocessing.Value("b")
+        data_left_in_queue = multiprocessing.Value("b")
 
         # initialize shared variables
         num_files_processed.value = 0
@@ -596,11 +636,13 @@ class DataHandler(object):
 
         # create data_batch_queue
         data_batch_queue = multiprocessing.Manager().Queue(
-                                                    maxsize=file_capacity)
+            maxsize=file_capacity
+        )
 
         # create final_batch_queue
         final_batch_queue = multiprocessing.Manager().Queue(
-                                                    maxsize=batch_capacity)
+            maxsize=batch_capacity
+        )
 
         # keep references to managers alive, such that these do not shut
         # down until the DataHandler object gets garbage collected
@@ -629,14 +671,19 @@ class DataHandler(object):
             # ----------------------------------------------
             # Create NN model instance for  biased selection
             # ----------------------------------------------
-            if 'nn_biased_selection' in self._config and \
-                    self._config['nn_biased_selection'] is not None:
+            if (
+                "nn_biased_selection" in self._config
+                and self._config["nn_biased_selection"] is not None
+            ):
 
-                cfg_sel = self._config['nn_biased_selection']
-                if cfg_sel['apply_biased_selection'] and \
-                        cfg_sel['biased_fraction'] > 0:
-                    biased_selection_func = \
+                cfg_sel = self._config["nn_biased_selection"]
+                if (
+                    cfg_sel["apply_biased_selection"]
+                    and cfg_sel["biased_fraction"] > 0
+                ):
+                    biased_selection_func = (
                         self._create_biased_selection_func()
+                    )
                     nn_biased_selection = True
                 else:
                     nn_biased_selection = False
@@ -662,16 +709,23 @@ class DataHandler(object):
 
                         if verbose:
                             usage = resource.getrusage(resource.RUSAGE_SELF)
-                            msg = "{} {:02.1f} GB. file_list_queue:" \
-                                  " {}. data_batch_queue: {}"
-                            print(msg.format(file,
-                                             usage.ru_maxrss / 1024.0 / 1024.0,
-                                             file_list_queue.qsize(),
-                                             data_batch_queue.qsize()))
+                            msg = (
+                                "{} {:02.1f} GB. file_list_queue:"
+                                " {}. data_batch_queue: {}"
+                            )
+                            print(
+                                msg.format(
+                                    file,
+                                    usage.ru_maxrss / 1024.0 / 1024.0,
+                                    file_list_queue.qsize(),
+                                    data_batch_queue.qsize(),
+                                )
+                            )
                         icecube_data = self.read_icecube_data(
-                                    input_data=file,
-                                    init_values=init_values,
-                                    nan_fill_value=nan_fill_value)
+                            input_data=file,
+                            init_values=init_values,
+                            nan_fill_value=nan_fill_value,
+                        )
 
                         # biased selection
                         if nn_biased_selection:
@@ -689,18 +743,21 @@ class DataHandler(object):
                                 # (Multiprocessing queue can only handle
                                 #  a certain size)
                                 split_indices_list = np.array_split(
-                                        np.arange(icecube_data[0].shape[0]),
-                                        num_splits)
+                                    np.arange(icecube_data[0].shape[0]),
+                                    num_splits,
+                                )
 
                                 for split_indices in split_indices_list:
 
-                                    batch = [icecube_data[0][split_indices],
-                                             icecube_data[1][split_indices],
-                                             icecube_data[2][split_indices],
-                                             ]
+                                    batch = [
+                                        icecube_data[0][split_indices],
+                                        icecube_data[1][split_indices],
+                                        icecube_data[2][split_indices],
+                                    ]
                                     if self.misc_data_exists:
                                         batch.append(
-                                                icecube_data[3][split_indices])
+                                            icecube_data[3][split_indices]
+                                        )
                                     else:
                                         batch.append(None)
 
@@ -708,8 +765,10 @@ class DataHandler(object):
                                     data_batch_queue.put(batch)
                     else:
                         misc.print_warning(
-                            'WARNING: File {} does not exist.\033[0m'.format(
-                                                                        file))
+                            "WARNING: File {} does not exist.\033[0m".format(
+                                file
+                            )
+                        )
 
                     if not pick_random_files_forever:
                         with file_counter_lock:
@@ -756,16 +815,19 @@ class DataHandler(object):
                 if self.misc_data_exists:
                     misc_list = [data_batch[3]]
 
-                while (current_queue_size <
-                       np.sqrt(num_repetitions) * batch_size and
-                       data_left_in_queue.value):
+                while (
+                    current_queue_size < np.sqrt(num_repetitions) * batch_size
+                    and data_left_in_queue.value
+                ):
 
                     # avoid dead lock and delay for a bit
                     time.sleep(0.1)
 
                     for i in range(num_add_files):
-                        if (data_batch_queue.qsize() > 1 or
-                                not data_batch_queue.empty()):
+                        if (
+                            data_batch_queue.qsize() > 1
+                            or not data_batch_queue.empty()
+                        ):
                             data_batch = data_batch_queue.get()
                             current_queue_size += len(data_batch[0])
                             x_ic78_list.append(data_batch[0])
@@ -784,7 +846,7 @@ class DataHandler(object):
 
                 queue_size = x_ic78.shape[0]
                 if verbose:
-                    print('queue_size', queue_size, x_ic78.shape)
+                    print("queue_size", queue_size, x_ic78.shape)
 
                 # num_repetitions:
                 #   potentially dangerous for batch_size approx file_size
@@ -834,11 +896,13 @@ class DataHandler(object):
                             misc_batch.append(misc_data[index])
 
                         size += 1
-                    # ---------
+                        # ---------
                         if size == batch_size:
-                            batch = [np.array(ic78_batch),
-                                     np.array(deepcore_batch),
-                                     np.array(labels_batch)]
+                            batch = [
+                                np.array(ic78_batch),
+                                np.array(deepcore_batch),
+                                np.array(labels_batch),
+                            ]
                             if self.misc_data_exists:
                                 batch.append(np.array(misc_batch))
                             else:
@@ -846,14 +910,21 @@ class DataHandler(object):
 
                             if verbose:
                                 usage = resource.getrusage(
-                                            resource.RUSAGE_SELF).ru_maxrss
-                                msg = "{:02.1f} GB. file_list_queue: {}." \
-                                      " data_batch_queue: {}. " \
-                                      "final_batch_queue: {}"
-                                print(msg.format(usage / 1024.0 / 1024.0,
-                                      file_list_queue.qsize(),
-                                      data_batch_queue.qsize(),
-                                      final_batch_queue.qsize()))
+                                    resource.RUSAGE_SELF
+                                ).ru_maxrss
+                                msg = (
+                                    "{:02.1f} GB. file_list_queue: {}."
+                                    " data_batch_queue: {}. "
+                                    "final_batch_queue: {}"
+                                )
+                                print(
+                                    msg.format(
+                                        usage / 1024.0 / 1024.0,
+                                        file_list_queue.qsize(),
+                                        data_batch_queue.qsize(),
+                                        final_batch_queue.qsize(),
+                                    )
+                                )
                             final_batch_queue.put(batch)
 
                             # reset event batch
@@ -866,15 +937,19 @@ class DataHandler(object):
 
                 if not pick_random_files_forever:
                     with file_counter_lock:
-                        if (processed_all_files.value and
-                                data_batch_queue.empty()):
+                        if (
+                            processed_all_files.value
+                            and data_batch_queue.empty()
+                        ):
                             data_left_in_queue.value = False
 
             # collect leftovers and put them in an (incomplete) batch
             if ic78_batch:
-                batch = [np.array(ic78_batch),
-                         np.array(deepcore_batch),
-                         np.array(labels_batch)]
+                batch = [
+                    np.array(ic78_batch),
+                    np.array(deepcore_batch),
+                    np.array(labels_batch),
+                ]
                 if self.misc_data_exists:
                     batch.append(np.array(misc_batch))
                 else:
@@ -902,8 +977,9 @@ class DataHandler(object):
             process.start()
             self._mp_processes.append(process)
 
-        process = multiprocessing.Process(target=data_queue_iterator,
-                                          args=(sample_randomly,))
+        process = multiprocessing.Process(
+            target=data_queue_iterator, args=(sample_randomly,)
+        )
         process.daemon = True
         process.start()
         self._mp_processes.append(process)
@@ -911,12 +987,11 @@ class DataHandler(object):
         return batch_iterator()
 
     def kill(self):
-        """Kill Multiprocessing queues and workers
-        """
+        """Kill Multiprocessing queues and workers"""
         for process in self._mp_processes:
             process.terminate()
 
-        time.sleep(1.)
+        time.sleep(1.0)
         for process in self._mp_processes:
             process.join(timeout=1.0)
 
@@ -943,45 +1018,54 @@ class DataHandler(object):
 
         # Create a new tf graph and session for this model instance
         g = tf.Graph()
-        if 'tf_parallelism_threads' in cfg_sel:
-            n_cpus = cfg_sel['tf_parallelism_threads']
-            sess = tf.compat.v1.Session(graph=g, config=tf.compat.v1.ConfigProto(
-                        gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
-                        device_count={'GPU': cfg_sel['GPU_device_count']},
-                        intra_op_parallelism_threads=n_cpus,
-                        inter_op_parallelism_threads=n_cpus,
-                      ))
+        if "tf_parallelism_threads" in cfg_sel:
+            n_cpus = cfg_sel["tf_parallelism_threads"]
+            sess = tf.compat.v1.Session(
+                graph=g,
+                config=tf.compat.v1.ConfigProto(
+                    gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
+                    device_count={"GPU": cfg_sel["GPU_device_count"]},
+                    intra_op_parallelism_threads=n_cpus,
+                    inter_op_parallelism_threads=n_cpus,
+                ),
+            )
         else:
-            sess = tf.compat.v1.Session(graph=g, config=tf.compat.v1.ConfigProto(
-                        gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
-                        device_count={'GPU': cfg_sel['GPU_device_count']},
-                      ))
+            sess = tf.compat.v1.Session(
+                graph=g,
+                config=tf.compat.v1.ConfigProto(
+                    gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
+                    device_count={"GPU": cfg_sel["GPU_device_count"]},
+                ),
+            )
         with g.as_default():
             # Create Data Handler object
             data_handler = DataHandler(cfg)
-            data_handler.setup_with_test_data(cfg['training_data_file'])
+            data_handler.setup_with_test_data(cfg["training_data_file"])
 
             # create data transformer
             data_transformer = DataTransformer(
                 data_handler=data_handler,
-                treat_doms_equally=cfg['trafo_treat_doms_equally'],
-                normalize_dom_data=cfg['trafo_normalize_dom_data'],
-                normalize_label_data=cfg['trafo_normalize_label_data'],
-                normalize_misc_data=cfg['trafo_normalize_misc_data'],
-                log_dom_bins=cfg['trafo_log_dom_bins'],
-                log_label_bins=cfg['trafo_log_label_bins'],
-                log_misc_bins=cfg['trafo_log_misc_bins'],
-                norm_constant=cfg['trafo_norm_constant'])
+                treat_doms_equally=cfg["trafo_treat_doms_equally"],
+                normalize_dom_data=cfg["trafo_normalize_dom_data"],
+                normalize_label_data=cfg["trafo_normalize_label_data"],
+                normalize_misc_data=cfg["trafo_normalize_misc_data"],
+                log_dom_bins=cfg["trafo_log_dom_bins"],
+                log_label_bins=cfg["trafo_log_label_bins"],
+                log_misc_bins=cfg["trafo_log_misc_bins"],
+                norm_constant=cfg["trafo_norm_constant"],
+            )
 
             # load trafo model from file
-            data_transformer.load_trafo_model(cfg['trafo_model_path'])
+            data_transformer.load_trafo_model(cfg["trafo_model_path"])
 
             # create NN model
-            model = NNModel(is_training=False,
-                            config=cfg,
-                            data_handler=data_handler,
-                            data_transformer=data_transformer,
-                            sess=sess)
+            model = NNModel(
+                is_training=False,
+                config=cfg,
+                data_handler=data_handler,
+                data_transformer=data_transformer,
+                sess=sess,
+            )
 
             # compile model: initalize and finalize graph
             model.compile()
@@ -991,27 +1075,34 @@ class DataHandler(object):
 
             return model, data_transformer, data_handler
 
-    def _get_nn_biased_selection_mask(self, icecube_data, cfg_sel,
-                                      data_handler, data_transformer,
-                                      model, counter):
-        """Helper method to obtain NN model event mask for biased selection
-        """
+    def _get_nn_biased_selection_mask(
+        self,
+        icecube_data,
+        cfg_sel,
+        data_handler,
+        data_transformer,
+        model,
+        counter,
+    ):
+        """Helper method to obtain NN model event mask for biased selection"""
 
         # reload model weights if necessary
-        if cfg_sel['reload_frequency'] is not None:
-            if counter % cfg_sel['reload_frequency'] == 0:
+        if cfg_sel["reload_frequency"] is not None:
+            if counter % cfg_sel["reload_frequency"] == 0:
                 model.restore()
 
         # apply model on loaded data
-        y_pred, y_unc = model.predict_batched(icecube_data[0], icecube_data[1],
-                                              max_size=cfg_sel['max_size'])
+        y_pred, y_unc = model.predict_batched(
+            icecube_data[0], icecube_data[1], max_size=cfg_sel["max_size"]
+        )
         y_true = icecube_data[2]
 
         # transform data
-        y_true_trafo = data_transformer.transform(y_true, data_type='label')
-        y_pred_trafo = data_transformer.transform(y_pred, data_type='label')
-        y_unc_trafo = data_transformer.transform(y_unc, data_type='label',
-                                                 bias_correction=False)
+        y_true_trafo = data_transformer.transform(y_true, data_type="label")
+        y_pred_trafo = data_transformer.transform(y_pred, data_type="label")
+        y_unc_trafo = data_transformer.transform(
+            y_unc, data_type="label", bias_correction=False
+        )
 
         diff = y_true - y_pred
         diff_trafo = y_true_trafo - y_pred_trafo
@@ -1022,43 +1113,41 @@ class DataHandler(object):
         mask = np.zeros(len(y_true))
 
         # select biased events based on difference greater than value
-        for key, value in cfg_sel['true_minus_pred_greater'].items():
+        for key, value in cfg_sel["true_minus_pred_greater"].items():
             index = data_handler.get_label_index(key)
             mask = np.logical_or(mask, diff[:, index] > value)
 
         # select biased events based on difference less than value
-        for key, value in cfg_sel['true_minus_pred_less'].items():
+        for key, value in cfg_sel["true_minus_pred_less"].items():
             index = data_handler.get_label_index(key)
             mask = np.logical_or(mask, diff[:, index] < value)
 
         # select biased events based on transformed difference
         # greater than the specified value
-        for key, value in cfg_sel['true_minus_pred_trafo_greater'].items():
+        for key, value in cfg_sel["true_minus_pred_trafo_greater"].items():
             index = data_handler.get_label_index(key)
             mask = np.logical_or(mask, diff_trafo[:, index] > value)
 
         # select biased events based on transformed difference
         # greater than the specified value
-        for key, value in cfg_sel['true_minus_pred_trafo_less'].items():
+        for key, value in cfg_sel["true_minus_pred_trafo_less"].items():
             index = data_handler.get_label_index(key)
             mask = np.logical_or(mask, diff_trafo[:, index] < value)
 
         # select biased events based on absolute difference
-        for key, value in cfg_sel['cut_abs_diff'].items():
+        for key, value in cfg_sel["cut_abs_diff"].items():
             index = data_handler.get_label_index(key)
             mask = np.logical_or(mask, abs_diff[:, index] >= value)
 
         # select biased events based on transformed absolute difference
-        for key, value in cfg_sel['cut_abs_diff_trafo'].items():
+        for key, value in cfg_sel["cut_abs_diff_trafo"].items():
             index = data_handler.get_label_index(key)
-            mask = np.logical_or(mask,
-                                 abs_diff_trafo[:, index] >= value)
+            mask = np.logical_or(mask, abs_diff_trafo[:, index] >= value)
 
         # select biased events based on uncertainty weighted difference
-        for key, value in cfg_sel['cut_unc_weighted_diff_trafo'].items():
+        for key, value in cfg_sel["cut_unc_weighted_diff_trafo"].items():
             index = data_handler.get_label_index(key)
-            unc_diff_trafo = \
-                abs_diff_trafo[:, index] / y_unc_trafo[:, index]
+            unc_diff_trafo = abs_diff_trafo[:, index] / y_unc_trafo[:, index]
             mask = np.logical_or(mask, unc_diff_trafo >= value)
 
         return mask
@@ -1073,76 +1162,86 @@ class DataHandler(object):
         mask = np.zeros(len(y_true))
 
         # select biased events based on difference greater than value
-        for key, value in cfg_sel['label_greater'].items():
+        for key, value in cfg_sel["label_greater"].items():
             index = self.get_label_index(key)
             mask = np.logical_or(mask, y_true[:, index] > value)
 
         # select biased events based on difference less than value
-        for key, value in cfg_sel['label_less'].items():
+        for key, value in cfg_sel["label_less"].items():
             index = self.get_label_index(key)
             mask = np.logical_or(mask, y_true[:, index] < value)
 
         # select biased events based on transformed difference
         # greater than the specified value
-        for key, value in cfg_sel['label_equal'].items():
+        for key, value in cfg_sel["label_equal"].items():
             index = self.get_label_index(key)
             mask = np.logical_or(mask, y_true[:, index] == value)
 
         # select biased events based on transformed difference
         # greater than the specified value
-        for key, value in cfg_sel['label_unequal'].items():
+        for key, value in cfg_sel["label_unequal"].items():
             index = self.get_label_index(key)
             mask = np.logical_or(mask, y_true[:, index] != value)
 
         return mask
 
     def _create_biased_selection_func(self):
-        """Helper Method to create NN model instance for biased selection
-        """
+        """Helper Method to create NN model instance for biased selection"""
         local_random_state = np.random.RandomState()
         cfg = dict(deepcopy(self._config))
-        cfg_sel = cfg['nn_biased_selection']
+        cfg_sel = cfg["nn_biased_selection"]
 
         default_settings = {
-            'max_size': 32,
-            'max_imbalance': 100,
-            'reload_frequency': 100,
-            'biased_fraction': 0.1,
-            'label_greater': {},
-            'label_less': {},
-            'label_equal': {},
-            'label_unequal': {},
-            'true_minus_pred_greater': {},
-            'true_minus_pred_less': {},
-            'true_minus_pred_trafo_greater': {},
-            'true_minus_pred_trafo_less': {},
-            'cut_abs_diff': {},
-            'cut_abs_diff_trafo': {},
-            'cut_unc_weighted_diff_trafo': {},
-            'tf_parallelism_threads': 10,
-            'GPU_device_count': 1,
+            "max_size": 32,
+            "max_imbalance": 100,
+            "reload_frequency": 100,
+            "biased_fraction": 0.1,
+            "label_greater": {},
+            "label_less": {},
+            "label_equal": {},
+            "label_unequal": {},
+            "true_minus_pred_greater": {},
+            "true_minus_pred_less": {},
+            "true_minus_pred_trafo_greater": {},
+            "true_minus_pred_trafo_less": {},
+            "cut_abs_diff": {},
+            "cut_abs_diff_trafo": {},
+            "cut_unc_weighted_diff_trafo": {},
+            "tf_parallelism_threads": 10,
+            "GPU_device_count": 1,
         }
         for key, value in default_settings.items():
             if key not in cfg_sel:
                 cfg_sel[key] = value
 
-        if cfg_sel['biased_fraction'] <= 0. or \
-                cfg_sel['biased_fraction'] > 1.:
-            raise ValueError('Biased fraction {!r} not in (0, 1]'.format(
-                cfg_sel['biased_fraction']))
+        if (
+            cfg_sel["biased_fraction"] <= 0.0
+            or cfg_sel["biased_fraction"] > 1.0
+        ):
+            raise ValueError(
+                "Biased fraction {!r} not in (0, 1]".format(
+                    cfg_sel["biased_fraction"]
+                )
+            )
 
         # figure out if we need the current nn model prediction
         nn_is_required = False
-        for key in ['true_minus_pred_greater', 'true_minus_pred_less',
-                    'true_minus_pred_trafo_greater', 'cut_abs_diff',
-                    'true_minus_pred_trafo_less', 'cut_abs_diff_trafo',
-                    'cut_unc_weighted_diff_trafo']:
+        for key in [
+            "true_minus_pred_greater",
+            "true_minus_pred_less",
+            "true_minus_pred_trafo_greater",
+            "cut_abs_diff",
+            "true_minus_pred_trafo_less",
+            "cut_abs_diff_trafo",
+            "cut_unc_weighted_diff_trafo",
+        ]:
             if cfg_sel[key] != {}:
                 nn_is_required = True
 
         if nn_is_required:
-            model, data_transformer, data_handler = \
-                self._create_model(cfg, cfg_sel)
+            model, data_transformer, data_handler = self._create_model(
+                cfg, cfg_sel
+            )
 
         # create nn biased selection masking function
         def biased_selection_func(icecube_data):
@@ -1168,7 +1267,8 @@ class DataHandler(object):
                     data_handler=data_handler,
                     data_transformer=data_transformer,
                     model=model,
-                    counter=biased_selection_func.counter)
+                    counter=biased_selection_func.counter,
+                )
 
                 mask = np.logical_or(mask, mask_nn)
 
@@ -1176,8 +1276,9 @@ class DataHandler(object):
             num_biased_events = np.sum(mask)
 
             # calculate how many unbiased events should be chosen
-            num_to_choose = \
-                int(num_biased_events * (1./cfg_sel['biased_fraction']-1))
+            num_to_choose = int(
+                num_biased_events * (1.0 / cfg_sel["biased_fraction"] - 1)
+            )
 
             # add random events to obtain approximate correct fraction
             y_true = icecube_data[2]
@@ -1187,7 +1288,7 @@ class DataHandler(object):
             # big to make sure to still take events from all files.
             # Keep track of imbalance.
             num_chosen = num_to_choose - biased_selection_func.balance
-            if biased_selection_func.balance > cfg_sel['max_imbalance']:
+            if biased_selection_func.balance > cfg_sel["max_imbalance"]:
                 num_chosen = max(num_chosen, 0)
             else:
                 num_chosen = max(num_chosen, 1)
@@ -1195,9 +1296,9 @@ class DataHandler(object):
             biased_selection_func.balance += num_chosen - num_to_choose
 
             if num_chosen > 0:
-                indices = local_random_state.choice(indices_unbiased,
-                                                    size=num_chosen,
-                                                    replace=False)
+                indices = local_random_state.choice(
+                    indices_unbiased, size=num_chosen, replace=False
+                )
                 mask_random = np.zeros(len(y_true))
                 mask_random[indices] = True
                 mask = np.logical_or(mask, mask_random)
@@ -1208,9 +1309,11 @@ class DataHandler(object):
                 return None
 
             # apply mask
-            icecube_data_masked = [np.array(icecube_data[0][mask]),
-                                   np.array(icecube_data[1][mask]),
-                                   np.array(icecube_data[2][mask])]
+            icecube_data_masked = [
+                np.array(icecube_data[0][mask]),
+                np.array(icecube_data[1][mask]),
+                np.array(icecube_data[2][mask]),
+            ]
             if self.misc_data_exists:
                 icecube_data_masked.append(np.array(icecube_data[3][mask]))
             else:

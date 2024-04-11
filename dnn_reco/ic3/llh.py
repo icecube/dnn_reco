@@ -11,7 +11,6 @@ from dnn_reco.ic3.llh_base import DNN_LLH_Base, DNN_LLH_Base_Elliptical
 
 
 class DNN_LLH_Circular_Dir(DNN_LLH_Base_Elliptical):
-
     """The DNN LLH class for calculating circular PDFs obtained from
     the DNN reco.
 
@@ -36,9 +35,19 @@ class DNN_LLH_Circular_Dir(DNN_LLH_Base_Elliptical):
         This is the output of the DNN reco for the z-component.
     """
 
-    def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 num_samples=1000000, random_seed=42,
-                 weighted_normalization=True, fix_delta=True):
+    def __init__(
+        self,
+        dir_x,
+        dir_y,
+        dir_z,
+        unc_x,
+        unc_y,
+        unc_z,
+        num_samples=1000000,
+        random_seed=42,
+        weighted_normalization=True,
+        fix_delta=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -81,11 +90,13 @@ class DNN_LLH_Circular_Dir(DNN_LLH_Base_Elliptical):
         u_dir_y = ufloat(dir_y, unc_y)
         u_dir_z = ufloat(dir_z, unc_z)
         u_dir_x, u_dir_y, u_dir_z = self.u_normalize_dir(
-                                            u_dir_x, u_dir_y, u_dir_z)
+            u_dir_x, u_dir_y, u_dir_z
+        )
 
         # Assign values with propagated and normalized vector
         u_zenith, u_azimuth = self.u_get_zenith_azimuth(
-            u_dir_x, u_dir_y, u_dir_z)
+            u_dir_x, u_dir_y, u_dir_z
+        )
         self.dir_x = u_dir_x.nominal_value
         self.dir_y = u_dir_y.nominal_value
         self.dir_z = u_dir_z.nominal_value
@@ -97,16 +108,23 @@ class DNN_LLH_Circular_Dir(DNN_LLH_Base_Elliptical):
 
         # calculate circular error radius
         # (Note we want to get 'average' circular error, therefore divide by 2)
-        circular_var = (unc_zenith**2 +
-                        unc_azimuth**2 * np.sin(zenith)**2) / 2.
+        circular_var = (
+            unc_zenith**2 + unc_azimuth**2 * np.sin(zenith) ** 2
+        ) / 2.0
         cov = np.diag([circular_var, circular_var])
-        DNN_LLH_Base_Elliptical.__init__(self, zenith, azimuth, cov,
-                                         num_samples, random_seed,
-                                         weighted_normalization, fix_delta)
+        DNN_LLH_Base_Elliptical.__init__(
+            self,
+            zenith,
+            azimuth,
+            cov,
+            num_samples,
+            random_seed,
+            weighted_normalization,
+            fix_delta,
+        )
 
 
 class DNN_LLH_Circular(DNN_LLH_Base_Elliptical):
-
     """The DNN LLH class for calculating circular PDFs obtained from
     the DNN reco.
 
@@ -131,9 +149,17 @@ class DNN_LLH_Circular(DNN_LLH_Base_Elliptical):
         This is the output of the DNN reco for the z-component.
     """
 
-    def __init__(self, zenith, azimuth, unc_zenith, unc_azimuth,
-                 num_samples=1000000, random_seed=42,
-                 weighted_normalization=True, fix_delta=True):
+    def __init__(
+        self,
+        zenith,
+        azimuth,
+        unc_zenith,
+        unc_azimuth,
+        num_samples=1000000,
+        random_seed=42,
+        weighted_normalization=True,
+        fix_delta=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -165,16 +191,23 @@ class DNN_LLH_Circular(DNN_LLH_Base_Elliptical):
         """
         # calculate circular error radius
         # (Note we want to get 'average' circular error, therefore divide by 2)
-        circular_var = (unc_zenith**2 +
-                        unc_azimuth**2 * np.sin(zenith)**2) / 2.
+        circular_var = (
+            unc_zenith**2 + unc_azimuth**2 * np.sin(zenith) ** 2
+        ) / 2.0
         cov = np.diag([circular_var, circular_var])
-        DNN_LLH_Base_Elliptical.__init__(self, zenith, azimuth, cov,
-                                         num_samples, random_seed,
-                                         weighted_normalization, fix_delta)
+        DNN_LLH_Base_Elliptical.__init__(
+            self,
+            zenith,
+            azimuth,
+            cov,
+            num_samples,
+            random_seed,
+            weighted_normalization,
+            fix_delta,
+        )
 
 
 class DNN_LLH_Elliptical_Dir(DNN_LLH_Base_Elliptical):
-
     """The DNN LLH class for calculating elliptical PDFs obtained from
     the DNN reco.
 
@@ -205,9 +238,19 @@ class DNN_LLH_Elliptical_Dir(DNN_LLH_Base_Elliptical):
         This is the output of the DNN reco for the z-component.
     """
 
-    def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 num_samples=1000000, random_seed=42,
-                 weighted_normalization=True, fix_delta=True):
+    def __init__(
+        self,
+        dir_x,
+        dir_y,
+        dir_z,
+        unc_x,
+        unc_y,
+        unc_z,
+        num_samples=1000000,
+        random_seed=42,
+        weighted_normalization=True,
+        fix_delta=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -250,11 +293,13 @@ class DNN_LLH_Elliptical_Dir(DNN_LLH_Base_Elliptical):
         u_dir_y = ufloat(dir_y, unc_y)
         u_dir_z = ufloat(dir_z, unc_z)
         u_dir_x, u_dir_y, u_dir_z = self.u_normalize_dir(
-                                            u_dir_x, u_dir_y, u_dir_z)
+            u_dir_x, u_dir_y, u_dir_z
+        )
 
         # Assign values with propagated and normalized vector
         u_zenith, u_azimuth = self.u_get_zenith_azimuth(
-            u_dir_x, u_dir_y, u_dir_z)
+            u_dir_x, u_dir_y, u_dir_z
+        )
         self.dir_x = u_dir_x.nominal_value
         self.dir_y = u_dir_y.nominal_value
         self.dir_z = u_dir_z.nominal_value
@@ -263,13 +308,19 @@ class DNN_LLH_Elliptical_Dir(DNN_LLH_Base_Elliptical):
         self.unc_zenith = unumpy.std_devs(u_zenith)
         self.unc_azimuth = unumpy.std_devs(u_azimuth)
         cov = np.array(covariance_matrix([u_zenith, u_azimuth]))
-        DNN_LLH_Base_Elliptical.__init__(self, self.zenith, self.azimuth, cov,
-                                         num_samples, random_seed,
-                                         weighted_normalization, fix_delta)
+        DNN_LLH_Base_Elliptical.__init__(
+            self,
+            self.zenith,
+            self.azimuth,
+            cov,
+            num_samples,
+            random_seed,
+            weighted_normalization,
+            fix_delta,
+        )
 
 
 class DNN_LLH_Elliptical(DNN_LLH_Base_Elliptical):
-
     """The DNN LLH class for calculating elliptical PDFs obtained from
     the DNN reco.
 
@@ -300,9 +351,17 @@ class DNN_LLH_Elliptical(DNN_LLH_Base_Elliptical):
         This is the output of the DNN reco for the z-component.
     """
 
-    def __init__(self, zenith, azimuth, unc_zenith, unc_azimuth,
-                 num_samples=1000000, random_seed=42,
-                 weighted_normalization=True, fix_delta=True):
+    def __init__(
+        self,
+        zenith,
+        azimuth,
+        unc_zenith,
+        unc_azimuth,
+        num_samples=1000000,
+        random_seed=42,
+        weighted_normalization=True,
+        fix_delta=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -333,13 +392,19 @@ class DNN_LLH_Elliptical(DNN_LLH_Base_Elliptical):
             abs(zenith - sampled_zenith) follow the expected distribution.
         """
         cov = np.diag([unc_zenith**2, unc_azimuth**2])
-        DNN_LLH_Base_Elliptical.__init__(self, zenith, azimuth, cov,
-                                         num_samples, random_seed,
-                                         weighted_normalization, fix_delta)
+        DNN_LLH_Base_Elliptical.__init__(
+            self,
+            zenith,
+            azimuth,
+            cov,
+            num_samples,
+            random_seed,
+            weighted_normalization,
+            fix_delta,
+        )
 
 
 class DNN_LLH_normalized(DNN_LLH_Base):
-
     """A class for calculating the PDF obtained from the DNN reco for models
     that estimate the direction vector components and their uncertainty in
     independent 1D Gaussian Likelihoods, while the direction vector is
@@ -388,9 +453,19 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         This is the output of the DNN reco for the estimated uncertainty.
     """
 
-    def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 nside=256, random_seed=42, scale_unc=True,
-                 weighted_normalization=True):
+    def __init__(
+        self,
+        dir_x,
+        dir_y,
+        dir_z,
+        unc_x,
+        unc_y,
+        unc_z,
+        nside=256,
+        random_seed=42,
+        scale_unc=True,
+        weighted_normalization=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -434,8 +509,17 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         """
 
         # call init from base class
-        DNN_LLH_Base.__init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                              random_seed, weighted_normalization)
+        DNN_LLH_Base.__init__(
+            self,
+            dir_x,
+            dir_y,
+            dir_z,
+            unc_x,
+            unc_y,
+            unc_z,
+            random_seed,
+            weighted_normalization,
+        )
 
         def _setup(nside):
 
@@ -445,11 +529,13 @@ class DNN_LLH_normalized(DNN_LLH_Base):
             self.nside = nside
             self._n_order = self._nside2norder()
             self.npix = hp.nside2npix(nside)
-            self.dir_x_s, self.dir_y_s, self.dir_z_s = \
-                hp.pix2vec(nside, range(self.npix))
+            self.dir_x_s, self.dir_y_s, self.dir_z_s = hp.pix2vec(
+                nside, range(self.npix)
+            )
 
             self.neg_llh_values = -self.log_prob_dir(
-                self.dir_x_s, self.dir_y_s, self.dir_z_s)
+                self.dir_x_s, self.dir_y_s, self.dir_z_s
+            )
 
             # sort directions according to neg llh
             sorted_indices = np.argsort(self.neg_llh_values)
@@ -461,7 +547,8 @@ class DNN_LLH_normalized(DNN_LLH_Base):
 
             # get zenith and azimuth
             self.zenith_s, self.azimuth_s = self.get_zenith_azimuth(
-                            self.dir_x_s, self.dir_y_s, self.dir_z_s)
+                self.dir_x_s, self.dir_y_s, self.dir_z_s
+            )
 
             # get normalized probabilities and cdf
             prob = np.exp(-self.neg_llh_values)
@@ -512,7 +599,8 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         return multivariate_normal.logpdf(
             np.array([dir_x, dir_y, dir_z]).T,
             mean=np.array([self.dir_x, self.dir_y, self.dir_z]).T,
-            cov=self.cov)
+            cov=self.cov,
+        )
 
         # log_p = self.log_gauss(dir_x, self.dir_x, self.unc_x)
         # log_p += self.log_gauss(dir_y, self.dir_y, self.unc_y)
@@ -539,7 +627,7 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         """
         norder = np.log2(self.nside)
         if not (norder.is_integer()):
-            raise ValueError('Wrong nside number (it is not 2**norder)')
+            raise ValueError("Wrong nside number (it is not 2**norder)")
         return int(norder)
 
     def _sample_from_ipix(self, ipix, nest=False):
@@ -570,9 +658,9 @@ class DNN_LLH_normalized(DNN_LLH_Base):
             ipix = hp.ring2nest(self.nside, ipix=ipix)
 
         n_up = 29 - self._n_order
-        i_up = ipix * 4 ** n_up
-        i_up += self._random_state.randint(0, 4 ** n_up, size=np.size(ipix))
-        return hp.pix2vec(nside=2 ** 29, ipix=i_up, nest=True)
+        i_up = ipix * 4**n_up
+        i_up += self._random_state.randint(0, 4**n_up, size=np.size(ipix))
+        return hp.pix2vec(nside=2**29, ipix=i_up, nest=True)
 
     def sample_dir(self, n):
         """Sample direction vectors from the distribution
@@ -617,7 +705,7 @@ class DNN_LLH_normalized(DNN_LLH_Base):
             The cumulative probabilty for the given direction vectors.
         """
         if not self.is_normalized(dir_x, dir_y, dir_z):
-            print('cdf_dir is normalizing direction vectors')
+            print("cdf_dir is normalizing direction vectors")
             dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
 
         neg_llh = -self.log_prob_dir(dir_x, dir_y, dir_z)
@@ -654,21 +742,21 @@ class DNN_LLH_normalized(DNN_LLH_Base):
         ValueError
             If number of resulting samples is too low.
         """
-        assert level >= 0., level
-        assert level <= 1., level
+        assert level >= 0.0, level
+        assert level <= 1.0, level
 
         index_min = np.searchsorted(self.cdf_values, level - delta)
-        index_max = min(self.npix,
-                        np.searchsorted(self.cdf_values, level + delta))
+        index_max = min(
+            self.npix, np.searchsorted(self.cdf_values, level + delta)
+        )
 
         if index_max - index_min <= 10:
-            raise ValueError('Number of samples is too low!')
+            raise ValueError("Number of samples is too low!")
 
         return index_min, index_max
 
 
 class DNN_LLH(DNN_LLH_Base):
-
     """A class for calculating the PDF obtained from the DNN reco for models
     that estimate the direction vector components and their uncertainty in
     independent 1D Gaussian Likelihoods, while the direction vector is
@@ -707,10 +795,21 @@ class DNN_LLH(DNN_LLH_Base):
         This is the output of the DNN reco for the estimated uncertainty.
     """
 
-    def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 propagate_errors=False, num_samples=1000000, random_seed=42,
-                 scale_unc=True, weighted_normalization=True,
-                 fix_delta=True):
+    def __init__(
+        self,
+        dir_x,
+        dir_y,
+        dir_z,
+        unc_x,
+        unc_y,
+        unc_z,
+        propagate_errors=False,
+        num_samples=1000000,
+        random_seed=42,
+        scale_unc=True,
+        weighted_normalization=True,
+        fix_delta=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -761,8 +860,17 @@ class DNN_LLH(DNN_LLH_Base):
         """
 
         # call init from base class
-        DNN_LLH_Base.__init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                              random_seed, weighted_normalization)
+        DNN_LLH_Base.__init__(
+            self,
+            dir_x,
+            dir_y,
+            dir_z,
+            unc_x,
+            unc_y,
+            unc_z,
+            random_seed,
+            weighted_normalization,
+        )
 
         self._num_samples = num_samples
         self.propagate_errors = propagate_errors
@@ -773,7 +881,8 @@ class DNN_LLH(DNN_LLH_Base):
             u_dir_y = unumpy.uarray(dir_y, unc_y)
             u_dir_z = unumpy.uarray(dir_z, unc_z)
             u_dir_x, u_dir_y, u_dir_z = self.u_normalize_dir(
-                                                u_dir_x, u_dir_y, u_dir_z)
+                u_dir_x, u_dir_y, u_dir_z
+            )
 
             # Assign values with propagated and normalized vector
             self.unc_x = u_dir_x.std_dev
@@ -783,16 +892,20 @@ class DNN_LLH(DNN_LLH_Base):
             self.dir_y = u_dir_y.nominal_value
             self.dir_z = u_dir_z.nominal_value
             self.cov_matrix = np.array(
-                uncertainties.covariance_matrix([u_dir_x, u_dir_y, u_dir_z]))
+                uncertainties.covariance_matrix([u_dir_x, u_dir_y, u_dir_z])
+            )
             self.dist = multivariate_normal(
                 mean=(self.dir_x, self.dir_y, self.dir_z),
-                cov=self.cov_matrix, allow_singular=True)
+                cov=self.cov_matrix,
+                allow_singular=True,
+            )
         else:
             self.unc_x = unc_x
             self.unc_y = unc_y
             self.unc_z = unc_z
-            self.dir_x, self.dir_y, self.dir_z = \
-                self.normalize_dir(dir_x, dir_y, dir_z)
+            self.dir_x, self.dir_y, self.dir_z = self.normalize_dir(
+                dir_x, dir_y, dir_z
+            )
 
         # -------------------------
         # scale up unc if necessary
@@ -800,27 +913,33 @@ class DNN_LLH(DNN_LLH_Base):
         self.scale_unc = scale_unc
 
         if self.scale_unc:
+
             def _scale():
                 dir_x_s, dir_y_s, dir_z_s = self.sample_dir(
-                                                min(self._num_samples, 1000))
+                    min(self._num_samples, 1000)
+                )
                 # print('scaling x by:', self.unc_x / np.std(dir_x_s))
                 # print('scaling y by:', self.unc_y / np.std(dir_y_s))
                 # print('scaling z by:', self.unc_z / np.std(dir_z_s))
                 self.unc_x *= self.unc_x / np.std(dir_x_s)
                 self.unc_y *= self.unc_y / np.std(dir_y_s)
                 self.unc_z *= self.unc_z / np.std(dir_z_s)
+
             _scale()
 
         # -------------------------
 
         self.zenith, self.azimuth = self.get_zenith_azimuth(
-                                        self.dir_x, self.dir_y, self.dir_z)
+            self.dir_x, self.dir_y, self.dir_z
+        )
         # sample contours
-        self.dir_x_s, self.dir_y_s, self.dir_z_s = \
-            self.sample_dir(self._num_samples)
+        self.dir_x_s, self.dir_y_s, self.dir_z_s = self.sample_dir(
+            self._num_samples
+        )
 
         self.neg_llh_values = -self.log_prob_dir(
-            self.dir_x_s, self.dir_y_s, self.dir_z_s)
+            self.dir_x_s, self.dir_y_s, self.dir_z_s
+        )
 
         # sort sampled points according to neg llh
         sorted_indices = np.argsort(self.neg_llh_values)
@@ -831,7 +950,8 @@ class DNN_LLH(DNN_LLH_Base):
 
         # get sampled zenith and azimuth
         self.zenith_s, self.azimuth_s = self.get_zenith_azimuth(
-                        self.dir_x_s, self.dir_y_s, self.dir_z_s)
+            self.dir_x_s, self.dir_y_s, self.dir_z_s
+        )
 
     def log_prob_dir(self, dir_x, dir_y, dir_z):
         """Calculate the log probability for given direction vectors.
@@ -869,33 +989,36 @@ class DNN_LLH(DNN_LLH_Base):
             The sampled direction vector components.
         """
         if self._fix_delta:
-            delta_x = self._random_state.normal(0., self.unc_x, n)
-            delta_y = self._random_state.normal(0., self.unc_y, n)
-            delta_z = self._random_state.normal(0., self.unc_z, n)
+            delta_x = self._random_state.normal(0.0, self.unc_x, n)
+            delta_y = self._random_state.normal(0.0, self.unc_y, n)
+            delta_z = self._random_state.normal(0.0, self.unc_z, n)
 
             def fix_delta(delta, d):
                 # return delta
-                mask_over_bound = np.abs(d + delta) > 1.
+                mask_over_bound = np.abs(d + delta) > 1.0
 
                 # see if these can be fixed by going in the other direction
-                mask_allowed = np.abs(d - delta) < 1.
+                mask_allowed = np.abs(d - delta) < 1.0
                 mask_fixable = np.logical_and(mask_over_bound, mask_allowed)
-                mask_on_boundary = np.logical_and(mask_over_bound,
-                                                  ~mask_allowed)
+                mask_on_boundary = np.logical_and(
+                    mask_over_bound, ~mask_allowed
+                )
 
                 # For those events that are over bounds in either direction,
                 # choose the furthest boundary
                 delta_max = 1 + np.abs(d)
-                mask_on_left_boundary = np.logical_and(mask_on_boundary,
-                                                       d > 0.)
-                mask_on_right_boundary = np.logical_and(mask_on_boundary,
-                                                        d < 0.)
+                mask_on_left_boundary = np.logical_and(
+                    mask_on_boundary, d > 0.0
+                )
+                mask_on_right_boundary = np.logical_and(
+                    mask_on_boundary, d < 0.0
+                )
 
                 delta[mask_on_left_boundary] = -delta_max
                 delta[mask_on_right_boundary] = +delta_max
 
                 # fix directions which are fixable
-                delta[mask_fixable] *= -1.
+                delta[mask_fixable] *= -1.0
                 return delta
 
             dir_x_s = self.dir_x + fix_delta(delta_x, self.dir_x)
@@ -907,7 +1030,8 @@ class DNN_LLH(DNN_LLH_Base):
             dir_y_s = self._random_state.normal(self.dir_y, self.unc_y, n)
             dir_z_s = self._random_state.normal(self.dir_z, self.unc_z, n)
         dir_x_s, dir_y_s, dir_z_s = self.normalize_dir(
-                                    dir_x_s, dir_y_s, dir_z_s)
+            dir_x_s, dir_y_s, dir_z_s
+        )
         return dir_x_s, dir_y_s, dir_z_s
 
     def cdf_dir(self, dir_x, dir_y, dir_z):
@@ -928,12 +1052,12 @@ class DNN_LLH(DNN_LLH_Base):
             The cumulative probabilty for the given direction vectors.
         """
         if not self.is_normalized(dir_x, dir_y, dir_z):
-            print('cdf_dir is normalizing direction vectors')
+            print("cdf_dir is normalizing direction vectors")
             dir_x, dir_y, dir_z = self.normalize_dir(dir_x, dir_y, dir_z)
 
         neg_llh = -self.log_prob_dir(dir_x, dir_y, dir_z)
         pos = np.searchsorted(self.neg_llh_values, neg_llh)
-        cdf = 1.0*pos / self._num_samples
+        cdf = 1.0 * pos / self._num_samples
         return cdf
 
     def _get_level_indices(self, level=0.5, delta=0.001):
@@ -963,8 +1087,8 @@ class DNN_LLH(DNN_LLH_Base):
         ValueError
             If number of resulting samples is too low.
         """
-        assert level >= 0., level
-        assert level <= 1., level
+        assert level >= 0.0, level
+        assert level <= 1.0, level
 
         index_at_level = int(self._num_samples * level)
 
@@ -972,10 +1096,9 @@ class DNN_LLH(DNN_LLH_Base):
         delta_index = int(self._num_samples * delta)
 
         index_min = max(0, index_at_level - delta_index)
-        index_max = min(self._num_samples,
-                        index_at_level + delta_index)
+        index_max = min(self._num_samples, index_at_level + delta_index)
 
         if index_max - index_min <= 10:
-            raise ValueError('Number of samples is too low!')
+            raise ValueError("Number of samples is too low!")
 
         return index_min, index_max

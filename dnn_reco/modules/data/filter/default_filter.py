@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import numpy as np
+
 """
 All filter functions must have the following parameters and return values:
 
@@ -40,8 +41,18 @@ All filter functions must have the following parameters and return values:
 """
 
 
-def dummy_filter(data_handler, input_data, config,  x_ic70, x_deepcore, labels,
-                 misc_data, time_range_start, *args, **kwargs):
+def dummy_filter(
+    data_handler,
+    input_data,
+    config,
+    x_ic70,
+    x_deepcore,
+    labels,
+    misc_data,
+    time_range_start,
+    *args,
+    **kwargs
+):
     """Dummy filter that accepts all events.
 
     Parameters
@@ -83,8 +94,18 @@ def dummy_filter(data_handler, input_data, config,  x_ic70, x_deepcore, labels,
     return np.ones(len(time_range_start), dtype=bool)
 
 
-def general_filter(data_handler, input_data, config,  x_ic70, x_deepcore,
-                   labels, misc_data, time_range_start, *args, **kwargs):
+def general_filter(
+    data_handler,
+    input_data,
+    config,
+    x_ic70,
+    x_deepcore,
+    labels,
+    misc_data,
+    time_range_start,
+    *args,
+    **kwargs
+):
     """A general filter.
 
     Filters events according to the key value pairs defined in the config:
@@ -147,32 +168,35 @@ def general_filter(data_handler, input_data, config,  x_ic70, x_deepcore,
     mask_true = np.ones(len(time_range_start), dtype=bool)
 
     # go through equal mask
-    if 'filter_equal' in config:
-        for key, value in config['filter_equal'].items():
+    if "filter_equal" in config:
+        for key, value in config["filter_equal"].items():
             mask_true = np.logical_and(
                 mask_true,
-                misc_data[:, data_handler.misc_name_dict[key]] == value)
+                misc_data[:, data_handler.misc_name_dict[key]] == value,
+            )
 
     # go through greater than mask
-    if 'filter_greater_than' in config:
-        for key, value in config['filter_greater_than'].items():
+    if "filter_greater_than" in config:
+        for key, value in config["filter_greater_than"].items():
             mask_true = np.logical_and(
                 mask_true,
-                misc_data[:, data_handler.misc_name_dict[key]] > value)
+                misc_data[:, data_handler.misc_name_dict[key]] > value,
+            )
 
     # go through less than mask
-    if 'filter_less_than' in config:
-        for key, value in config['filter_less_than'].items():
+    if "filter_less_than" in config:
+        for key, value in config["filter_less_than"].items():
             mask_true = np.logical_and(
                 mask_true,
-                misc_data[:, data_handler.misc_name_dict[key]] < value)
+                misc_data[:, data_handler.misc_name_dict[key]] < value,
+            )
 
     # Only run the filter on events with MC Primaries of specified PDG encoding
-    if 'filter_apply_on_pdg_encodings' in config:
-        pdg_encodings = config['filter_apply_on_pdg_encodings']
+    if "filter_apply_on_pdg_encodings" in config:
+        pdg_encodings = config["filter_apply_on_pdg_encodings"]
 
         if pdg_encodings:
-            pdg_key = 'MCPrimary_pdg_encoding'
+            pdg_key = "MCPrimary_pdg_encoding"
 
             pdg_values = misc_data[:, data_handler.misc_name_dict[pdg_key]]
             mask_pdg = np.array([p not in pdg_encodings for p in pdg_values])

@@ -9,7 +9,6 @@ from dnn_reco import detector
 
 
 class DataTransformer:
-
     """Transforms data
 
     Attributes
@@ -18,11 +17,19 @@ class DataTransformer:
         A dictionary containing the transformation settings and parameters.
     """
 
-    def __init__(self, data_handler,
-                 treat_doms_equally=True, normalize_dom_data=True,
-                 normalize_label_data=True, normalize_misc_data=True,
-                 log_dom_bins=False, log_label_bins=False, log_misc_bins=False,
-                 norm_constant=1e-6, float_precision='float64'):
+    def __init__(
+        self,
+        data_handler,
+        treat_doms_equally=True,
+        normalize_dom_data=True,
+        normalize_label_data=True,
+        normalize_misc_data=True,
+        log_dom_bins=False,
+        log_label_bins=False,
+        log_misc_bins=False,
+        norm_constant=1e-6,
+        float_precision="float64",
+    ):
         """Initializes a DataTransformer object and saves the trafo settings.
 
         Parameters
@@ -88,8 +95,9 @@ class DataTransformer:
             log_dom_bins = [log_dom_bins for i in range(data_handler.num_bins)]
 
         if isinstance(log_label_bins, bool):
-            log_label_bins = [log_label_bins
-                              for i in range(data_handler.label_shape[-1])]
+            log_label_bins = [
+                log_label_bins for i in range(data_handler.label_shape[-1])
+            ]
         elif isinstance(log_label_bins, dict):
             log_dict = dict(log_label_bins)
             log_label_bins = np.zeros(data_handler.label_shape[-1], dtype=bool)
@@ -97,8 +105,9 @@ class DataTransformer:
                 log_label_bins[data_handler.get_label_index(key)] = bool(value)
 
         if isinstance(log_misc_bins, bool) and data_handler.misc_shape:
-            log_misc_bins = [log_misc_bins
-                             for i in range(data_handler.misc_shape[-1])]
+            log_misc_bins = [
+                log_misc_bins for i in range(data_handler.misc_shape[-1])
+            ]
         elif isinstance(log_misc_bins, dict) and data_handler.misc_shape:
             log_dict = dict(log_misc_bins)
             log_misc_bins = np.zeros(data_handler.misc_shape[-1], dtype=bool)
@@ -107,41 +116,48 @@ class DataTransformer:
 
         # Some sanity checks
         if len(log_dom_bins) != data_handler.num_bins:
-            raise ValueError('{!r} != {!r}. Wrong log_bins: {!r}'.format(
-                                                        len(log_dom_bins),
-                                                        data_handler.num_bins,
-                                                        log_dom_bins))
+            raise ValueError(
+                "{!r} != {!r}. Wrong log_bins: {!r}".format(
+                    len(log_dom_bins), data_handler.num_bins, log_dom_bins
+                )
+            )
         if len(log_label_bins) != data_handler.label_shape[-1]:
-            raise ValueError('{!r} != {!r}. Wrong log_bins: {!r}'.format(
-                                                len(log_label_bins),
-                                                data_handler.label_shape[-1],
-                                                log_label_bins))
+            raise ValueError(
+                "{!r} != {!r}. Wrong log_bins: {!r}".format(
+                    len(log_label_bins),
+                    data_handler.label_shape[-1],
+                    log_label_bins,
+                )
+            )
         if data_handler.misc_shape is not None:
             if len(log_misc_bins) != data_handler.misc_shape[-1]:
-                raise ValueError('{!r} != {!r}. Wrong log_bins: {!r}'.format(
-                                                len(log_misc_bins),
-                                                data_handler.misc_shape[-1],
-                                                log_misc_bins))
+                raise ValueError(
+                    "{!r} != {!r}. Wrong log_bins: {!r}".format(
+                        len(log_misc_bins),
+                        data_handler.misc_shape[-1],
+                        log_misc_bins,
+                    )
+                )
 
         # create trafo_model_dict
         self.trafo_model = {
-            'num_bins': data_handler.num_bins,
-            'label_shape': data_handler.label_shape,
-            'misc_shape': data_handler.misc_shape,
-            'misc_names': data_handler.misc_names,
-            'label_names': data_handler.label_names,
-            'treat_doms_equally': treat_doms_equally,
-            'normalize_dom_data': normalize_dom_data,
-            'normalize_label_data': normalize_label_data,
-            'normalize_misc_data': normalize_misc_data,
-            'log_dom_bins': log_dom_bins,
-            'log_label_bins': log_label_bins,
-            'log_misc_bins': log_misc_bins,
-            'norm_constant': norm_constant,
+            "num_bins": data_handler.num_bins,
+            "label_shape": data_handler.label_shape,
+            "misc_shape": data_handler.misc_shape,
+            "misc_names": data_handler.misc_names,
+            "label_names": data_handler.label_names,
+            "treat_doms_equally": treat_doms_equally,
+            "normalize_dom_data": normalize_dom_data,
+            "normalize_label_data": normalize_label_data,
+            "normalize_misc_data": normalize_misc_data,
+            "log_dom_bins": log_dom_bins,
+            "log_label_bins": log_label_bins,
+            "log_misc_bins": log_misc_bins,
+            "norm_constant": norm_constant,
         }
 
-        self._ic78_shape = [10, 10, 60, self.trafo_model['num_bins']]
-        self._deepcore_shape = [8, 60, self.trafo_model['num_bins']]
+        self._ic78_shape = [10, 10, 60, self.trafo_model["num_bins"]]
+        self._deepcore_shape = [8, 60, self.trafo_model["num_bins"]]
 
     def _update_online_variance_vars(self, data_batch, n, mean, M2):
         """Update online variance variables.
@@ -170,9 +186,9 @@ class DataTransformer:
         for x in data_batch:
             n += 1
             delta = x - mean
-            mean += delta/n
+            mean += delta / n
             delta2 = x - mean
-            M2 += delta*delta2
+            M2 += delta * delta2
         return n, mean, M2
 
     def _perform_update_step(self, log_bins, data_batch, n, mean, M2):
@@ -210,8 +226,9 @@ class DataTransformer:
                 data_batch[..., bin_i] = np.log(1.0 + data_batch[..., bin_i])
 
         # calculate onlince variance and mean for DOM responses
-        return self._update_online_variance_vars(data_batch=data_batch, n=n,
-                                                 mean=mean, M2=M2)
+        return self._update_online_variance_vars(
+            data_batch=data_batch, n=n, mean=mean, M2=M2
+        )
 
     def create_trafo_model_iteratively(self, data_iterator, num_batches):
         """Iteratively create a transformation model.
@@ -226,104 +243,110 @@ class DataTransformer:
         """
 
         # create empty onlince variance variables
-        ic78_n = 0.
+        ic78_n = 0.0
         ic78_mean = np.zeros(self._ic78_shape)
         ic78_M2 = np.zeros(self._ic78_shape)
 
-        deepcore_n = 0.
+        deepcore_n = 0.0
         deepcore_mean = np.zeros(self._deepcore_shape)
         deepcore_M2 = np.zeros(self._deepcore_shape)
 
-        label_n = 0.
-        label_mean = np.zeros(self.trafo_model['label_shape'])
-        label_M2 = np.zeros(self.trafo_model['label_shape'])
+        label_n = 0.0
+        label_mean = np.zeros(self.trafo_model["label_shape"])
+        label_M2 = np.zeros(self.trafo_model["label_shape"])
 
-        if self.trafo_model['misc_shape'] is not None:
-            misc_n = 0.
-            misc_mean = np.zeros(self.trafo_model['misc_shape'])
-            misc_M2 = np.zeros(self.trafo_model['misc_shape'])
+        if self.trafo_model["misc_shape"] is not None:
+            misc_n = 0.0
+            misc_mean = np.zeros(self.trafo_model["misc_shape"])
+            misc_M2 = np.zeros(self.trafo_model["misc_shape"])
 
         for i in tqdm(range(num_batches), total=num_batches):
 
             x_ic78, x_deepcore, label, misc_data = next(data_iterator)
 
             ic78_n, ic78_mean, ic78_M2 = self._perform_update_step(
-                                    log_bins=self.trafo_model['log_dom_bins'],
-                                    data_batch=x_ic78,
-                                    n=ic78_n,
-                                    mean=ic78_mean,
-                                    M2=ic78_M2)
+                log_bins=self.trafo_model["log_dom_bins"],
+                data_batch=x_ic78,
+                n=ic78_n,
+                mean=ic78_mean,
+                M2=ic78_M2,
+            )
 
             deepcore_n, deepcore_mean, deepcore_M2 = self._perform_update_step(
-                                    log_bins=self.trafo_model['log_dom_bins'],
-                                    data_batch=x_deepcore,
-                                    n=deepcore_n,
-                                    mean=deepcore_mean,
-                                    M2=deepcore_M2)
+                log_bins=self.trafo_model["log_dom_bins"],
+                data_batch=x_deepcore,
+                n=deepcore_n,
+                mean=deepcore_mean,
+                M2=deepcore_M2,
+            )
 
             label_n, label_mean, label_M2 = self._perform_update_step(
-                                log_bins=self.trafo_model['log_label_bins'],
-                                data_batch=label,
-                                n=label_n,
-                                mean=label_mean,
-                                M2=label_M2)
+                log_bins=self.trafo_model["log_label_bins"],
+                data_batch=label,
+                n=label_n,
+                mean=label_mean,
+                M2=label_M2,
+            )
 
-            if self.trafo_model['misc_shape'] is not None:
+            if self.trafo_model["misc_shape"] is not None:
                 misc_n, misc_mean, misc_M2 = self._perform_update_step(
-                            log_bins=self.trafo_model['log_misc_bins'],
-                            data_batch=misc_data,
-                            n=misc_n,
-                            mean=misc_mean,
-                            M2=misc_M2)
+                    log_bins=self.trafo_model["log_misc_bins"],
+                    data_batch=misc_data,
+                    n=misc_n,
+                    mean=misc_mean,
+                    M2=misc_M2,
+                )
 
         # Calculate standard deviation
         ic78_std = np.sqrt(ic78_M2 / ic78_n)
         deepcore_std = np.sqrt(deepcore_M2 / deepcore_n)
         label_std = np.sqrt(label_M2 / label_n)
 
-        if self.trafo_model['misc_shape'] is not None:
+        if self.trafo_model["misc_shape"] is not None:
             misc_std = np.sqrt(misc_M2 / misc_n)
 
         # combine DOM data over all DOMs if desired
-        if self.trafo_model['treat_doms_equally']:
+        if self.trafo_model["treat_doms_equally"]:
 
             # initalize with zeros
-            self.trafo_model['ic78_mean'] = np.zeros(self._ic78_shape)
-            self.trafo_model['ic78_std'] = np.zeros(self._ic78_shape)
+            self.trafo_model["ic78_mean"] = np.zeros(self._ic78_shape)
+            self.trafo_model["ic78_std"] = np.zeros(self._ic78_shape)
 
             # now calculate normalization for real DOMs
-            self.trafo_model['ic78_mean'][detector.ic78_real_DOMs_mask] = \
+            self.trafo_model["ic78_mean"][detector.ic78_real_DOMs_mask] = (
                 np.mean(ic78_mean[detector.ic78_real_DOMs_mask], axis=0)
-            self.trafo_model['ic78_std'][detector.ic78_real_DOMs_mask] = \
+            )
+            self.trafo_model["ic78_std"][detector.ic78_real_DOMs_mask] = (
                 np.mean(ic78_std[detector.ic78_real_DOMs_mask], axis=0)
+            )
 
             # DeepCore
-            self.trafo_model['deepcore_mean'] = np.mean(deepcore_mean,
-                                                        axis=(0, 1),
-                                                        keepdims=True)
-            self.trafo_model['deepcore_std'] = np.mean(deepcore_std,
-                                                       axis=(0, 1),
-                                                       keepdims=True)
+            self.trafo_model["deepcore_mean"] = np.mean(
+                deepcore_mean, axis=(0, 1), keepdims=True
+            )
+            self.trafo_model["deepcore_std"] = np.mean(
+                deepcore_std, axis=(0, 1), keepdims=True
+            )
         else:
-            self.trafo_model['ic78_mean'] = ic78_mean
-            self.trafo_model['ic78_std'] = ic78_std
-            self.trafo_model['deepcore_mean'] = deepcore_mean
-            self.trafo_model['deepcore_std'] = deepcore_std
+            self.trafo_model["ic78_mean"] = ic78_mean
+            self.trafo_model["ic78_std"] = ic78_std
+            self.trafo_model["deepcore_mean"] = deepcore_mean
+            self.trafo_model["deepcore_std"] = deepcore_std
 
-        self.trafo_model['label_mean'] = label_mean
-        self.trafo_model['label_std'] = label_std
+        self.trafo_model["label_mean"] = label_mean
+        self.trafo_model["label_std"] = label_std
 
-        if self.trafo_model['misc_shape'] is not None:
-            self.trafo_model['misc_mean'] = misc_mean
-            self.trafo_model['misc_std'] = misc_std
+        if self.trafo_model["misc_shape"] is not None:
+            self.trafo_model["misc_mean"] = misc_mean
+            self.trafo_model["misc_std"] = misc_std
 
         # set constant parameters to have a std dev of 1 instead of zero
-        std_names = ['ic78_std', 'deepcore_std', 'label_std']
-        if self.trafo_model['misc_shape'] is not None:
-            std_names.append('misc_std')
+        std_names = ["ic78_std", "deepcore_std", "label_std"]
+        if self.trafo_model["misc_shape"] is not None:
+            std_names.append("misc_std")
         for key in std_names:
             mask = self.trafo_model[key] == 0
-            self.trafo_model[key][mask] = 1.
+            self.trafo_model[key][mask] = 1.0
 
         self._setup_complete = True
 
@@ -344,20 +367,21 @@ class DataTransformer:
             transformation model.
         """
         # load trafo model from file
-        with open(model_path, 'rb') as handle:
+        with open(model_path, "rb") as handle:
             if sys.version_info.major >= 3:
-                trafo_model = pickle.load(handle, encoding='latin1')
+                trafo_model = pickle.load(handle, encoding="latin1")
             else:
                 trafo_model = pickle.load(handle)
 
         # make sure that settings match
         for key in self.trafo_model:
             if key not in trafo_model:
-                raise ValueError('Key {!r} does not exist in {!r}'.format(
-                    key, model_path))
+                raise ValueError(
+                    "Key {!r} does not exist in {!r}".format(key, model_path)
+                )
 
             mismatch = self.trafo_model[key] != trafo_model[key]
-            error_msg = 'Setting {!r} does not match!'.format(key)
+            error_msg = "Setting {!r} does not match!".format(key)
             if isinstance(mismatch, bool):
                 if mismatch:
                     raise ValueError(error_msg)
@@ -377,7 +401,7 @@ class DataTransformer:
         model_path : str
             Path to trafo model file.
         """
-        with open(model_path, 'wb') as handle:
+        with open(model_path, "wb") as handle:
             pickle.dump(self.trafo_model, handle, protocol=2)
 
     def _check_settings(self, data, data_type):
@@ -407,31 +431,35 @@ class DataTransformer:
         data_type = data_type.lower()
 
         if not self._setup_complete:
-            raise ValueError('DataTransformer needs to create or load a trafo'
-                             'model prior to transform call.')
+            raise ValueError(
+                "DataTransformer needs to create or load a trafo"
+                "model prior to transform call."
+            )
 
-        if data_type not in ['ic78', 'deepcore', 'label', 'misc']:
-            raise ValueError('data_type {!r} is unknown!'.format(data_type))
+        if data_type not in ["ic78", "deepcore", "label", "misc"]:
+            raise ValueError("data_type {!r} is unknown!".format(data_type))
 
         # check if shape of data matches expected shape
-        if data_type == 'ic78':
-            shape = [10, 10, 60, self.trafo_model['num_bins']]
-        elif data_type == 'deepcore':
-            shape = [8, 60, self.trafo_model['num_bins']]
+        if data_type == "ic78":
+            shape = [10, 10, 60, self.trafo_model["num_bins"]]
+        elif data_type == "deepcore":
+            shape = [8, 60, self.trafo_model["num_bins"]]
         else:
-            shape = self.trafo_model['{}_shape'.format(data_type)]
+            shape = self.trafo_model["{}_shape".format(data_type)]
 
         if list(data.shape[1:]) != shape:
-            raise ValueError('Shape of data {!r} does'.format(data.shape[1:]) +
-                             ' not match expected shape {!r}'.format(shape))
+            raise ValueError(
+                "Shape of data {!r} does".format(data.shape[1:])
+                + " not match expected shape {!r}".format(shape)
+            )
 
-        if data_type in ['ic78', 'deepcore']:
-            log_name = 'log_dom_bins'
-            normalize_name = 'normalize_dom_data'
+        if data_type in ["ic78", "deepcore"]:
+            log_name = "log_dom_bins"
+            normalize_name = "normalize_dom_data"
 
         else:
-            log_name = 'log_{}_bins'.format(data_type)
-            normalize_name = 'normalize_{}_data'.format(data_type)
+            log_name = "log_{}_bins".format(data_type)
+            normalize_name = "normalize_{}_data".format(data_type)
 
         is_tf = tf.is_tensor(data)
 
@@ -480,8 +508,9 @@ class DataTransformer:
             If DataTransformer object has not created or loaded a trafo model.
             If provided data_type is unkown.
         """
-        data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
+        data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = (
             self._check_settings(data, data_type)
+        )
 
         # perform logarithm on bins
         if bias_correction:
@@ -505,9 +534,11 @@ class DataTransformer:
         # normalize data
         if self.trafo_model[normalize_name]:
             if bias_correction:
-                data -= self.trafo_model['{}_mean'.format(data_type.lower())]
-            data /= (self.trafo_model['norm_constant'] +
-                     self.trafo_model['{}_std'.format(data_type.lower())])
+                data -= self.trafo_model["{}_mean".format(data_type.lower())]
+            data /= (
+                self.trafo_model["norm_constant"]
+                + self.trafo_model["{}_std".format(data_type.lower())]
+            )
 
         # cast back to original dtype
         if is_tf:
@@ -548,15 +579,18 @@ class DataTransformer:
             If DataTransformer object has not created or loaded a trafo model.
             If provided data_type is unkown.
         """
-        data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = \
+        data, log_name, normalize_name, log_func, exp_func, is_tf, dtype = (
             self._check_settings(data, data_type)
+        )
 
         # de-normalize data
         if self.trafo_model[normalize_name]:
-            data *= (self.trafo_model['norm_constant'] +
-                     self.trafo_model['{}_std'.format(data_type.lower())])
+            data *= (
+                self.trafo_model["norm_constant"]
+                + self.trafo_model["{}_std".format(data_type.lower())]
+            )
             if bias_correction:
-                data += self.trafo_model['{}_mean'.format(data_type.lower())]
+                data += self.trafo_model["{}_mean".format(data_type.lower())]
 
         # undo logarithm on bins
         if bias_correction:
@@ -570,8 +604,9 @@ class DataTransformer:
                     data_list = tf.unstack(data, axis=-1)
                     for bin_i, do_log in enumerate(self.trafo_model[log_name]):
                         if do_log:
-                            data_list[bin_i] = \
-                                tf.clip_by_value(data_list[bin_i], -60., 60.)
+                            data_list[bin_i] = tf.clip_by_value(
+                                data_list[bin_i], -60.0, 60.0
+                            )
                             data_list[bin_i] = exp_func(data_list[bin_i]) - 1.0
                     data = tf.stack(data_list, axis=-1)
                 else:

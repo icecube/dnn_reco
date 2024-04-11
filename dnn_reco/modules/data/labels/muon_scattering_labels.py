@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 
 from dnn_reco.modules.data.labels.default_labels import simple_label_loader
+
 """
 All label functions must have the following parameters and return values:
 
@@ -60,17 +61,19 @@ def muon_scattering(input_data, config, label_names=None, *args, **kwargs):
         The names of the labels
     """
     labels, label_names_def = simple_label_loader(
-                        input_data, config, label_names=None, *args, **kwargs)
+        input_data, config, label_names=None, *args, **kwargs
+    )
 
-    if 'labels_muon_scattering_defs' not in config:
-        config['labels_muon_scattering_defs'] = {}
+    if "labels_muon_scattering_defs" not in config:
+        config["labels_muon_scattering_defs"] = {}
 
     label_dict = {}
     for i, name in enumerate(label_names_def):
         label_dict[name] = labels[:, i]
 
-    for def_name, scattering_def in \
-            config['labels_muon_scattering_defs'].items():
+    for def_name, scattering_def in config[
+        "labels_muon_scattering_defs"
+    ].items():
         passed_cuts = np.ones_like(labels[:, 0], dtype=bool)
         for key, value in scattering_def.items():
             passed_cuts = np.logical_and(passed_cuts, label_dict[key] >= value)
@@ -83,6 +86,6 @@ def muon_scattering(input_data, config, label_names=None, *args, **kwargs):
     for name in label_names:
         labels.append(label_dict[name])
 
-    labels = np.array(labels, dtype=config['np_float_precision']).T
+    labels = np.array(labels, dtype=config["np_float_precision"]).T
 
     return labels, label_names

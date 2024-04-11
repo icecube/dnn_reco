@@ -25,4 +25,3 @@ where we will focus on:
    code/01_scripts
    code/02_modules
    code/03_classes
-
