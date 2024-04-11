@@ -37,6 +37,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = ["pre-commit","black","ruff"]
 test = ["pytest", "coverage", "codecov"]
+docs = ["sphinx-rtd-theme"]
 icecube = [
     "ic3-labels @ git+ssh://git@github.com/icecube/ic3-labels",
     "ic3-data @ git+ssh://git@github.com/icecube/ic3-data",
