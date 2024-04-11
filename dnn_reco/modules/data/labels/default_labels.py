@@ -1,7 +1,3 @@
-from __future__ import division, print_function
-import pandas as pd
-import numpy as np
-
 """
 All label functions must have the following parameters and return values:
 
@@ -30,6 +26,10 @@ All label functions must have the following parameters and return values:
     list of str
         The names of the labels
 """
+
+from __future__ import division, print_function
+import pandas as pd
+import numpy as np
 
 
 def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):

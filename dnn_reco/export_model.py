@@ -8,7 +8,6 @@ import click
 import ruamel.yaml as yaml
 import tensorflow as tf
 
-from dnn_reco import misc
 from dnn_reco.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer

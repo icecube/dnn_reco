@@ -1,15 +1,3 @@
-from __future__ import division, print_function
-import numpy as np
-import tensorflow as tf
-
-# Check and allow for newer TFScripts versions
-try:
-    from tfscripts.compat.v1 import layers as tfs
-except ImportError:
-    from tfscripts import layers as tfs
-
-from dnn_reco.modules.models.utils.model_utils import preprocess_icecube_data
-
 """
 All defined models must have the following signature:
 
@@ -45,6 +33,18 @@ All defined models must have the following signature:
         The trainable parameters of the uncertainty sub network.
         Can optionally be an empty list.
 """
+
+from __future__ import division, print_function
+import numpy as np
+import tensorflow as tf
+
+# Check and allow for newer TFScripts versions
+try:
+    from tfscripts.compat.v1 import layers as tfs
+except ImportError:
+    from tfscripts import layers as tfs
+
+from dnn_reco.modules.models.utils.model_utils import preprocess_icecube_data
 
 
 def general_model_IC86(
@@ -153,11 +153,6 @@ def general_model_IC86(
         )
 
         # combine layers
-        num_features = (
-            num_features_DeepCore_1
-            + num_features_DeepCore_2
-            + num_features_IC78
-        )
         layer_flat = tf.concat(
             [layer_flat_IC78, layer_flat_DeepCore_1, layer_flat_DeepCore_2],
             axis=1,
@@ -441,11 +436,6 @@ def general_model_IC86_opt4(
         )
 
         # combine layers
-        num_features = (
-            num_features_DeepCore_1
-            + num_features_DeepCore_2
-            + num_features_IC78
-        )
         layer_flat = tf.concat(
             [layer_flat_IC78, layer_flat_DeepCore_1, layer_flat_DeepCore_2],
             axis=1,

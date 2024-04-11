@@ -1,6 +1,3 @@
-from __future__ import division, print_function
-import numpy as np
-
 """
 All filter functions must have the following parameters and return values:
 
@@ -39,6 +36,9 @@ All filter functions must have the following parameters and return values:
         The boolean mask to filter out events.
         shape: [batch_size]
 """
+
+from __future__ import division, print_function
+import numpy as np
 
 
 def dummy_filter(

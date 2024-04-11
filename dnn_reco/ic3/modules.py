@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import os
 import logging
@@ -11,9 +9,6 @@ from collections import deque
 
 from icecube import icetray, dataclasses
 import ruamel.yaml as yaml
-
-from ic3_data.container import DNNDataContainer
-from ic3_data.data import DNNContainerHandler
 
 from dnn_reco.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
@@ -296,12 +291,12 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 if b
             ]
             self._non_zero_log_bins = [
-                l
-                for l, b in zip(
+                log_bin
+                for log_bin, bin in zip(
                     self.data_transformer.trafo_model["log_label_bins"],
                     self._mask_labels,
                 )
-                if b
+                if bin
             ]
 
     def Process(self):

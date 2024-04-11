@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function
-import os
 import click
-import ruamel.yaml as yaml
 from tqdm import tqdm
 import glob
 import pandas as pd
 from multiprocessing import Pool
 
-from dnn_reco import misc
 from dnn_reco.setup_manager import SetupManager
-from dnn_reco.data_handler import DataHandler
-from dnn_reco.data_trafo import DataTransformer
 
 
 def count_num_events(data):

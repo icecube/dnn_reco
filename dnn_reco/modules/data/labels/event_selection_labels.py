@@ -1,7 +1,3 @@
-from __future__ import division, print_function
-import pandas as pd
-import numpy as np
-
 """
 All label functions must have the following parameters and return values:
 
@@ -30,6 +26,10 @@ All label functions must have the following parameters and return values:
     list of str
         The names of the labels
 """
+
+from __future__ import division, print_function
+import pandas as pd
+import numpy as np
 
 
 def astroness(input_data, config, label_names=None, *args, **kwargs):
@@ -65,16 +65,11 @@ def astroness(input_data, config, label_names=None, *args, **kwargs):
         The names of the labels
     """
 
-    if "labels_starting_cascades_lengths" in config:
-        lengths = [int(l) for l in config["labels_starting_cascades_lengths"]]
-    else:
-        lengths = [25, 50, 100]
-
     with pd.HDFStore(input_data, mode="r") as f:
         _primary = f["MCPrimary"]
         try:
             _weights = f["weights_mese"]
-        except KeyError as error:
+        except KeyError:
             # load dummy weights, this should only happen with Corsika files,
             # e.g. astroness should be all zero, which is checked by assert
             _weights = f["weights"]
@@ -161,13 +156,17 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
     """
 
     if "labels_starting_cascades_lengths" in config:
-        lengths = [int(l) for l in config["labels_starting_cascades_lengths"]]
+        lengths = [
+            int(cascade_len)
+            for cascade_len in config["labels_starting_cascades_lengths"]
+        ]
     else:
         lengths = [25, 50, 100]
 
     if "labels_starting_cascades_distances" in config:
         distances = [
-            float(l) for l in config["labels_starting_cascades_distances"]
+            float(dist)
+            for dist in config["labels_starting_cascades_distances"]
         ]
     else:
         distances = [-60.0, 0.0, 60, 300.0, float("inf")]
@@ -195,43 +194,43 @@ def starting_cascades(input_data, config, label_names=None, *args, **kwargs):
     label_name_base = "p_starting_cascade_L{}_D{}"
     label_dict = {}
     label_names_list = []
-    for l in lengths:
+    for length in lengths:
 
-        mask = np.logical_and(is_neutrino, cascade_lengths <= l)
+        mask = np.logical_and(is_neutrino, cascade_lengths <= length)
 
         # get hull distance -60m
         if -60.0 in distances:
-            name = label_name_base.format(l, "m60")
+            name = label_name_base.format(length, "m60")
             label_names_list.append(name)
             label_dict[name] = np.logical_and(mask, _labels_m60["p_starting"])
 
         # get hull distance 0m
         if 0.0 in distances:
-            name = label_name_base.format(l, "0")
+            name = label_name_base.format(length, "0")
             label_names_list.append(name)
             label_dict[name] = np.logical_and(mask, _labels["p_starting"])
 
         # get hull distance 60m
         if 60.0 in distances:
-            name = label_name_base.format(l, "60")
+            name = label_name_base.format(length, "60")
             label_names_list.append(name)
             label_dict[name] = np.logical_and(mask, _labels_p60["p_starting"])
 
         # get hull distance 150m
         if 150.0 in distances:
-            name = label_name_base.format(l, "150")
+            name = label_name_base.format(length, "150")
             label_names_list.append(name)
             label_dict[name] = np.logical_and(mask, _labels_p150["p_starting"])
 
         # get hull distance 300m
         if 300.0 in distances:
-            name = label_name_base.format(l, "300")
+            name = label_name_base.format(length, "300")
             label_names_list.append(name)
             label_dict[name] = np.logical_and(mask, _labels["p_starting_300m"])
 
         # get inf hull distance
         if float("inf") in distances:
-            name = label_name_base.format(l, "inf")
+            name = label_name_base.format(length, "inf")
             label_names_list.append(name)
             label_dict[name] = mask
 

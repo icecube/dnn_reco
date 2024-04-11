@@ -4,7 +4,6 @@ import numpy as np
 import tensorflow as tf
 import ruamel.yaml as yaml
 
-from dnn_reco import misc
 from dnn_reco import version_control
 
 # suppress natural naming warnings

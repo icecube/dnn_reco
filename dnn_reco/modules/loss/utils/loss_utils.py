@@ -1,12 +1,12 @@
+"""
+This file contains commonly used utility functions to compute loss.
+"""
+
 from __future__ import division, print_function
 import numpy as np
 import tensorflow as tf
 
 from dnn_reco import misc
-
-"""
-This file contains commonly used utility functions to compute loss.
-"""
 
 
 def add_logging_info(data_handler, shared_objects):

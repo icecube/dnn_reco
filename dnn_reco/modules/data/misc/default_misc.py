@@ -1,8 +1,3 @@
-from __future__ import division, print_function
-import h5py
-import pandas as pd
-import numpy as np
-
 """
 All misc functions must have the following parameters and return values:
 
@@ -31,6 +26,11 @@ All misc functions must have the following parameters and return values:
     list of str
         The names of the misc variables.
 """
+
+from __future__ import division, print_function
+import h5py
+import pandas as pd
+import numpy as np
 
 
 def dummy_misc_loader(input_data, config, misc_names=None, *args, **kwargs):

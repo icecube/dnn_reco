@@ -1,12 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import numpy as np
 import healpy as hp
 from uncertainties import unumpy, umath
 from scipy.stats import multivariate_normal
 from scipy.optimize import minimize
-from tqdm import tqdm
 
 
 class DNN_LLH_Base(object):

@@ -1,10 +1,3 @@
-from __future__ import division, print_function
-import tensorflow as tf
-import numpy as np
-
-from dnn_reco import misc
-from dnn_reco.modules.loss.utils import loss_utils
-
 """
 All defined models must have the following signature:
 
@@ -34,6 +27,11 @@ All defined models must have the following signature:
         over these loss terms to obtain a scalar loss.
         Shape: label_shape (same shape as labels)
 """
+
+from __future__ import division, print_function
+import tensorflow as tf
+
+from dnn_reco.modules.loss.utils import loss_utils
 
 
 def track_pos_mse(

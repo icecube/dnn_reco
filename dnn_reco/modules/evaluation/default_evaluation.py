@@ -1,8 +1,3 @@
-from __future__ import division, print_function
-import numpy as np
-
-from dnn_reco.utils.angles import get_angle_deviation, get_angle
-
 """
 All defined evaluation functions must have the following signature:
 
@@ -36,6 +31,11 @@ All defined evaluation functions must have the following signature:
     **kwargs
         Arbitrary keyword arguments.
 """
+
+from __future__ import division, print_function
+import numpy as np
+
+from dnn_reco.utils.angles import get_angle_deviation, get_angle
 
 
 def eval_direction(

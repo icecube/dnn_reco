@@ -1,7 +1,3 @@
-from __future__ import division, print_function
-import tensorflow as tf
-
-
 """
 All event weighting functions must have the following signature:
 
@@ -30,6 +26,9 @@ All event weighting functions must have the following signature:
         The loss for each event will be multiplied by this event weight.
         Shape: [batch_size, 1]
 """
+
+from __future__ import division, print_function
+import tensorflow as tf
 
 
 def event_selection_weight(
