@@ -1,0 +1,9 @@
+# .coveragerc
+
+[run]
+branch = True
+source = dnn_reco
+
+[report]
+
+omit = dnn_reco/__about__.py
