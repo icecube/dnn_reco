@@ -34,18 +34,31 @@ files = [
 ]
 
 keys = [
-    "dnn_data_bin_values",
-    "dnn_data_bin_indices",
-    "dnn_data_bin_exclusions",
-    "dnn_data_global_time_offset",
+    # sanity checks
+    "I3EventHeader",
+    # ic3-data input data to dnn_reco
+    "dnn_data__charge_bins_bin_values",
+    "dnn_data__charge_bins_bin_indices",
+    "dnn_data__charge_bins_bin_exclusions",
+    "dnn_data__charge_bins_global_time_offset",
+    "dnn_data_inputs3_InIceDSTPulses_bin_values",
+    "dnn_data_inputs3_InIceDSTPulses_bin_indices",
+    "dnn_data_inputs3_InIceDSTPulses_global_time_offset",
+    "dnn_data_inputs9_InIceDSTPulses_bin_values",
+    "dnn_data_inputs9_InIceDSTPulses_bin_indices",
+    "dnn_data_inputs9_InIceDSTPulses_global_time_offset",
+    # ic3-labels labels
     "LabelsDeepLearning",
+    "LabelsMCCascade",
+    "MCCascade",
+    # dnn_reco results
     "DeepLearningReco_event_selection_cscdl3_300m_01",
     "DeepLearningReco_event_selection_cascade_monopod_starting_events_big_kernel_02",
     "DeepLearningReco_mese_v2__all_gl_both2",
     "DeepLearningReco_dnn_reco_paper_hese__m7_after_sys",
 ]
 
-dir_original = "test_data/dnn_reco_test_01_base_v0.2.0"
+dir_original = "test_data/dnn_reco_test_01_base_v1_0_1_dev"
 test_dirs = glob.glob("test_data/*")
 test_dirs.remove(dir_original)
 

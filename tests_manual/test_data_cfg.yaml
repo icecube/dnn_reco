@@ -1,0 +1,367 @@
+# Example config file to process Level 2 MC i3-files
+#
+# Directory structure:
+#       At prompt of create_job_files.py a data_folder
+#       will be asked for in which the files are to be
+#       saved
+#
+#   Files are then stored as:
+#
+#   data_folder:
+#       processing:
+#           out_dir_pattern:
+#               jobs: (job files are stored here)
+#               logs: (log files are stored here)
+#
+#       out_dir_pattern:
+#
+#               run_folder:
+#                       out_file_pattern + '.' + i3_ending
+#                       out_file_pattern + '.hdf5'
+#
+#
+#               Where the run folder is given by:
+#               run_folder = folder_pattern.format(
+#                   folder_num=folder_num,
+#                   folder_num_pre_offset=folder_num_pre_offset,
+#                   folder_num_n_merged=folder_num_n_merged,
+#                   folder_num_pre_offset_n_merged=folder_num_pre_offset_n_merged,
+#                   **cfg
+#               )
+#
+#       The following variables are computed and can be used in input/output patterns
+#
+#       folder_num = folder_offset + run_number // n_jobs_per_folder
+#       folder_num_pre_offset = run_number // n_jobs_per_folder
+#       folder_num_n_merged = folder_offset + (n_runs_per_merge * run_number) // n_jobs_per_folder
+#       folder_num_pre_offset_n_merged = (n_runs_per_merge * run_number) // n_jobs_per_folder
+#
+
+#------------------------------
+# General job submission config
+#------------------------------
+
+keep_crashed_files: False
+
+resources:
+        # If gpus == 1 this will be run on a GPU with
+        gpus: 0
+        cpus: 1
+        memory: 3gb # runs with 1gb, but sometimes crashes
+        has_avx2: True
+        # has_ssse3: True
+
+dagman_max_jobs: 5000
+dagman_submits_interval: 500
+dagman_scan_interval: 1
+dagman_submit_delay: 0
+
+# If true, the input files will first be checked for corruption.
+# Note that this will take a while, since each input file has to be
+# iterated through. You generally only want to set this to true if you
+# are merging a number of input files of which some are known to be corrupt.
+exclude_corrupted_input_files: False
+
+#------------------------------
+# Define Datasets to process
+#------------------------------
+
+#------
+# common settings shared by all datasets
+#------
+i3_ending: 'i3.bz2'
+n_runs_per_merge: 1
+n_jobs_per_folder: 1000
+in_file_pattern: '/data/ana/Cscd/StartingEvents/{data_type}/{flavor}/{energy}/{year}{systematic_addition}/{level}/{folder_num:d}/{level:.2s}_{run_number:08d}.i3.bz2'
+out_dir_pattern: '{data_type}/{flavor}/{energy}/{year}{systematic_addition}/{level}/'
+out_file_pattern: 'DNN_{level}_{run_number:08d}'
+folder_pattern: '{folder_num:d}'
+folder_offset: 1
+#gcd: /cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_IC86_Merged.i3.gz
+gcd: /cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_2013.56429_V1.i3.gz
+#------
+
+
+datasets:
+
+        # NuGen without Cgenerator added
+        Nugen_low:
+
+                cycler:
+                        year: ['IC86_2013']
+                        energy: ['low_energy']
+                        flavor: ['NuE','NuTau','NuMu']
+                        systematic_addition: ['_holeice_30_v4']
+                        level: ['l5']
+
+                runs_range: [2, 3]
+                data_type: 'NuGen'
+                n_events_per_run: 50000
+
+        Nugen_medium:
+
+                cycler:
+                        year: ['IC86_2013']
+                        energy: ['medium_energy']
+                        flavor: ['NuE','NuTau','NuMu']
+                        systematic_addition: ['_holeice_30_v4']
+                        level: ['l5']
+
+                runs_range: [1, 2]
+                data_type: 'NuGen'
+                n_events_per_run: 10000
+
+# -------------------------------------------------------------
+# Define environment information shared across processing steps
+# -------------------------------------------------------------
+job_template: job_templates/cvmfs_python.sh
+script_name: general_i3_processing.py
+cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.2
+
+# add optional additions to the LD_LIBRARY_PATH
+# Note: '{ld_library_path_prepends}' is the default which does not add anything
+ld_library_path_prepends: '{ld_library_path_prepends}'
+
+# Defines environment variables that are set from python
+set_env_vars_from_python: {
+    # 'TF_DETERMINISTIC_OPS': '1',
+}
+
+#-----------------------------------------------
+# Define I3Traysegments for each processing step
+#-----------------------------------------------
+
+# a list of processing steps. Each processing step contains
+# information on the python and cvmfs environment as well as
+# a list of I3TraySegments/Modules that will be added to the I3Tray.
+# Any options defined in these nested dictionaries will supersede the
+# ones defined globally in this config.
+# Tray context can be accessed via "context-->key".
+# For nested dictionaries it's possible to do: "context-->key.key2.key3"
+# The configuration dictionary of the job can be passed via "<config>"
+# Special keys for the tray_segments:
+#       ModuleClass: str
+#           The module/segment to run.
+#       ModuleKwargs: dict
+#           The parameters for the specified module.
+#       ModuleTimer: str
+#           If provided, a timer for this module will be added.
+#           Results of all timers are saved in the frame key "Duration".
+processing_steps: [
+    # ----------------------
+    # Re-create MMCTrackList
+    # ----------------------
+    {
+        # Define environment for this processing step
+        cvmfs_python: py2-v3.0.1,
+        icetray_metaproject: simulation/V06-01-01,
+        python_user_base_cpu: /data/user/pgutjahr/software/virtual_envs/py2-v3.0.1,
+        python_user_base_gpu: /data/user/pgutjahr/software/virtual_envs/py2-v3.0.1,
+
+        n_files_is_n_runs: True,
+
+        # define a list of tray segments to run
+        tray_segments: [
+            {
+                # Re-create I3MCTree
+                ModuleClass: 'ic3_processing.modules.labels.recreate_and_add_mmc_tracklist.RerunProposal',
+                ModuleKwargs: {},
+                ModuleTimer: True,
+            },
+        ],
+    },
+    # ----------------------------------
+    # Run DNN-reco, ic3-labels, ic3-data
+    # ----------------------------------
+    {
+        # Define environment for this processing step
+        cvmfs_python: py3-v4.2.1,
+        icetray_metaproject: icetray/v1.5.1,
+        python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.2.1,
+        python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.2.1,
+
+        # define a list of tray segments to run
+        tray_segments: [
+            {
+                # add weighted primary
+                ModuleClass: 'ic3_processing.modules.labels.primary.add_weighted_primary',
+                ModuleKwargs: {},
+            },
+            {
+                # add labels
+                ModuleClass: 'ic3_labels.labels.modules.modules.MCLabelsCascades',
+                ModuleKwargs: {
+                    PulseMapString: InIceDSTPulses,
+                    PrimaryKey: 'MCPrimary',
+                    RunOnDAQFrames: True,
+                    ExtendBoundary: -60,
+                    OutputKey: 'LabelsDeepLearning',
+                },
+                ModuleTimer: True,
+            },
+            {
+                # add MCCascade
+                ModuleClass: 'ic3_labels.labels.modules.modules.MCLabelsCascadeParameters',
+                ModuleKwargs: {
+                    PulseMapString: ,
+                    PrimaryKey: 'MCPrimary',
+                    RunOnDAQFrames: True,
+                    OutputKey: 'LabelsMCCascade',
+                },
+                ModuleTimer: True,
+            },
+            {
+                # add base cascade parameters to frame
+                ModuleClass: 'ic3_processing.modules.reco.combine_i3_particle.create_cascade_classification_base_cascades',
+                ModuleKwargs: {
+                    cscd_base_configs: [
+                        {
+                        'I3ParticleBase': 'L5MonopodFit4',
+                        'VertexX_unc': 15,
+                        'VertexY_unc': 15,
+                        'VertexZ_unc': 15,
+                        'VertexTime_unc': 30,
+                        },
+                    ],
+                },
+            },
+            {
+                # write DNN-reco training data to file [177 charge bins]
+                ModuleClass: 'ic3_data.segments.CreateDNNData',
+                ModuleKwargs: {
+                    NumDataBins: 177,
+                    RelativeTimeMethod: cascade_vertex,
+                    DataFormat: charge_bins,
+                    PulseKey: InIceDSTPulses,
+                    DOMExclusions: ['BrightDOMs', 'SaturationWindows','BadDomsList','CalibrationErrata'],
+                    PartialExclusion: True,
+                    OutputKey: 'dnn_data__charge_bins',
+                    TimeBins: [
+                        '-inf', -500., -250.,   0.,  500.,   1000.,  1500.,
+                        2000., 2500., 3000., 'inf',
+                    ],
+                },
+                ModuleTimer: True,
+            },
+            {
+                # write DNN-reco training data to file [9 inputs, un-cleaned]
+                ModuleClass: 'ic3_data.segments.CreateDNNData',
+                ModuleKwargs: {
+                    NumDataBins: 9,
+                    RelativeTimeMethod: time_range,
+                    DataFormat: pulse_summmary_clipped,
+                    PulseKey: InIceDSTPulses,
+                    DOMExclusions: ['SaturationWindows','BadDomsList','CalibrationErrata'],
+                    PartialExclusion: True,
+                    OutputKey: 'dnn_data_inputs9_InIceDSTPulses',
+                },
+                ModuleTimer: True,
+            },
+            {
+                # write DNN-reco training data to file [3 inputs, un-cleaned]
+                ModuleClass: 'ic3_data.segments.CreateDNNData',
+                ModuleKwargs: {
+                    NumDataBins: 3,
+                    RelativeTimeMethod: ,
+                    DataFormat: reduced_summary_statistics_data,
+                    PulseKey: InIceDSTPulses,
+                    DOMExclusions: ['SaturationWindows','BadDomsList','CalibrationErrata'],
+                    PartialExclusion: True,
+                    OutputKey: 'dnn_data_inputs3_InIceDSTPulses',
+                },
+                ModuleTimer: True,
+            },
+            {
+                # run dnn-reco
+                ModuleClass: 'ic3_processing.modules.reco.reco.apply_dnn_reco',
+                ModuleTimer: True,
+                ModuleKwargs: {
+                    cfg: {
+                            # global settings shared for all DNN-reco modules
+                            add_dnn_reco: True,
+                            DNN_batch_size: 32,
+                            DNN_excluded_doms: [
+                                'BrightDOMs', 'SaturationWindows', 'BadDomsList', 'CalibrationErrata',
+                            ],
+                            DNN_partial_exclusion: True,
+
+                            DNN_reco_configs: [
+                            {
+                                pulse_map_string: InIceDSTPulses,
+                                DNN_model_names: [
+                                    'dnn_reco_paper_hese__m7_after_sys',  # Real-time cascades
+                                    'mese_v2__all_gl_both2',
+                                    'event_selection_cscdl3_300m_01',
+                                ],
+                                DNN_ignore_misconfigured_settings_list: [],
+                                DNN_models_dir: '/data/user/mhuennefeld/DNN_reco/models/exported_models',
+                            },
+                            {
+                                pulse_map_string: InIceDSTPulses,
+                                DNN_model_names: [
+                                    'event_selection_cascade_monopod_starting_events_big_kernel_02',  # Real-time cascades
+                                ],
+                                DNN_ignore_misconfigured_settings_list: [],
+                                DNN_models_dir: '/data/user/mhuennefeld/DNN_reco/models/exported_models',
+                                DNN_cascade_key: 'cscd_classification_base_L5MonopodFit4',
+                            },
+                        ],
+                    },
+                },
+            },
+        ],
+    },
+]
+
+#--------------------
+# File output options
+#--------------------
+
+# write output as i3 files via the I3Writer
+write_i3: False
+write_i3_kwargs: {
+
+    # only write these stream types,
+    # i.e ['Q', 'P', 'I', 'S', 'M', 'm', 'W', 'X']
+    'i3_streams': ['Q', 'P', 'I', 'S', 'M', 'm', 'W', 'X'],
+}
+
+# write output as hdf5 files via the I3HDFWriter
+write_hdf5: True
+write_hdf5_kwargs: {
+
+    # sub event streams to write
+    'SubEventStreams': ['in_ice',
+                    'InIceSplit',
+                    'Final',
+                    'topological_split'],
+
+    # HDF keys to write (in addition to the ones in
+    # tray.context['ic3_processing']['HDF_keys'])
+    # Note: added tray segments should add outputs that should be written
+    # to hdf5 to the tray context.
+    'Keys': [
+
+        # general
+        'I3EventHeader',
+        'DurationQ',
+        'DurationP',
+
+        # ic3-data input data creation for dnn_reco
+        'dnn_data__charge_bins_bin_values',
+        'dnn_data__charge_bins_bin_indices',
+        'dnn_data__charge_bins_bin_exclusions',
+        'dnn_data__charge_bins_global_time_offset',
+        'dnn_data_inputs3_InIceDSTPulses_bin_values',
+        'dnn_data_inputs3_InIceDSTPulses_bin_indices',
+        'dnn_data_inputs3_InIceDSTPulses_global_time_offset',
+        'dnn_data_inputs9_InIceDSTPulses_bin_values',
+        'dnn_data_inputs9_InIceDSTPulses_bin_indices',
+        'dnn_data_inputs9_InIceDSTPulses_global_time_offset',
+
+        # labels
+        'LabelsDeepLearning',
+        'LabelsMCCascade',
+        'MCCascade',
+    ],
+}
