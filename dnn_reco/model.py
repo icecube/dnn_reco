@@ -140,9 +140,9 @@ class NNModel(object):
 
         # Load training iterations dict
         if os.path.isfile(self._training_steps_file):
-            self._training_iterations_dict = yaml.safe_load(
-                open(self._training_steps_file)
-            )
+            with open(self._training_steps_file, "r") as stream:
+                yaml_loader = yaml.YAML(typ="safe", pure=True)
+                self._training_iterations_dict = yaml_loader.load(stream)
         else:
             misc.print_warning(
                 "Did not find {!r}. Creating new one".format(

@@ -124,7 +124,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # ----------------------------------------------------------------
         cfg_file = os.path.join(self._model_path, "config_data_settings.yaml")
         with open(cfg_file, "r") as stream:
-            data_config = yaml.safe_load(stream)
+            data_config = yaml.YAML(typ="safe", pure=True).load(stream)
 
         # Backwards compatibility for older exported models which did not
         # include this setting. In this case the separated format, e.g.

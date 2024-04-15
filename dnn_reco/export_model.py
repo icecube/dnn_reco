@@ -213,7 +213,7 @@ def export_data_settings(data_settings, output_folder):
     """
     try:
         with open(data_settings, "r") as stream:
-            data_config = yaml.safe_load(stream)
+            data_config = yaml.YAML(typ="safe", pure=True).load(stream)
     except Exception as e:
         print(e)
         print("Falling back to modified SafeLoader")
@@ -221,7 +221,7 @@ def export_data_settings(data_settings, output_folder):
             yaml.SafeLoader.add_constructor(
                 "tag:yaml.org,2002:python/unicode", lambda _, node: node.value
             )
-            data_config = dict(yaml.safe_load(stream))
+            data_config = dict(yaml.YAML(typ="safe", pure=True).load(stream))
 
     for k in [
         "pulse_time_quantiles",
