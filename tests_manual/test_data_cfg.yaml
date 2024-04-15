@@ -155,8 +155,8 @@ processing_steps: [
         # Define environment for this processing step
         cvmfs_python: py2-v3.0.1,
         icetray_metaproject: simulation/V06-01-01,
-        python_user_base_cpu: /data/user/pgutjahr/software/virtual_envs/py2-v3.0.1,
-        python_user_base_gpu: /data/user/pgutjahr/software/virtual_envs/py2-v3.0.1,
+        python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/py2-v3.0.1,
+        python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/py2-v3.0.1,
 
         n_files_is_n_runs: True,
 
@@ -175,6 +175,14 @@ processing_steps: [
     # ----------------------------------
     {
         # Define environment for this processing step
+
+        # # newer version
+        # cvmfs_python: py3-v4.3.0,
+        # icetray_metaproject: icetray/v1.10.0,
+        # python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
+        # python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
+
+        # baseline
         cvmfs_python: py3-v4.2.1,
         icetray_metaproject: icetray/v1.5.1,
         python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.2.1,
