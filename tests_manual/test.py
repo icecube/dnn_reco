@@ -62,6 +62,9 @@ dir_original = "test_data/dnn_reco_test_01_base_v1_0_1_dev"
 test_dirs = glob.glob("test_data/*")
 test_dirs.remove(dir_original)
 
+if len(test_dirs) == 0:
+    raise ValueError("No test directories found!")
+
 got_warning = False
 passed_test = True
 for dir_test in test_dirs:
