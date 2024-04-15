@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import os
 import git
 import pkg_resources
@@ -14,7 +12,8 @@ def get_git_infos():
     short_sha = str(repo.git.rev_parse(sha, short=7))
     try:
         origin = str(
-            repo.git.execute(["git", "config", "--get", "remote.origin.url"]))
+            repo.git.execute(["git", "config", "--get", "remote.origin.url"])
+        )
     except git.exc.GitCommandError:
         origin = None
     uncommitted_changes = repo.is_dirty()
@@ -23,5 +22,6 @@ def get_git_infos():
 
 short_sha, sha, origin, uncommitted_changes = get_git_infos()
 
-installed_packages = [[d.project_name, d.version] for
-                      d in pkg_resources.working_set]
+installed_packages = [
+    [d.project_name, d.version] for d in pkg_resources.working_set
+]

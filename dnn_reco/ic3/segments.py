@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import os
 
@@ -12,20 +10,21 @@ from dnn_reco.ic3.modules import DeepLearningReco
 
 @icetray.traysegment
 def ApplyDNNRecos(
-        tray, name,
-        model_names,
-        pulse_key=None,
-        dom_exclusions=None,
-        partial_exclusion=None,
-        output_keys=None,
-        models_dir='/data/user/mhuennefeld/DNN_reco/models/exported_models',
-        cascade_key='MCCascade',
-        ignore_misconfigured_settings_list=None,
-        measure_time=True,
-        batch_size=1,
-        num_cpus=1,
-        verbose=False,
-        ):
+    tray,
+    name,
+    model_names,
+    pulse_key=None,
+    dom_exclusions=None,
+    partial_exclusion=None,
+    output_keys=None,
+    models_dir="/data/user/mhuennefeld/DNN_reco/models/exported_models",
+    cascade_key="MCCascade",
+    ignore_misconfigured_settings_list=None,
+    measure_time=True,
+    batch_size=1,
+    num_cpus=1,
+    verbose=False,
+):
     """Apply DNN reco
 
     Parameters
@@ -75,7 +74,7 @@ def ApplyDNNRecos(
         If True, the run-time will be measured.
     batch_size : int, optional
         The number of events to accumulate and pass through the network in
-        parallel. A higher batch size than 1 can usually improve recontruction
+        parallel. A higher batch size than 1 can usually improve reconstruction
         runtime, but will also increase the memory footprint.
     num_cpus : int, optional
         Number of CPU cores to use if CPUs are used instead of a GPU.
@@ -86,7 +85,7 @@ def ApplyDNNRecos(
         model_names = [model_names]
 
     if output_keys is None:
-        output_keys = ['DeepLearningReco_{}'.format(m) for m in model_names]
+        output_keys = ["DeepLearningReco_{}".format(m) for m in model_names]
 
     # create DNN data container object
     container = DNNDataContainer(batch_size=batch_size)
@@ -100,18 +99,24 @@ def ApplyDNNRecos(
         dom_exclusions=dom_exclusions,
         partial_exclusion=partial_exclusion,
         cascade_key=cascade_key,
-        ignore_misconfigured_settings_list=ignore_misconfigured_settings_list)
+        ignore_misconfigured_settings_list=ignore_misconfigured_settings_list,
+    )
 
-    tray.AddModule(DNNContainerHandler, 'DNNContainerHandler_' + name,
-                   DNNDataContainer=container, Verbose=verbose)
+    tray.AddModule(
+        DNNContainerHandler,
+        "DNNContainerHandler_" + name,
+        DNNDataContainer=container,
+        Verbose=verbose,
+    )
 
     for model_name, output_key in zip(model_names, output_keys):
         tray.AddModule(
-            DeepLearningReco, 'DeepLearningReco_'+model_name+name,
+            DeepLearningReco,
+            "DeepLearningReco_" + model_name + name,
             ModelPath=os.path.join(models_dir, model_name),
             DNNDataContainer=container,
             OutputBaseName=output_key,
             MeasureTime=measure_time,
             ParallelismThreads=num_cpus,
             IgnoreMisconfiguredSettingsList=ignore_misconfigured_settings_list,
-            )
+        )

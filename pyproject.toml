@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=44.0"]  # Note: unfortunately need python >=2.7
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dnn_reco"
+description = "DNN reconstruction for IceCube"
+readme = "README.md"
+dynamic = ["version"]
+authors = [
+    { name = "Mirco Huennefeld", email = "mirco.huennefeld@tu-dortmund.de" },
+]
+maintainers = [
+    { name = "Mirco Huennefeld", email = "mirco.huennefeld@tu-dortmund.de" },
+]
+requires-python = ">=2.7"  # Note: unfortunately need python >=2.7
+
+dependencies = [
+    'numpy', 'pandas', 'click', 'ruamel.yaml',
+    'gitpython', 'tfscripts', 'h5py', 'tqdm',
+    'uncertainties', 'tables', 'tensorflow',
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Statistics",
+]
+
+[project.optional-dependencies]
+dev = ["pre-commit","black","ruff"]
+test = ["pytest", "coverage", "codecov"]
+docs = ["sphinx-rtd-theme"]
+icecube = [
+    "ic3_labels @ git+ssh://git@github.com/icecube/ic3-labels",
+    "ic3_data @ git+ssh://git@github.com/icecube/ic3-data",
+    "ic3_processing @ git+ssh://git@github.com/mhuen/ic3-processing",
+]
+
+[project.urls]
+Homepage = "https://github.com/icecube/dnn_reco"
+Documentation = "https://icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/index.html"
+"Bug Tracker" = "https://github.com/icecube/dnn_reco/issues"
+Discussions = "https://github.com/icecube/dnn_reco/discussions"
+
+[tool.setuptools]
+packages = ["dnn_reco"]
+
+[tool.setuptools.dynamic]
+version = {attr = "dnn_reco.__version__"}
+
+[tool.black]
+line-length = 79
+# technically, black does not support python2.
+# This is all python versions black knows of and gets
+# rid of the trailing comma bug
+target-version = ["py33", "py34", "py35", "py36", "py37", "py38", "py39", "py310", "py311"]
+
+[tool.ruff]
+# select = ["ALL"]
+lint.fixable = ["I"]
+lint.ignore = [
+    "D213",   # multi-line-summary-second-line incompatible with multi-line-summary-first-line
+    "D203",   # one-blank-line-before-class" incompatible with no-blank-line-before-class
+    "D401",   # non-imperative-mood
+    "D417",   # undocumented-param
+    "ANN101", # missing-type-self
+    "ANN401", # any-type
+    "FBT",    # flake8-boolean-trap
+    "INP",    # flake8-no-pep420
+    "T20",    # flake8-print
+    "TCH",    # flake8-type-checking
+    "S101",   # assert-used
+    "COM812", # trailing comma to not insert after **kwargs, which is a syntax error prior to py3.6
+    ]
+line-length = 79
+target-version = "py38"
+
+[tool.codespell]
+ignore-words-list = "hese,mese,livetime"
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

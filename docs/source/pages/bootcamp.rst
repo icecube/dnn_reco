@@ -10,7 +10,7 @@
 IceCube DNN Bootcamp
 ********************
 
-This tutorial is a simplifed version of the :ref:`Getting Started tutorial<getting_started>`
+This tutorial is a simplified version of the :ref:`Getting Started tutorial<getting_started>`
 where we will focus on:
 
 

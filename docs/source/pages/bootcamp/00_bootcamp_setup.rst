@@ -102,7 +102,7 @@ We are now ready to install the necessary prerequisites and |dnn_reco|.
     git clone https://github.com/mhuen/dnn_reco.git
 
     # make sure that your virtualenv is activated
-    # you can check this by exectuting
+    # you can check this by executing
     which pip
     # It should point to:
     echo ${DNN_HOME}/dnn_reco_env/bin/pip

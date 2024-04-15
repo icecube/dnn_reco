@@ -4,14 +4,13 @@ import numpy as np
 import tensorflow as tf
 import ruamel.yaml as yaml
 
-from dnn_reco import misc
 from dnn_reco import version_control
 
 # suppress natural naming warnings
 import warnings
 from tables import NaturalNameWarning
 
-warnings.filterwarnings('ignore', category=NaturalNameWarning)
+warnings.filterwarnings("ignore", category=NaturalNameWarning)
 
 
 class SetupManager:
@@ -59,7 +58,7 @@ class SetupManager:
             The shape of the DOM response tensor excluding the batch dimension.
             E.g.: [x_dim, y_dim, z_dim, num_bins]
         DOM_init_values: float or array-like
-            The x_ic78 and deepcore array will be initalized with these
+            The x_ic78 and deepcore array will be initialized with these
             values via:
             np.zeros_like(x_ic78) * np.array(init_values)
         batch_size : int
@@ -112,7 +111,7 @@ class SetupManager:
                       specified by the 'trafo_data' key.
         trafo_save_model : bool
             If true, the transformation model will be saved to the file
-                     specfied by the 'trafo_model_path' key.
+                     specified by the 'trafo_model_path' key.
                      Note: This will overwrite the file!
         trafo_normalize : bool
             If true, data will be normalized to have a mean of 0 and a variance
@@ -173,7 +172,7 @@ class SetupManager:
     config : dictionary
         Dictionary with defined settings.
     shared_objects : dictionary
-        Dictionary with additional objects that are availabe in all modules.
+        Dictionary with additional objects that are available in all modules.
         Keys:
             'data_transformer' : DataTransformer object used to transform data.
             'keep_prob_list' : Tensorflow placeholders for keep probabilities
@@ -182,12 +181,12 @@ class SetupManager:
 
     # define default config
     _default_config = {
-                        'float_precision': 'float32',
-                        'DOM_init_values': 0.0,
-                        'trafo_norm_constant': 1e-6,
-                        'data_handler_nan_fill_value': None,
-                        'data_handler_num_splits': None,
-                     }
+        "float_precision": "float32",
+        "DOM_init_values": 0.0,
+        "trafo_norm_constant": 1e-6,
+        "data_handler_nan_fill_value": None,
+        "data_handler_num_splits": None,
+    }
 
     def __init__(self, config_files):
         """Initializes the DNN reco Setup Manager
@@ -220,7 +219,7 @@ class SetupManager:
             If a setting is defined in multiplie config files.
         """
         if len(self._config_files) == 0:
-            raise ValueError('You must specify at least one config file!')
+            raise ValueError("You must specify at least one config file!")
 
         # ----------------------------------
         # load config
@@ -230,42 +229,45 @@ class SetupManager:
         for config_file in self._config_files:
 
             # append yaml file to config_name
-            file_base_name = os.path.basename(config_file).replace('.yaml', '')
+            file_base_name = os.path.basename(config_file).replace(".yaml", "")
             if config_name is None:
                 config_name = file_base_name
             else:
-                config_name += '__' + file_base_name
+                config_name += "__" + file_base_name
 
             config_update = yaml.safe_load(open(config_file))
             duplicates = set(new_config.keys()).intersection(
-                                                    set(config_update.keys()))
+                set(config_update.keys())
+            )
 
             # make sure no options are defined multiple times
             if duplicates:
-                raise ValueError('Keys are defined multiple times {!r}'.format(
-                                                                duplicates))
+                raise ValueError(
+                    "Keys are defined multiple times {!r}".format(duplicates)
+                )
             # update config
             new_config.update(config_update)
         config = dict(self._default_config)
         config.update(new_config)
 
         # define numpy and tensorflow float precision
-        config['tf_float_precision'] = getattr(tf, config['float_precision'])
-        config['np_float_precision'] = getattr(np, config['float_precision'])
+        config["tf_float_precision"] = getattr(tf, config["float_precision"])
+        config["np_float_precision"] = getattr(np, config["float_precision"])
         import tfscripts as tfs
-        tfs.FLOAT_PRECISION = config['tf_float_precision']
+
+        tfs.FLOAT_PRECISION = config["tf_float_precision"]
 
         # get git repo information
-        config['git_short_sha'] = str(version_control.short_sha)
-        config['git_sha'] = str(version_control.sha)
-        config['git_origin'] = str(version_control.origin)
-        config['git_uncommited_changes'] = version_control.uncommitted_changes
-        config['pip_installed_packages'] = version_control.installed_packages
+        config["git_short_sha"] = str(version_control.short_sha)
+        config["git_sha"] = str(version_control.sha)
+        config["git_origin"] = str(version_control.origin)
+        config["git_uncommited_changes"] = version_control.uncommitted_changes
+        config["pip_installed_packages"] = version_control.installed_packages
 
         # ----------------------------------
         # expand all strings with variables
         # ----------------------------------
-        config['config_name'] = str(config_name)
+        config["config_name"] = str(config_name)
         for key in config:
             if isinstance(config[key], str):
                 config[key] = config[key].format(**config)

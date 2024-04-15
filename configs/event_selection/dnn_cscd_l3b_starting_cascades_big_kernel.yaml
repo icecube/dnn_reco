@@ -91,7 +91,7 @@
     # Additional MuonGun at CscdL3
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3b/MuonGun/12*/0.99_eff/00*000-00*999/*.hdf5',
 
-    # Manuel Silva's MuonGun
+    # Manuel's MuonGun
     '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3b/MuonGun/2131*/00*000-00*999/*.hdf5',
 
     # Additional MuonGun biased simulation: corner clippers
@@ -177,7 +177,7 @@
     # # Additional MuonGun at CscdL3
     # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3b/MuonGun/12*/0.99_eff/00*000-00*999/*.hdf5',
 
-    # # Manuel Silva's MuonGun
+    # # Manuel's MuonGun
     # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/dnn_cscd_l3b/MuonGun/2131*/00*000-00*999/*.hdf5',
 
     # # Additional MuonGun biased simulation: corner clippers
@@ -323,7 +323,7 @@
 # ----------------
 # Biased Selection
 # ----------------
-# Filter events based on the curent reconstruction performance on these
+# Filter events based on the current reconstruction performance on these
 # by defining key, value pairs and a biased fraction.
 # Events will be put in queues, such that biased_fraction of all events
 # passes one of the defined cuts.

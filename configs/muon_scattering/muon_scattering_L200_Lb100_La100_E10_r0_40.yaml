@@ -209,7 +209,7 @@ data_handler_nan_fill_value: 0.  #----------------------- Use this with CAUTION!
 # ----------------
 # Biased Selection
 # ----------------
-# Filter events based on the curent reconstruction performance on these
+# Filter events based on the current reconstruction performance on these
 # by defining key, value pairs and a biased fraction.
 # Events will be put in queues, such that biased_fraction of all events
 # passes one of the defined cuts.

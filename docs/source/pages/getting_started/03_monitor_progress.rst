@@ -35,7 +35,7 @@ The input pipeline consists of three steps:
 
     2. Another worker aggregates the events of several files
        (number of files defined by ``num_add_files``) together
-       by dequeing elements from the 'data_batch_queue'.
+       by dequeuing elements from the 'data_batch_queue'.
        It then creates batches from these events
        (randomly if 'sample_randomly' == True ).
        These batches are then put onto the 'final_batch_queue'.
@@ -102,7 +102,7 @@ We can then use tensorboard to render these logs.
     # to forward this port in the ssh connection
     tensorboard --logdir=PATH/TO/MY/LOGS --port 7475
 
-If the port forwading is correctly set up, you can then point your browser to
+If the port forwarding is correctly set up, you can then point your browser to
 to the appropriate address.
 More info on tensorboard is provided here:
 https://www.tensorflow.org/guide/summaries_and_tensorboard.

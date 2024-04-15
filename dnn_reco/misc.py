@@ -10,7 +10,7 @@ def print_warning(msg):
     msg : str
         String to print.
     """
-    print('\033[93m' + msg + '\033[0m')
+    print("\033[93m" + msg + "\033[0m")
 
 
 def load_class(full_class_string):

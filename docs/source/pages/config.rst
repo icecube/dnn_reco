@@ -32,7 +32,7 @@ General Settings
     validation set.
 
 ``test_data_file``:
-    If the data handler object is not instanciated with a config, it will load
+    If the data handler object is not instantiated with a config, it will load
     one of these files to obtain meta data, such as the labels and misc data
     names.
 
@@ -352,7 +352,7 @@ Trafo Settings
     Path to which the transformation model will be saved.
 
 ``trafo_normalize_dom_data``/ ``trafo_normalize_label_data``/ ``trafo_normalize_misc_data``:
-    If true, the input data per DOM, labels, and miscellanous data will be
+    If true, the input data per DOM, labels, and miscellaneous data will be
     normalized to have a mean of zero and a standard deviation of one.
 
 ``trafo_log_dom_bins``:
@@ -447,7 +447,7 @@ NN Model Architecture
     The network architecture that will be used is defined by the
     ``model_file`` and ``model_name`` keys.
     The ``model_name`` defines the function that will be used to
-    create and buld the model.
+    create and build the model.
     Default: `general_model_IC86`
 
 ``model_is_training``:

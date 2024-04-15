@@ -1,16 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import numpy as np
 import healpy as hp
 from uncertainties import unumpy, umath
 from scipy.stats import multivariate_normal
 from scipy.optimize import minimize
-from tqdm import tqdm
 
 
 class DNN_LLH_Base(object):
-
     """The DNN LLH base class for calculating the PDF obtained from the DNN
     reco.
 
@@ -36,8 +32,17 @@ class DNN_LLH_Base(object):
         This is the output of the DNN reco for the estimated uncertainty.
     """
 
-    def __init__(self, dir_x, dir_y, dir_z, unc_x, unc_y, unc_z,
-                 random_seed=42, weighted_normalization=True):
+    def __init__(
+        self,
+        dir_x,
+        dir_y,
+        dir_z,
+        unc_x,
+        unc_y,
+        unc_z,
+        random_seed=42,
+        weighted_normalization=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -72,10 +77,12 @@ class DNN_LLH_Base(object):
         self.unc_x = unc_x
         self.unc_y = unc_y
         self.unc_z = unc_z
-        self.dir_x, self.dir_y, self.dir_z = \
-            self.normalize_dir(dir_x, dir_y, dir_z)
+        self.dir_x, self.dir_y, self.dir_z = self.normalize_dir(
+            dir_x, dir_y, dir_z
+        )
         self.zenith, self.azimuth = self.get_zenith_azimuth(
-                                        self.dir_x, self.dir_y, self.dir_z)
+            self.dir_x, self.dir_y, self.dir_z
+        )
 
         self._random_seed = random_seed
         self._random_state = np.random.RandomState(self._random_seed)
@@ -134,27 +141,28 @@ class DNN_LLH_Base(object):
             The zenith and azimuth angles with uncertainties.
         """
         # normalize
-        if not self.is_normalized(u_dir_x.nominal_value,
-                                  u_dir_y.nominal_value,
-                                  u_dir_z.nominal_value):
-            u_dir_x, u_dir_y, u_dir_z = \
-                self.u_normalize_dir(u_dir_x, u_dir_y, u_dir_z)
+        if not self.is_normalized(
+            u_dir_x.nominal_value, u_dir_y.nominal_value, u_dir_z.nominal_value
+        ):
+            u_dir_x, u_dir_y, u_dir_z = self.u_normalize_dir(
+                u_dir_x, u_dir_y, u_dir_z
+            )
 
         if with_flip:
             u_dir_x *= -1
             u_dir_y *= -1
             u_dir_z *= -1
 
-        if np.abs(u_dir_z.nominal_value) > 1.:
-            raise ValueError('Z-component |{!r}| > 1!'.format(
-                u_dir_z.nominal_value))
+        if np.abs(u_dir_z.nominal_value) > 1.0:
+            raise ValueError(
+                "Z-component |{!r}| > 1!".format(u_dir_z.nominal_value)
+            )
         zenith = umath.acos(u_dir_z)
         azimuth = (umath.atan2(u_dir_y, u_dir_x) + 2 * np.pi) % (2 * np.pi)
 
         return zenith, azimuth
 
-    def get_zenith_azimuth(self, dir_x, dir_y, dir_z,
-                           with_flip=True):
+    def get_zenith_azimuth(self, dir_x, dir_y, dir_z, with_flip=True):
         """Get zeniths and azimuths [in radians] from direction vector.
 
         Parameters
@@ -209,7 +217,7 @@ class DNN_LLH_Base(object):
         np.array
             The log probability of Gaussian LLH.
         """
-        return -2*np.log(sigma) - ((x - mu) / sigma)**2
+        return -2 * np.log(sigma) - ((x - mu) / sigma) ** 2
 
     def log_prob(self, zenith, azimuth):
         """Calculate the log probability for given zenith/azimuth pairs.
@@ -296,7 +304,7 @@ class DNN_LLH_Base(object):
             True, if the direction vector is normalized
         """
         norm = np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)
-        return np.allclose(norm, 1.)
+        return np.allclose(norm, 1.0)
 
     def u_normalize_dir(self, u_dir_x, u_dir_y, u_dir_z):
         """Normalize direction vector
@@ -316,15 +324,18 @@ class DNN_LLH_Base(object):
             The normalized direction vector components with uncertainties.
         """
         if self.weighted_normalization:
-            if not self.is_normalized(u_dir_x.nominal_value,
-                                      u_dir_y.nominal_value,
-                                      u_dir_z.nominal_value):
+            if not self.is_normalized(
+                u_dir_x.nominal_value,
+                u_dir_y.nominal_value,
+                u_dir_z.nominal_value,
+            ):
                 raise NotImplementedError(
-                    'Direction vector must be normalized!')
+                    "Direction vector must be normalized!"
+                )
             return u_dir_x, u_dir_y, u_dir_z
         else:
             norm = unumpy.sqrt(u_dir_x**2 + u_dir_y**2 + u_dir_z**2)
-            return u_dir_x/norm, u_dir_y/norm, u_dir_z/norm
+            return u_dir_x / norm, u_dir_y / norm, u_dir_z / norm
 
     def normalize_dir(self, dir_x, dir_y, dir_z):
         """Normalize a direction vector to a unit vector.
@@ -358,26 +369,32 @@ class DNN_LLH_Base(object):
                 norm_list = np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)
 
             # define constraint
-            cons = ({'type': 'eq', 'fun': lambda x:  np.linalg.norm(x) - 1})
+            cons = {"type": "eq", "fun": lambda x: np.linalg.norm(x) - 1}
 
             # define cost function
             def cost(dir_normed, dx, dy, dz):
                 x, y, z = dir_normed
-                c = ((x - dx) / self.unc_x)**2
-                c += ((y - dy) / self.unc_y)**2
-                c += ((z - dz) / self.unc_z)**2
+                c = ((x - dx) / self.unc_x) ** 2
+                c += ((y - dy) / self.unc_y) ** 2
+                c += ((z - dz) / self.unc_z) ** 2
                 return c
 
             def minimize_vector(dx, dy, dz, norm):
-                x0 = [dx/norm, dy/norm, dz/norm]
-                result = minimize(cost, x0, args=(dx, dy, dz),
-                                  constraints=cons, options={'ftol': 1e-04})
+                x0 = [dx / norm, dy / norm, dz / norm]
+                result = minimize(
+                    cost,
+                    x0,
+                    args=(dx, dy, dz),
+                    constraints=cons,
+                    options={"ftol": 1e-04},
+                )
                 return result.x
 
             size = len(dir_x)
             dir_n = np.empty((size, 3))
-            for i, (dx, dy, dz, norm) in enumerate(zip(
-                                dir_x, dir_y, dir_z, norm_list)):
+            for i, (dx, dy, dz, norm) in enumerate(
+                zip(dir_x, dir_y, dir_z, norm_list)
+            ):
                 dir_n[i] = minimize_vector(dx, dy, dz, norm)
 
             if was_float:
@@ -388,7 +405,7 @@ class DNN_LLH_Base(object):
         # Naive scaling: create unit vector by dividing by norm
         else:
             norm = np.sqrt(dir_x**2 + dir_y**2 + dir_z**2)
-            return dir_x/norm, dir_y/norm, dir_z/norm
+            return dir_x / norm, dir_y / norm, dir_z / norm
 
     def cdf(self, zenith, azimuth):
         """Calculate cumulative probability for given zenith/azimuth pairs.
@@ -403,7 +420,7 @@ class DNN_LLH_Base(object):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given zenith/azimuth pairs.
+            The cumulative probability for the given zenith/azimuth pairs.
         """
         dir_x, dir_y, dir_z = self.get_dir_vec(zenith, azimuth)
         return self.cdf_dir(dir_x, dir_y, dir_z)
@@ -423,12 +440,12 @@ class DNN_LLH_Base(object):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given direction vectors.
+            The cumulative probability for the given direction vectors.
         """
         raise NotImplementedError
 
     def _get_level_indices(self, level=0.5, delta=0.01):
-        """Get indices of sampled diections, which belong to the specified
+        """Get indices of sampled directions, which belong to the specified
         contour as defined by: level +- delta.
 
         Parameters
@@ -479,8 +496,10 @@ class DNN_LLH_Base(object):
             [level - delta, level + delta].
         """
         index_min, index_max = self._get_level_indices(level, delta)
-        return (self.zenith_s[index_min:index_max],
-                self.azimuth_s[index_min:index_max])
+        return (
+            self.zenith_s[index_min:index_max],
+            self.azimuth_s[index_min:index_max],
+        )
 
     def contour_dir(self, level=0.5, delta=0.01):
         """Get direction vectors of points that lie with the specified
@@ -505,12 +524,15 @@ class DNN_LLH_Base(object):
             [level - delta, level + delta].
         """
         index_min, index_max = self._get_level_indices(level, delta)
-        return (self.dir_x_s[index_min:index_max],
-                self.dir_y_s[index_min:index_max],
-                self.dir_z_s[index_min:index_max])
+        return (
+            self.dir_x_s[index_min:index_max],
+            self.dir_y_s[index_min:index_max],
+            self.dir_z_s[index_min:index_max],
+        )
 
-    def check_coverage(self, dir_x, dir_y, dir_z,
-                       quantiles=np.linspace(0.001, 1., 1000)):
+    def check_coverage(
+        self, dir_x, dir_y, dir_z, quantiles=np.linspace(0.001, 1.0, 1000)
+    ):
         """Check coverage by calculating contaiment for given direction
         vectors.
 
@@ -576,7 +598,6 @@ class DNN_LLH_Base(object):
 
 
 class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
-
     """The DNN LLH base class for calculating elliptical PDFs obtained from
     the DNN reco.
 
@@ -601,8 +622,16 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         This is the output of the DNN reco for the z-component.
     """
 
-    def __init__(self, zenith, azimuth, cov, num_samples=1000000,
-                 random_seed=42, weighted_normalization=True, fix_delta=True):
+    def __init__(
+        self,
+        zenith,
+        azimuth,
+        cov,
+        num_samples=1000000,
+        random_seed=42,
+        weighted_normalization=True,
+        fix_delta=True,
+    ):
         """Initialize DNN LLH object.
 
         Parameters
@@ -636,8 +665,9 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         self.zenith = zenith
         self.azimuth = azimuth
 
-        self.dir_x, self.dir_y, self.dir_z = \
-            self.get_dir_vec(self.zenith, self.azimuth)
+        self.dir_x, self.dir_y, self.dir_z = self.get_dir_vec(
+            self.zenith, self.azimuth
+        )
 
         self._random_seed = random_seed
         self._random_state = np.random.RandomState(self._random_seed)
@@ -657,7 +687,8 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
 
         # get sampled coordinate vectors
         self.dir_x_s, self.dir_y_s, self.dir_z_s = self.get_dir_vec(
-                        self.zenith_s, self.azimuth_s)
+            self.zenith_s, self.azimuth_s
+        )
 
     def log_prob(self, zenith, azimuth):
         """Calculate the log probability for given zenith/azimuth pairs.
@@ -677,7 +708,8 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         return multivariate_normal.logpdf(
             np.array([zenith, azimuth]).T,
             mean=np.array([self.zenith, self.azimuth]).T,
-            cov=self.cov)
+            cov=self.cov,
+        )
 
     def log_prob_dir(self, dir_x, dir_y, dir_z):
         """Calculate the log probability for given direction vectors.
@@ -713,21 +745,25 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         """
         if self._fix_delta:
             deltas = self._random_state.multivariate_normal(
-                [0., self.azimuth], cov=self.cov, size=n)
+                [0.0, self.azimuth], cov=self.cov, size=n
+            )
             deltas_zenith, azimuth = deltas[:, 0], deltas[:, 1]
 
             def fix_delta(delta, d, min_value, max_value):
 
                 # check if over bound
-                mask_over_bound = np.logical_or(d + delta > max_value,
-                                                d + delta < min_value)
+                mask_over_bound = np.logical_or(
+                    d + delta > max_value, d + delta < min_value
+                )
 
                 # check if going in other direction is in bounds
-                mask_allowed = np.logical_and(d - delta < max_value,
-                                              d - delta > min_value)
+                mask_allowed = np.logical_and(
+                    d - delta < max_value, d - delta > min_value
+                )
                 mask_fixable = np.logical_and(mask_over_bound, mask_allowed)
-                mask_on_boundary = np.logical_and(mask_over_bound,
-                                                  ~mask_allowed)
+                mask_on_boundary = np.logical_and(
+                    mask_over_bound, ~mask_allowed
+                )
 
                 # For those events that are over bounds in either direction,
                 # choose the furthest boundary
@@ -735,24 +771,27 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
                 dist_to_min = d - min_value
                 mask_greater = dist_to_max > dist_to_min
 
-                mask_on_right_boundary = np.logical_and(mask_on_boundary,
-                                                        mask_greater)
-                mask_on_left_boundary = np.logical_and(mask_on_boundary,
-                                                       ~mask_greater)
+                mask_on_right_boundary = np.logical_and(
+                    mask_on_boundary, mask_greater
+                )
+                mask_on_left_boundary = np.logical_and(
+                    mask_on_boundary, ~mask_greater
+                )
 
                 # Fix deltas
                 delta[mask_on_left_boundary] = -dist_to_min
                 delta[mask_on_right_boundary] = +dist_to_max
-                delta[mask_fixable] *= -1.
+                delta[mask_fixable] *= -1.0
                 return delta
 
-            deltas_zenith = fix_delta(deltas_zenith, self.zenith, 0., np.pi)
+            deltas_zenith = fix_delta(deltas_zenith, self.zenith, 0.0, np.pi)
 
             zenith = self.zenith + deltas_zenith
-            azimuth = azimuth % (2*np.pi)
+            azimuth = azimuth % (2 * np.pi)
         else:
             res = self._random_state.multivariate_normal(
-                [self.zenith, self.azimuth], cov=self.cov, size=n)
+                [self.zenith, self.azimuth], cov=self.cov, size=n
+            )
             zenith, azimuth = res[:, 0], res[:, 1]
 
         return zenith, azimuth
@@ -785,11 +824,11 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given zenith/azimuth pairs.
+            The cumulative probability for the given zenith/azimuth pairs.
         """
         neg_llh = -self.log_prob(zenith, azimuth)
         pos = np.searchsorted(self.neg_llh_values, neg_llh)
-        cdf = 1.0*pos / self._num_samples
+        cdf = 1.0 * pos / self._num_samples
         return cdf
 
     def cdf_dir(self, dir_x, dir_y, dir_z):
@@ -807,12 +846,12 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         Returns
         -------
         np.array
-            The cumulative probabilty for the given direction vectors.
+            The cumulative probability for the given direction vectors.
         """
         return self.cdf(*self.get_zenith_azimuth(dir_x, dir_y, dir_z))
 
     def _get_level_indices(self, level=0.5, delta=0.01):
-        """Get indices of sampled diections, which belong to the specified
+        """Get indices of sampled directions, which belong to the specified
         contour as defined by: level +- delta.
 
         Parameters
@@ -838,8 +877,8 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         ValueError
             If number of resulting samples is too low.
         """
-        assert level >= 0., level
-        assert level <= 1., level
+        assert level >= 0.0, level
+        assert level <= 1.0, level
 
         index_at_level = int(self._num_samples * level)
 
@@ -847,10 +886,9 @@ class DNN_LLH_Base_Elliptical(DNN_LLH_Base):
         delta_index = int(self._num_samples * delta)
 
         index_min = max(0, index_at_level - delta_index)
-        index_max = min(self._num_samples,
-                        index_at_level + delta_index)
+        index_max = min(self._num_samples, index_at_level + delta_index)
 
         if index_max - index_min <= 10:
-            raise ValueError('Number of samples is too low!')
+            raise ValueError("Number of samples is too low!")
 
         return index_min, index_max
