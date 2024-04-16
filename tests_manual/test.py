@@ -33,9 +33,16 @@ files = [
     "NuGen/NuTau/medium_energy/IC86_2013_holeice_30_v4/l5/1/DNN_l5_00000001.hdf5",
 ]
 
-keys = [
+keys_warning = [
     # sanity checks
     "I3EventHeader",
+    # ic3-labels labels
+    "LabelsDeepLearning",
+    "LabelsMCCascade",
+    "MCCascade",
+]
+
+keys_error = [
     # ic3-data input data to dnn_reco
     "dnn_data__charge_bins_bin_values",
     "dnn_data__charge_bins_bin_indices",
@@ -47,10 +54,6 @@ keys = [
     "dnn_data_inputs9_InIceDSTPulses_bin_values",
     "dnn_data_inputs9_InIceDSTPulses_bin_indices",
     "dnn_data_inputs9_InIceDSTPulses_global_time_offset",
-    # ic3-labels labels
-    "LabelsDeepLearning",
-    "LabelsMCCascade",
-    "MCCascade",
     # dnn_reco results
     "DeepLearningReco_event_selection_cscdl3_300m_01",
     "DeepLearningReco_event_selection_cascade_monopod_starting_events_big_kernel_02",
@@ -71,7 +74,7 @@ for dir_test in test_dirs:
     print("\nNow testing {!r} against {!r}".format(dir_test, dir_original))
     for file_name in files:
         print("\n\tNow testing {!r}".format(file_name))
-        for key in keys:
+        for key in keys_warning + keys_error:
             try:
                 df_original = pd.read_hdf(
                     os.path.join(dir_original, file_name), key=key
@@ -93,12 +96,14 @@ for dir_test in test_dirs:
                         atol=5e-6,
                         rtol=5e-4,
                     ):
-                        if key == "LabelsDeepLearning":
+                        if key in keys_warning:
                             warning("\t\tWarning: mismatch for {}".format(k))
                             got_warning = True
-                        else:
+                        elif key in keys_error:
                             error("\t\tError: mismatch for {}".format(k))
                             passed_test = False
+                        else:
+                            raise KeyError("Unknown key {!r}".format(key))
                         print(
                             "\t\t",
                             key,
