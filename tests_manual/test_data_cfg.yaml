@@ -156,7 +156,7 @@ processing_steps: [
         cvmfs_python: py2-v3.0.1,
         icetray_metaproject: simulation/V06-01-01,
         python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/py2-v3.0.1,
-        python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/py2-v3.0.1,
+        python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/py2-v3.0.1,
 
         n_files_is_n_runs: True,
 
