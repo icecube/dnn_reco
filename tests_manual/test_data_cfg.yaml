@@ -116,7 +116,6 @@ datasets:
 # -------------------------------------------------------------
 job_template: job_templates/cvmfs_python.sh
 script_name: general_i3_processing.py
-cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.2
 
 # add optional additions to the LD_LIBRARY_PATH
 # Note: '{ld_library_path_prepends}' is the default which does not add anything
@@ -181,12 +180,14 @@ processing_steps: [
         # icetray_metaproject: icetray/v1.10.0,
         # python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
         # python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
+        # cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.8,
 
         # baseline
         cvmfs_python: py3-v4.2.1,
         icetray_metaproject: icetray/v1.5.1,
         python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.2.1,
         python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.2.1,
+        cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.2,
 
         # define a list of tray segments to run
         tray_segments: [

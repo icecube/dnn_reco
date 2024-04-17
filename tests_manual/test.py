@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 class bcolors:
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
@@ -61,8 +64,10 @@ keys_error = [
     "DeepLearningReco_dnn_reco_paper_hese__m7_after_sys",
 ]
 
-dir_original = "test_data/dnn_reco_test_01_base_v1_0_1_dev"
-test_dirs = glob.glob("test_data/*")
+dir_original = os.path.join(
+    SCRIPT_DIR, "test_data/dnn_reco_test_01_base_v1_0_1_dev"
+)
+test_dirs = glob.glob(os.path.join(SCRIPT_DIR, "test_data/*"))
 test_dirs.remove(dir_original)
 
 if len(test_dirs) == 0:
