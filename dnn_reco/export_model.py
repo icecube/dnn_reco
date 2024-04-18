@@ -170,7 +170,9 @@ def main(config_files, output_folder, data_settings, logs):
         "num_misc": data_handler.num_misc,
     }
     with open(os.path.join(output_folder, "config_meta_data.yaml"), "w") as f:
-        yaml.dump(meta_data, f, default_flow_style=False)
+        yaml.YAML(typ="unsafe", pure=True).dump(
+            meta_data, f, default_flow_style=False
+        )
 
     # ------------------------------------
     # Export package versions and git hash
@@ -183,7 +185,9 @@ def main(config_files, output_folder, data_settings, logs):
         "pip_installed_packages": config["pip_installed_packages"],
     }
     with open(os.path.join(output_folder, "version_control.yaml"), "w") as f:
-        yaml.dump(version_control, f, default_flow_style=False)
+        yaml.YAML(typ="unsafe", pure=True).dump(
+            version_control, f, default_flow_style=False
+        )
 
     # -------------------------------
     # Export tensorflow training logs
@@ -292,7 +296,9 @@ def export_data_settings(data_settings, output_folder):
     with open(
         os.path.join(output_folder, "config_data_settings.yaml"), "w"
     ) as f:
-        yaml.dump(data_settings, f, default_flow_style=False)
+        yaml.YAML(typ="unsafe", pure=True).dump(
+            data_settings, f, default_flow_style=False
+        )
 
 
 if __name__ == "__main__":
