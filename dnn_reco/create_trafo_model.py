@@ -83,7 +83,7 @@ def main(config_files):
     )
 
     with open(trafo_config_file, "w") as yaml_file:
-        yaml.YAML(typ="unsafe", pure=True).dump(
+        yaml.YAML(typ="full").dump(
             config,
             yaml_file,
             default_flow_style=False,
