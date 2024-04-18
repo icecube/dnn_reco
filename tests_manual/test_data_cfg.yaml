@@ -123,7 +123,7 @@ ld_library_path_prepends: '{ld_library_path_prepends}'
 
 # Defines environment variables that are set from python
 set_env_vars_from_python: {
-    # 'TF_DETERMINISTIC_OPS': '1',
+    'TF_DETERMINISTIC_OPS': '1',
 }
 
 #-----------------------------------------------
