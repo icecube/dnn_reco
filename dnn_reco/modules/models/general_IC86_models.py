@@ -99,7 +99,9 @@ def general_model_IC86(
 
         # apply DOM dropout, split and reshape DeepCore input
         X_IC78, X_DeepCore_upper, X_DeepCore_lower = preprocess_icecube_data(
-            is_training, shared_objects
+            is_training,
+            shared_objects,
+            seed=config["tf_random_seed"],
         )
 
         # -----------------------------------
@@ -162,7 +164,11 @@ def general_model_IC86(
         )
 
         # dropout
-        layer_flat = tf.nn.dropout(layer_flat, rate=1 - (keep_prob_list[2]))
+        layer_flat = tf.nn.dropout(
+            layer_flat,
+            rate=1 - (keep_prob_list[2]),
+            seed=config["tf_random_seed"],
+        )
 
         # -----------------------------------
         # fully connected layers
@@ -387,7 +393,9 @@ def general_model_IC86_opt4(
 
         # apply DOM dropout, split and reshape DeepCore input
         X_IC78, X_DeepCore_upper, X_DeepCore_lower = preprocess_icecube_data(
-            is_training, shared_objects
+            is_training,
+            shared_objects,
+            seed=config["tf_random_seed"],
         )
 
         # -----------------------------------
@@ -450,7 +458,11 @@ def general_model_IC86_opt4(
         )
 
         # dropout
-        layer_flat = tf.nn.dropout(layer_flat, rate=1 - (keep_prob_list[2]))
+        layer_flat = tf.nn.dropout(
+            layer_flat,
+            rate=1 - (keep_prob_list[2]),
+            seed=config["tf_random_seed"],
+        )
 
         # -----------------------------------
         # fully connected layers
