@@ -140,9 +140,9 @@ class NNModel(object):
 
         # Load training iterations dict
         if os.path.isfile(self._training_steps_file):
-            self._training_iterations_dict = yaml.safe_load(
-                open(self._training_steps_file)
-            )
+            with open(self._training_steps_file, "r") as stream:
+                yaml_loader = yaml.YAML(typ="safe", pure=True)
+                self._training_iterations_dict = yaml_loader.load(stream)
         else:
             misc.print_warning(
                 "Did not find {!r}. Creating new one".format(
@@ -1134,12 +1134,14 @@ class NNModel(object):
             del training_config["tf_float_precision"]
 
             with open(self._training_config_file, "w") as yaml_file:
-                yaml.dump(training_config, yaml_file, default_flow_style=False)
+                yaml.YAML(typ="full").dump(
+                    training_config, yaml_file, default_flow_style=False
+                )
 
         # update number of training iterations in training_steps.yaml
         self._training_iterations_dict[self._training_step] = iteration
         with open(self._training_steps_file, "w") as yaml_file:
-            yaml.dump(
+            yaml.YAML(typ="full").dump(
                 self._training_iterations_dict,
                 yaml_file,
                 default_flow_style=False,

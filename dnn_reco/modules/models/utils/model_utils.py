@@ -6,7 +6,7 @@ from __future__ import division, print_function
 import tensorflow as tf
 
 
-def preprocess_icecube_data(is_training, shared_objects):
+def preprocess_icecube_data(is_training, shared_objects, seed=None):
     """Performs some basic preprocessing of IceCube input data.
 
     Applies drop out for whole DOMs.
@@ -20,6 +20,8 @@ def preprocess_icecube_data(is_training, shared_objects):
     shared_objects : dict
         A dictionary containing settings and objects that are shared and passed
         on to sub modules.
+    seed : int, optional
+        Random seed for reproducibility.
 
     Returns
     -------
@@ -56,12 +58,14 @@ def preprocess_icecube_data(is_training, shared_objects):
             X_IC78,
             rate=1 - (keep_prob_list[0]),
             noise_shape=noise_shape_IC78,
+            seed=seed,
         )
 
         X_DeepCore = tf.nn.dropout(
             X_DeepCore,
             rate=1 - (keep_prob_list[0]),
             noise_shape=noise_shape_DeepCore,
+            seed=seed,
         )
 
     # -----------------------------------

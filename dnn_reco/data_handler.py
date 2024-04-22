@@ -129,7 +129,7 @@ class DataHandler(object):
             Description
         """
         with open(config_file, "r") as stream:
-            config_meta = yaml.safe_load(stream)
+            config_meta = yaml.YAML(typ="safe", pure=True).load(stream)
 
         self.label_names = config_meta["label_names"]
         self.label_name_dict = config_meta["label_name_dict"]

@@ -116,7 +116,6 @@ datasets:
 # -------------------------------------------------------------
 job_template: job_templates/cvmfs_python.sh
 script_name: general_i3_processing.py
-cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.2
 
 # add optional additions to the LD_LIBRARY_PATH
 # Note: '{ld_library_path_prepends}' is the default which does not add anything
@@ -124,7 +123,7 @@ ld_library_path_prepends: '{ld_library_path_prepends}'
 
 # Defines environment variables that are set from python
 set_env_vars_from_python: {
-    # 'TF_DETERMINISTIC_OPS': '1',
+    'TF_DETERMINISTIC_OPS': '1',
 }
 
 #-----------------------------------------------
@@ -155,8 +154,8 @@ processing_steps: [
         # Define environment for this processing step
         cvmfs_python: py2-v3.0.1,
         icetray_metaproject: simulation/V06-01-01,
-        python_user_base_cpu: /data/user/pgutjahr/software/virtual_envs/py2-v3.0.1,
-        python_user_base_gpu: /data/user/pgutjahr/software/virtual_envs/py2-v3.0.1,
+        python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/py2-v3.0.1,
+        python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/py2-v3.0.1,
 
         n_files_is_n_runs: True,
 
@@ -175,10 +174,20 @@ processing_steps: [
     # ----------------------------------
     {
         # Define environment for this processing step
+
+        # # newer version
+        # cvmfs_python: py3-v4.3.0,
+        # icetray_metaproject: icetray/v1.10.0,
+        # python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
+        # python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
+        # cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.8,
+
+        # baseline
         cvmfs_python: py3-v4.2.1,
         icetray_metaproject: icetray/v1.5.1,
         python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.2.1,
         python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.2.1,
+        cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.2,
 
         # define a list of tray segments to run
         tray_segments: [

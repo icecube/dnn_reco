@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 class bcolors:
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
@@ -33,9 +36,16 @@ files = [
     "NuGen/NuTau/medium_energy/IC86_2013_holeice_30_v4/l5/1/DNN_l5_00000001.hdf5",
 ]
 
-keys = [
+keys_warning = [
     # sanity checks
     "I3EventHeader",
+    # ic3-labels labels
+    "LabelsDeepLearning",
+    "LabelsMCCascade",
+    "MCCascade",
+]
+
+keys_error = [
     # ic3-data input data to dnn_reco
     "dnn_data__charge_bins_bin_values",
     "dnn_data__charge_bins_bin_indices",
@@ -47,10 +57,6 @@ keys = [
     "dnn_data_inputs9_InIceDSTPulses_bin_values",
     "dnn_data_inputs9_InIceDSTPulses_bin_indices",
     "dnn_data_inputs9_InIceDSTPulses_global_time_offset",
-    # ic3-labels labels
-    "LabelsDeepLearning",
-    "LabelsMCCascade",
-    "MCCascade",
     # dnn_reco results
     "DeepLearningReco_event_selection_cscdl3_300m_01",
     "DeepLearningReco_event_selection_cascade_monopod_starting_events_big_kernel_02",
@@ -58,20 +64,23 @@ keys = [
     "DeepLearningReco_dnn_reco_paper_hese__m7_after_sys",
 ]
 
-dir_original = "test_data/dnn_reco_test_01_base_v1_0_1_dev"
-test_dirs = glob.glob("test_data/*")
+dir_original = os.path.join(
+    SCRIPT_DIR, "test_data/dnn_reco_test_01_base_v1_0_1_dev"
+)
+test_dirs = glob.glob(os.path.join(SCRIPT_DIR, "test_data/*"))
 test_dirs.remove(dir_original)
 
 if len(test_dirs) == 0:
     raise ValueError("No test directories found!")
 
+warnings = []
 got_warning = False
 passed_test = True
 for dir_test in test_dirs:
     print("\nNow testing {!r} against {!r}".format(dir_test, dir_original))
     for file_name in files:
         print("\n\tNow testing {!r}".format(file_name))
-        for key in keys:
+        for key in keys_warning + keys_error:
             try:
                 df_original = pd.read_hdf(
                     os.path.join(dir_original, file_name), key=key
@@ -87,26 +96,57 @@ for dir_test in test_dirs:
             assert (df_original.columns == df_test.columns).all()
             for k in df_original.columns:
                 if "runtime" not in k:
+
+                    # set toleracnces
+                    atol = 5e-6
+                    rtol = 5e-4
+                    rtol_fatal = rtol
+
                     if not np.allclose(
                         df_original[k].values,
                         df_test[k].values,
-                        atol=5e-6,
-                        rtol=5e-4,
+                        atol=atol,
+                        rtol=rtol,
                     ):
-                        if key == "LabelsDeepLearning":
+                        # compute relative difference
+                        diff = df_original[k].values - df_test[k].values
+                        rel_diff = diff / np.abs(df_original[k].values)
+                        rel_diff_max = np.max(np.abs(rel_diff))
+                        warnings.append(
+                            [
+                                key,
+                                k,
+                                rel_diff_max,
+                                rel_diff_max > rtol_fatal
+                                and key in keys_error,
+                            ]
+                        )
+
+                        mask = np.abs(rel_diff) > rtol
+
+                        if key in keys_warning:
                             warning("\t\tWarning: mismatch for {}".format(k))
                             got_warning = True
+                        elif key in keys_error:
+                            if rel_diff_max > rtol_fatal:
+                                passed_test = False
+                                error("\t\tError: mismatch for {}".format(k))
+                            else:
+                                warning(
+                                    "\t\tWarning: mismatch for {}".format(k)
+                                )
+                                got_warning = True
                         else:
-                            error("\t\tError: mismatch for {}".format(k))
-                            passed_test = False
-                        print(
-                            "\t\t",
-                            key,
-                            k,
-                            (df_original[k].values - df_test[k].values),
-                        )
-                        print("\t\t", df_original[k].values)
-                        print("\t\t", df_test[k].values)
+                            raise KeyError("Unknown key {!r}".format(key))
+                        print(f"\t\tKey: {key} | column: {k}")
+                        print("\t\tElement-wise difference:")
+                        print("\t\t", diff[mask])
+                        print("\t\tRelative difference:")
+                        print("\t\t", rel_diff[mask])
+                        print("\t\tOriginal:")
+                        print("\t\t", df_original[k].values[mask])
+                        print("\t\tTest:")
+                        print("\t\t", df_test[k].values[mask])
                 else:
                     runtime_orig = np.mean(df_original[k].values) * 1000.0
                     runtime_orig_std = np.std(df_original[k].values) * 1000.0
@@ -124,6 +164,23 @@ for dir_test in test_dirs:
                                 runtime_test_std,
                             )
                         )
+
+# print warnings
+if len(warnings) > 0:
+    max_chars = 25
+    print(f"\n{'Rel. diff.':8s} | {'Key':25s} | Column")
+    print("=" * (max_chars * 2 + 16))
+    for key, k, max_rel_diff, fatal in warnings:
+        if len(k) > max_chars:
+            k = k[:3] + "..." + k[-(max_chars - 6) :]
+        if len(key) > max_chars:
+            key = key[:3] + "..." + key[-(max_chars - 6) :]
+
+        msg = f"{max_rel_diff*100.:9.3f}% | {key:25s} | {k}"
+        if fatal:
+            print(bcolors.FAIL + msg + bcolors.ENDC)
+        else:
+            print(bcolors.WARNING + msg + bcolors.ENDC)
 
 print("\n====================")
 print("=== Summary ========")

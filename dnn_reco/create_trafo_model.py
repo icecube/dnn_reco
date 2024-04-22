@@ -83,7 +83,11 @@ def main(config_files):
     )
 
     with open(trafo_config_file, "w") as yaml_file:
-        yaml.dump(config, yaml_file, default_flow_style=False)
+        yaml.YAML(typ="full").dump(
+            config,
+            yaml_file,
+            default_flow_style=False,
+        )
     data_transformer.save_trafo_model(config["trafo_model_path"])
 
     # kill multiprocessing queues and workers

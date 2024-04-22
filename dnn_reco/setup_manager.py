@@ -235,7 +235,9 @@ class SetupManager:
             else:
                 config_name += "__" + file_base_name
 
-            config_update = yaml.safe_load(open(config_file))
+            with open(config_file, "r") as stream:
+                config_update = yaml.YAML(typ="safe", pure=True).load(stream)
+
             duplicates = set(new_config.keys()).intersection(
                 set(config_update.keys())
             )
