@@ -6,7 +6,7 @@ __url__ = "https://github.com/icecube/dnn_reco"
 __version_major__ = 1
 __version_minor__ = 0
 __version_patch__ = 2
-__version_info__ = ""
+__version_info__ = "-dev"
 
 __version__ = "{}.{}.{}{}".format(
     __version_major__,
