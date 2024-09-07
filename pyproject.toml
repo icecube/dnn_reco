@@ -50,8 +50,8 @@ Documentation = "https://icecube.wisc.edu/~mhuennefeld/docs/dnn_reco/html/index.
 "Bug Tracker" = "https://github.com/icecube/dnn_reco/issues"
 Discussions = "https://github.com/icecube/dnn_reco/discussions"
 
-[tool.setuptools]
-packages = ["dnn_reco"]
+[tool.setuptools.packages.find]
+where = ["dnn_reco"]
 
 [tool.setuptools.dynamic]
 version = {attr = "dnn_reco.__version__"}
