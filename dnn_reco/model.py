@@ -1134,17 +1134,21 @@ class NNModel(object):
             del training_config["tf_float_precision"]
 
             with open(self._training_config_file, "w") as yaml_file:
-                yaml.YAML(typ="full").dump(
-                    training_config, yaml_file, default_flow_style=False
+                yaml_obj = yaml.YAML(typ="full")
+                yaml_obj.default_flow_style = False
+                yaml_obj.dump(
+                    training_config,
+                    yaml_file,
                 )
 
         # update number of training iterations in training_steps.yaml
         self._training_iterations_dict[self._training_step] = iteration
         with open(self._training_steps_file, "w") as yaml_file:
-            yaml.YAML(typ="full").dump(
+            yaml_obj = yaml.YAML(typ="full")
+            yaml_obj.default_flow_style = False
+            yaml_obj.dump(
                 self._training_iterations_dict,
                 yaml_file,
-                default_flow_style=False,
             )
 
     def count_parameters(self, var_list=None):

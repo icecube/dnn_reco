@@ -83,10 +83,11 @@ def main(config_files):
     )
 
     with open(trafo_config_file, "w") as yaml_file:
-        yaml.YAML(typ="full").dump(
+        yaml_obj = yaml.YAML(typ="full")
+        yaml_obj.default_flow_style = False
+        yaml_obj.dump(
             config,
             yaml_file,
-            default_flow_style=False,
         )
     data_transformer.save_trafo_model(config["trafo_model_path"])
 
