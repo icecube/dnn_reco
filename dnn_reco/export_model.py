@@ -170,7 +170,12 @@ def main(config_files, output_folder, data_settings, logs):
         "num_misc": data_handler.num_misc,
     }
     with open(os.path.join(output_folder, "config_meta_data.yaml"), "w") as f:
-        yaml.YAML(typ="full").dump(meta_data, f, default_flow_style=False)
+        yaml_obj = yaml.YAML(typ="full")
+        yaml_obj.default_flow_style = False
+        yaml_obj.dump(
+            meta_data,
+            f,
+        )
 
     # ------------------------------------
     # Export package versions and git hash
@@ -183,8 +188,11 @@ def main(config_files, output_folder, data_settings, logs):
         "pip_installed_packages": config["pip_installed_packages"],
     }
     with open(os.path.join(output_folder, "version_control.yaml"), "w") as f:
-        yaml.YAML(typ="full").dump(
-            version_control, f, default_flow_style=False
+        yaml_obj = yaml.YAML(typ="full")
+        yaml_obj.default_flow_style = False
+        yaml_obj.dump(
+            version_control,
+            f,
         )
 
     # -------------------------------
@@ -294,7 +302,12 @@ def export_data_settings(data_settings, output_folder):
     with open(
         os.path.join(output_folder, "config_data_settings.yaml"), "w"
     ) as f:
-        yaml.YAML(typ="full").dump(data_settings, f, default_flow_style=False)
+        yaml_obj = yaml.YAML(typ="full")
+        yaml_obj.default_flow_style = False
+        yaml_obj.dump(
+            data_settings,
+            f,
+        )
 
 
 if __name__ == "__main__":
