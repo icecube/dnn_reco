@@ -291,7 +291,14 @@ class DataHandler(object):
         size = len(_time_range["Event"])
         eventIDDict = {}
         for row in _time_range.iterrows():
-            eventIDDict[(row[1].iloc[0], row[1].iloc[1], row[1].iloc[2], row[1].iloc[3])] = row[0]
+            eventIDDict[
+                (
+                    row[1].iloc[0],
+                    row[1].iloc[1],
+                    row[1].iloc[2],
+                    row[1].iloc[3],
+                )
+            ] = row[0]
 
         # Create arrays for input data
         x_ic78 = np.ones(
