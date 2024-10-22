@@ -617,7 +617,8 @@ class NNModel(object):
                 capped_gvs = zip(gradients, variables)
             else:
                 capped_gvs = gvs
-            optimizer_ops.append(optimizer.apply_gradients(capped_gvs))
+            optimizer_op = optimizer.apply_gradients(capped_gvs)
+            optimizer_ops.append(tf.convert_to_tensor(optimizer_op))
 
         self.shared_objects["optimizer_ops"] = optimizer_ops
 
