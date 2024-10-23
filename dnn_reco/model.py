@@ -528,7 +528,16 @@ class NNModel(object):
             try:
                 optimizer_cls = getattr(tf.train, opt_config["optimizer"])
             except AttributeError:
-                optimizer_cls = getattr(tf.optimizers, opt_config["optimizer"])
+                optimizer_name = opt_config["optimizer"]
+                if not optimizer_name.endswith("Optimizer"):
+                    misc.print_warning(
+                        f"Specified optimizer name '{optimizer_name}' "
+                        f"will be adjusted to '{optimizer_name}Optimizer'."
+                    )
+                    optimizer_name += "Optimizer"
+                optimizer_cls = getattr(tf.compat.v1.train, optimizer_name)
+
+                # optimizer_cls = getattr(tf.optimizers, opt_config["optimizer"])
             optimizer = optimizer_cls(**optimizer_settings)
 
             # get variable list
@@ -617,8 +626,7 @@ class NNModel(object):
                 capped_gvs = zip(gradients, variables)
             else:
                 capped_gvs = gvs
-            optimizer_op = optimizer.apply_gradients(capped_gvs)
-            optimizer_ops.append(tf.convert_to_tensor(optimizer_op))
+            optimizer_ops.append(optimizer.apply_gradients(capped_gvs))
 
         self.shared_objects["optimizer_ops"] = optimizer_ops
 
