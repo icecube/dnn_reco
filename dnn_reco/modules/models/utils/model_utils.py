@@ -2,7 +2,6 @@
 This file contains commonly used utility functions to build icecube nn models.
 """
 
-from __future__ import division, print_function
 import tensorflow as tf
 
 

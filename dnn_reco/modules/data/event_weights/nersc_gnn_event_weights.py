@@ -27,7 +27,6 @@ All event weighting functions must have the following signature:
         Shape: [batch_size, 1]
 """
 
-from __future__ import division, print_function
 import tensorflow as tf
 
 

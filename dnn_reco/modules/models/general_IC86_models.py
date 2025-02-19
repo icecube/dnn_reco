@@ -34,7 +34,6 @@ All defined models must have the following signature:
         Can optionally be an empty list.
 """
 
-from __future__ import division, print_function
 import numpy as np
 import tensorflow as tf
 

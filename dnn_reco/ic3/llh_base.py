@@ -1,4 +1,3 @@
-from __future__ import division, print_function
 import numpy as np
 import healpy as hp
 from uncertainties import unumpy, umath

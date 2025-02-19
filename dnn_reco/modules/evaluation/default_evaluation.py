@@ -32,7 +32,6 @@ All defined evaluation functions must have the following signature:
         Arbitrary keyword arguments.
 """
 
-from __future__ import division, print_function
 import numpy as np
 
 from dnn_reco.utils.angles import get_angle_deviation, get_angle

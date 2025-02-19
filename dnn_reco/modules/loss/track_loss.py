@@ -28,7 +28,6 @@ All defined models must have the following signature:
         Shape: label_shape (same shape as labels)
 """
 
-from __future__ import division, print_function
 import tensorflow as tf
 
 from dnn_reco.modules.loss.utils import loss_utils
