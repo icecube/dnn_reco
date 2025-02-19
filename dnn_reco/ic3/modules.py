@@ -7,9 +7,9 @@ import timeit
 from collections import deque
 
 from icecube import icetray, dataclasses
-import ruamel.yaml as yaml
 
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco.settings.yaml import yaml_loader
+from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
 from dnn_reco.model import NNModel
@@ -123,7 +123,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         # ----------------------------------------------------------------
         cfg_file = os.path.join(self._model_path, "config_data_settings.yaml")
         with open(cfg_file, "r") as stream:
-            data_config = yaml.YAML(typ="safe", pure=True).load(stream)
+            data_config = yaml_loader.load(stream)
 
         # Backwards compatibility for older exported models which did not
         # include this setting. In this case the separated format, e.g.

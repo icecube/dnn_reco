@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import os
 import click
-import ruamel.yaml as yaml
 
+from dnn_reco.settings.yaml import yaml_dumper
 from dnn_reco import misc
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
 
@@ -81,12 +81,7 @@ def main(config_files):
     )
 
     with open(trafo_config_file, "w") as yaml_file:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            config,
-            yaml_file,
-        )
+        yaml_dumper.dump(config, yaml_file)
     data_transformer.save_trafo_model(config["trafo_model_path"])
 
     # kill multiprocessing queues and workers

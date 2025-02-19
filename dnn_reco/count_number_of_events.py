@@ -5,7 +5,7 @@ import glob
 import pandas as pd
 from multiprocessing import Pool
 
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco.settings.setup_manager import SetupManager
 
 
 def count_num_events(data):

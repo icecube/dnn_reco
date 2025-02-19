@@ -6,7 +6,7 @@ import resource
 import time
 import timeit
 import os
-import ruamel.yaml as yaml
+from dnn_reco.settings.yaml import yaml_loader
 from copy import deepcopy
 import tensorflow as tf
 
@@ -128,7 +128,7 @@ class DataHandler(object):
             Description
         """
         with open(config_file, "r") as stream:
-            config_meta = yaml.YAML(typ="safe", pure=True).load(stream)
+            config_meta = yaml_loader.load(stream)
 
         self.label_names = config_meta["label_names"]
         self.label_name_dict = config_meta["label_name_dict"]

@@ -1,9 +1,9 @@
 import os
 import numpy as np
 import tensorflow as tf
-import ruamel.yaml as yaml
 
-from dnn_reco import version_control
+from dnn_reco.settings.yaml import yaml_loader
+from dnn_reco.settings import version_control
 
 # suppress natural naming warnings
 import warnings
@@ -235,7 +235,7 @@ class SetupManager:
                 config_name += "__" + file_base_name
 
             with open(config_file, "r") as stream:
-                config_update = yaml.YAML(typ="safe", pure=True).load(stream)
+                config_update = yaml_loader.load(stream)
 
             duplicates = set(new_config.keys()).intersection(
                 set(config_update.keys())

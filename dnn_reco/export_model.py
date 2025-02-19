@@ -3,10 +3,10 @@ import os
 import shutil
 import glob
 import click
-import ruamel.yaml as yaml
 import tensorflow as tf
 
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco.settings.yaml import yaml_loader, yaml_dumper
+from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
 from dnn_reco.model import NNModel
@@ -168,12 +168,7 @@ def main(config_files, output_folder, data_settings, logs):
         "num_misc": data_handler.num_misc,
     }
     with open(os.path.join(output_folder, "config_meta_data.yaml"), "w") as f:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            meta_data,
-            f,
-        )
+        yaml_dumper.dump(meta_data, f)
 
     # ------------------------------------
     # Export package versions and git hash
@@ -186,12 +181,7 @@ def main(config_files, output_folder, data_settings, logs):
         "pip_installed_packages": config["pip_installed_packages"],
     }
     with open(os.path.join(output_folder, "version_control.yaml"), "w") as f:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            version_control,
-            f,
-        )
+        yaml_dumper.dump(version_control, f)
 
     # -------------------------------
     # Export tensorflow training logs
@@ -221,15 +211,15 @@ def export_data_settings(data_settings, output_folder):
     """
     try:
         with open(data_settings, "r") as stream:
-            data_config = yaml.YAML(typ="safe", pure=True).load(stream)
+            data_config = yaml_loader.load(stream)
     except Exception as e:
         print(e)
         print("Falling back to modified SafeLoader")
         with open(data_settings, "r") as stream:
-            yaml.SafeLoader.add_constructor(
-                "tag:yaml.org,2002:python/unicode", lambda _, node: node.value
-            )
-            data_config = dict(yaml.YAML(typ="safe", pure=True).load(stream))
+            # yaml.SafeLoader.add_constructor(
+            #     "tag:yaml.org,2002:python/unicode", lambda _, node: node.value
+            # )
+            data_config = dict(yaml_loader.load(stream))
 
     for k in [
         "pulse_time_quantiles",
@@ -300,12 +290,7 @@ def export_data_settings(data_settings, output_folder):
     with open(
         os.path.join(output_folder, "config_data_settings.yaml"), "w"
     ) as f:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            data_settings,
-            f,
-        )
+        yaml_dumper.dump(data_settings, f)
 
 
 if __name__ == "__main__":
