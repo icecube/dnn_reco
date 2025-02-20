@@ -84,12 +84,10 @@ def weighted_mse(
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
         mse_values_trafo = tf.reduce_sum(
-            input_tensor=loss_event * weights, axis=0
-        ) / tf.reduce_sum(input_tensor=weights, axis=0)
+            loss_event * weights, axis=0
+        ) / tf.reduce_sum(weights, axis=0)
     else:
-        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
+        mse_values_trafo = tf.reduce_mean(loss_event, axis=0)
 
     return mse_values_trafo
 
@@ -139,20 +137,16 @@ def mse(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        weight_sum = tf.reduce_sum(weights, axis=0)
         mse_values_trafo = (
-            tf.reduce_sum(input_tensor=loss_event * weights, axis=0)
-            / weight_sum
+            tf.reduce_sum(loss_event * weights, axis=0) / weight_sum
         )
         mse_unc_values_trafo = (
-            tf.reduce_sum(input_tensor=unc_diff**2 * weights, axis=0)
-            / weight_sum
+            tf.reduce_sum(unc_diff**2 * weights, axis=0) / weight_sum
         )
     else:
-        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
-        mse_unc_values_trafo = tf.reduce_mean(input_tensor=unc_diff**2, axis=0)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
+        mse_values_trafo = tf.reduce_mean(loss_event, axis=0)
+        mse_unc_values_trafo = tf.reduce_mean(unc_diff**2, axis=0)
 
     return mse_values_trafo + mse_unc_values_trafo
 
@@ -201,22 +195,16 @@ def abs(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        weight_sum = tf.reduce_sum(weights, axis=0)
         abs_values_trafo = (
-            tf.reduce_sum(input_tensor=loss_event * weights, axis=0)
-            / weight_sum
+            tf.reduce_sum(loss_event * weights, axis=0) / weight_sum
         )
         abs_unc_values_trafo = (
-            tf.reduce_sum(input_tensor=tf.abs(unc_diff) * weights, axis=0)
-            / weight_sum
+            tf.reduce_sum(tf.abs(unc_diff) * weights, axis=0) / weight_sum
         )
     else:
-        abs_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
-        abs_unc_values_trafo = tf.reduce_mean(
-            input_tensor=tf.abs(unc_diff), axis=0
-        )
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
+        abs_values_trafo = tf.reduce_mean(loss_event, axis=0)
+        abs_unc_values_trafo = tf.reduce_mean(tf.abs(unc_diff), axis=0)
 
     return abs_values_trafo + abs_unc_values_trafo
 
@@ -268,15 +256,10 @@ def gaussian_likelihood(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
-        loss = (
-            tf.reduce_sum(input_tensor=loss_event * weights, axis=0)
-            / weight_sum
-        )
+        weight_sum = tf.reduce_sum(weights, axis=0)
+        loss = tf.reduce_sum(loss_event * weights, axis=0) / weight_sum
     else:
-        loss = tf.reduce_mean(input_tensor=loss_event, axis=0)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
+        loss = tf.reduce_mean(loss_event, axis=0)
 
     return loss
 
@@ -344,8 +327,6 @@ def pull_distribution_scale(
 
     loss = (var - 1.0) ** 2
 
-    loss_utils.add_logging_info(data_handler, shared_objects)
-
     return loss
 
 
@@ -396,13 +377,12 @@ def mse_and_cross_entropy(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        weight_sum = tf.reduce_sum(weights, axis=0)
         mse_values_trafo = (
-            tf.reduce_sum(input_tensor=loss_event * weights, axis=0)
-            / weight_sum
+            tf.reduce_sum(loss_event * weights, axis=0) / weight_sum
         )
     else:
-        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
+        mse_values_trafo = tf.reduce_mean(loss_event, axis=0)
 
     logit_tensors = shared_objects["logit_tensors"]
 
@@ -421,17 +401,15 @@ def mse_and_cross_entropy(
             )
             if "event_weights" in shared_objects:
                 label_loss.append(
-                    tf.reduce_sum(input_tensor=loss_i * weights[:, 0], axis=0)
+                    tf.reduce_sum(loss_i * weights[:, 0], axis=0)
                     / weight_sum[0]
                 )
             else:
-                label_loss.append(tf.reduce_mean(input_tensor=loss_i))
+                label_loss.append(tf.reduce_mean(loss_i))
         else:
             label_loss.append(mse_values_trafo[i])
 
     label_loss = tf.stack(label_loss)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
 
     return label_loss
 
@@ -491,13 +469,12 @@ def mse_and_weighted_cross_entropy(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
+        weight_sum = tf.reduce_sum(weights, axis=0)
         mse_values_trafo = (
-            tf.reduce_sum(input_tensor=loss_event * weights, axis=0)
-            / weight_sum
+            tf.reduce_sum(loss_event * weights, axis=0) / weight_sum
         )
     else:
-        mse_values_trafo = tf.reduce_mean(input_tensor=loss_event, axis=0)
+        mse_values_trafo = tf.reduce_mean(loss_event, axis=0)
         weights = tf.expand_dims(tf.ones_like(loss_event[:, 0]), axis=-1)
 
     logit_tensors = shared_objects["logit_tensors"]
@@ -539,16 +516,14 @@ def mse_and_weighted_cross_entropy(
 
             eps = 1e-6
             label_loss.append(
-                tf.reduce_sum(input_tensor=loss_i_sorted * loss_weight, axis=0)
-                / (tf.reduce_sum(input_tensor=loss_weight) + eps)
+                tf.reduce_sum(loss_i_sorted * loss_weight, axis=0)
+                / (tf.reduce_sum(loss_weight) + eps)
             )
             # ------------------------------
         else:
             label_loss.append(mse_values_trafo[i])
 
     label_loss = tf.stack(label_loss)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
 
     return label_loss
 
@@ -609,15 +584,10 @@ def tukey(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
-        tukey_loss = (
-            tf.reduce_sum(input_tensor=loss_event * weights, axis=0)
-            / weight_sum
-        )
+        weight_sum = tf.reduce_sum(weights, axis=0)
+        tukey_loss = tf.reduce_sum(loss_event * weights, axis=0) / weight_sum
     else:
-        tukey_loss = tf.reduce_mean(input_tensor=loss_event, axis=0)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
+        tukey_loss = tf.reduce_mean(loss_event, axis=0)
 
     return tukey_loss
 
@@ -682,17 +652,12 @@ def opening_angle(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
-        loss_angle = (
-            tf.reduce_sum(input_tensor=angle * weights, axis=0) / weight_sum
-        )
-        loss_unc = (
-            tf.reduce_sum(input_tensor=unc_diff**2 * weights, axis=0)
-            / weight_sum
-        )
+        weight_sum = tf.reduce_sum(weights, axis=0)
+        loss_angle = tf.reduce_sum(angle * weights, axis=0) / weight_sum
+        loss_unc = tf.reduce_sum(unc_diff**2 * weights, axis=0) / weight_sum
     else:
-        loss_angle = tf.reduce_mean(input_tensor=angle, axis=0)
-        loss_unc = tf.reduce_mean(input_tensor=unc_diff**2, axis=0)
+        loss_angle = tf.reduce_mean(angle, axis=0)
+        loss_unc = tf.reduce_mean(unc_diff**2, axis=0)
 
     loss = loss_angle + loss_unc
     zeros = tf.zeros_like(loss)
@@ -705,8 +670,6 @@ def opening_angle(
             loss_all_list.append(zeros)
 
     loss_all = tf.stack(loss_all_list, axis=0)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
 
     return loss_all
 
@@ -777,16 +740,12 @@ def opening_angle_raleigh(
 
     if "event_weights" in shared_objects:
         weights = shared_objects["event_weights"]
-        weight_sum = tf.reduce_sum(input_tensor=weights, axis=0)
-        loss_angle = (
-            tf.reduce_sum(input_tensor=angle * weights, axis=0) / weight_sum
-        )
-        raleigh_loss = (
-            tf.reduce_sum(input_tensor=raleigh * weights, axis=0) / weight_sum
-        )
+        weight_sum = tf.reduce_sum(weights, axis=0)
+        loss_angle = tf.reduce_sum(angle * weights, axis=0) / weight_sum
+        raleigh_loss = tf.reduce_sum(raleigh * weights, axis=0) / weight_sum
     else:
-        loss_angle = tf.reduce_mean(input_tensor=angle, axis=0)
-        raleigh_loss = tf.reduce_mean(input_tensor=raleigh, axis=0)
+        loss_angle = tf.reduce_mean(angle, axis=0)
+        raleigh_loss = tf.reduce_mean(raleigh, axis=0)
 
     loss = loss_angle + raleigh_loss
     zeros = tf.zeros_like(loss)
@@ -799,7 +758,5 @@ def opening_angle_raleigh(
             loss_all_list.append(zeros)
 
     loss_all = tf.stack(loss_all_list, axis=0)
-
-    loss_utils.add_logging_info(data_handler, shared_objects)
 
     return loss_all

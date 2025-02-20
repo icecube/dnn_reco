@@ -3,12 +3,10 @@ All defined evaluation functions must have the following signature:
 
     Parameters
     ----------
-    feed_dict_train : dict
-        The feed_dict used to feed tensorflow placeholder for the evaluation
-        on training data.
-    feed_dict_val : dict
-        The feed_dict used to feed tensorflow placeholder for the evaluation
-        on validation data.
+    batch_train : dict
+        The input data batch used for the evaluation on training data.
+    batch_val : dict
+        The input data batch used for the evaluation on validation data.
     results_train : dict
         A dictionary with the results of the tensorflow operations for the
         training data.
@@ -38,8 +36,8 @@ from dnn_reco.utils.angles import get_angle_deviation, get_angle
 
 
 def eval_direction(
-    feed_dict_train,
-    feed_dict_val,
+    batch_train,
+    batch_val,
     results_train,
     results_val,
     config,
@@ -53,12 +51,10 @@ def eval_direction(
 
     Parameters
     ----------
-    feed_dict_train : dict
-        The feed_dict used to feed tensorflow placeholder for the evaluation
-        on training data.
-    feed_dict_val : dict
-        The feed_dict used to feed tensorflow placeholder for the evaluation
-        on validation data.
+    batch_train : dict
+        The input data batch used for the evaluation on training data.
+    batch_val : dict
+        The input data batch used for the evaluation on validation data.
     results_train : dict
         A dictionary with the results of the tensorflow operations for the
         training data.
@@ -82,8 +78,8 @@ def eval_direction(
         Arbitrary keyword arguments.
 
     """
-    y_true_train = feed_dict_train[shared_objects["y_true"]]
-    y_true_val = feed_dict_val[shared_objects["y_true"]]
+    y_true_train = batch_train[2]
+    y_true_val = batch_val[2]
 
     y_pred_train = results_train["y_pred"]
     y_pred_val = results_val["y_pred"]

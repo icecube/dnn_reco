@@ -8,48 +8,6 @@ import tensorflow as tf
 from dnn_reco import misc
 
 
-def add_logging_info(data_handler, shared_objects):
-    """Add some TensorBoard logging info for the labels.
-
-    Adds Tf.summary.scalars of the RMSE for each label.
-
-    Parameters
-    ----------
-    data_handler : :obj: of class DataHandler
-        An instance of the DataHandler class. The object is used to obtain
-        meta data.
-    shared_objects : dict
-        A dictionary containing settings and objects that are shared and passed
-        on to sub modules.
-    """
-
-    # check if 'add_logging_info' has already been called
-    if "rmse_values_trafo" not in shared_objects:
-
-        # calculate RMSE of untransformed values
-        y_diff = shared_objects["y_pred"] - shared_objects["y_true"]
-        mse_values = tf.reduce_mean(input_tensor=tf.square(y_diff), axis=0)
-        rmse_values = tf.sqrt(mse_values)
-
-        # calculate RMSE of transformed values
-        y_diff_trafo = (
-            shared_objects["y_pred_trafo"] - shared_objects["y_true_trafo"]
-        )
-        mse_values_trafo = tf.reduce_mean(
-            input_tensor=tf.square(y_diff_trafo), axis=0
-        )
-        rmse_values_trafo = tf.sqrt(mse_values_trafo)
-        shared_objects["rmse_values_trafo"] = rmse_values_trafo
-
-        # add the RMSE of each label as a tf.summary.scalar
-        for i, name in enumerate(data_handler.label_names):
-            tf.compat.v1.summary.scalar("RMSE_" + name, rmse_values[i])
-
-        tf.compat.v1.summary.scalar(
-            "Benchmark", tf.reduce_sum(input_tensor=rmse_values_trafo, axis=0)
-        )
-
-
 def correct_azimuth_residual(
     y_diff_trafo, config, data_handler, data_transformer, name_pattern
 ):

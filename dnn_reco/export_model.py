@@ -3,13 +3,14 @@ import os
 import shutil
 import glob
 import click
+import logging
 import tensorflow as tf
 
+from dnn_reco import misc
 from dnn_reco.settings.yaml import yaml_loader, yaml_dumper
 from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
-from dnn_reco.model import NNModel
 
 
 @click.command()
@@ -29,14 +30,31 @@ from dnn_reco.model import NNModel
 @click.option(
     "--logs/--no-logs", default=True, help="Export tensorflow log files."
 )
-def main(config_files, output_folder, data_settings, logs):
+@click.option(
+    "--log_level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING"]),
+    default="INFO",
+)
+def main(config_files, output_folder, data_settings, logs, log_level):
     """Script to export dnn reco model.
 
     Parameters
     ----------
     config_files : list of strings
         List of yaml config files.
+    output_folder : str
+        Path to model output directory to which the exported model will be
+        written to.
+    data_settings : str
+        Path to config file that was used to create the training data,
+        or alternatively a config file that contains the data settings.
+    logs : bool
+        Export tensorflow log files.
+    log_level : str
+        Log level for logging.
     """
+    # set up logging
+    logging.basicConfig(level=log_level)
 
     # Check paths and define output names
     if not os.path.isdir(output_folder):
@@ -78,17 +96,17 @@ def main(config_files, output_folder, data_settings, logs):
     # load trafo model from file
     data_transformer.load_trafo_model(config["trafo_model_path"])
 
-    with tf.Graph().as_default():
-        # create NN model
-        model = NNModel(
-            is_training=True,
-            config=config,
-            data_handler=data_handler,
-            data_transformer=data_transformer,
-        )
+    # create NN model
+    ModelClass = misc.load_class(config["model_class"])
+    model = ModelClass(
+        is_training=True,
+        config=config,
+        data_handler=data_handler,
+        data_transformer=data_transformer,
+    )
 
-        # compile model: define loss function and optimizer
-        model.compile()
+    # compile model: define loss function and optimizer
+    model.compile()
 
     # -------------------------
     # Export latest checkpoints

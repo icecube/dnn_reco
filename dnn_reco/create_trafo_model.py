@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import click
+import logging
 
 from dnn_reco.settings.yaml import yaml_dumper
 from dnn_reco import misc
@@ -11,7 +12,12 @@ from dnn_reco.data_trafo import DataTransformer
 
 @click.command()
 @click.argument("config_files", type=click.Path(exists=True), nargs=-1)
-def main(config_files):
+@click.option(
+    "--log_level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING"]),
+    default="INFO",
+)
+def main(config_files, log_level):
     """Script to generate trafo model.
 
     Creates the desired trafo model as defined in the yaml configuration files
@@ -21,7 +27,11 @@ def main(config_files):
     ----------
     config_files : list of strings
         List of yaml config files.
+    log_level : str
+        Log level for logging.
     """
+    # set up logging
+    logging.basicConfig(level=log_level)
 
     # read in and combine config files and set up
     setup_manager = SetupManager(config_files)

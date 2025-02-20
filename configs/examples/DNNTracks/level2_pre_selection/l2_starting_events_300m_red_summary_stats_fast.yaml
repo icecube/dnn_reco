@@ -7,99 +7,81 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'egen_vertex_track_numu_cc_vs_nue_cc'
+'unique_name': 'l2_starting_events_300m_red_summary_stats_fast'
 
 #---------------------------
 # General settings
 #---------------------------
 'training_data_file' : [
 
-    # Manuel's NuGen
-    # NuMu
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21217/*/*.hdf5',
-    # NuE
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*.hdf5',
+    # SnowStorm NuGen
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*1.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*2.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*3.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*4.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*5.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*6.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*7.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*8.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*9.hdf5',
 
-    # Nancy's NuGen
-    # NuMu
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/NuMu/*energy/*/l2/*/*.hdf5',
-    # NuE
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/NuE/*energy/*/l2/*/*.hdf5',
-
-    # # Manuel's MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*.hdf5',
-
-    # # biased MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/7700*/*/*.hdf5',
-
-    # # Simprod Corsika
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*/*.hdf5',
-
-    # # Simprd MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12370/0.99_eff/*/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12401/0.99_eff/*/*.hdf5',
+    # Corsika 20904
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*1.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*2.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*3.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*4.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*5.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*6.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*7.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*8.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*9.hdf5',
 
   ]
+
 'trafo_data_file' : [
 
-    # Manuel's NuGen
-    # NuMu
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21217/*/*.hdf5',
-    # NuE
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*.hdf5',
+    # SnowStorm NuGen
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*1.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*2.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*3.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*4.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*5.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*6.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*7.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*8.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*9.hdf5',
 
-    # Nancy's NuGen
-    # NuMu
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/NuMu/*energy/*/l2/*/*.hdf5',
-    # NuE
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/new/NuE/*energy/*/l2/*/*.hdf5',
-
-    # # Manuel's MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*.hdf5',
-
-    # # biased MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/7700*/*/*.hdf5',
-
-    # # Simprod Corsika
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/Corsika/1105*/*/*.hdf5',
-
-    # # Simprd MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12370/0.99_eff/*/*.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/12401/0.99_eff/*/*.hdf5',
+    # Corsika 20904
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*1.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*2.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*3.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*4.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*5.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*6.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*7.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*8.hdf5',
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*9.hdf5',
 
   ]
+
 'validation_data_file' : [
-    # WARNING: This is the same as training data!!!!
-    # Manuel's NuGen
-    # NuMu
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21217/*/*00.hdf5',
-    # NuE
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*00.hdf5',
 
-    # # Manuel's MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*0000.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*00.hdf5',
+    # SnowStorm NuGen
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*0.hdf5',
 
+    # Corsika 20904
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*0.hdf5',
   ]
+
 'test_data_file' : [
-    # WARNING: This is the same as training data!!!!
-    # Manuel's NuGen
-    # NuMu
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21217/*/*00.hdf5',
-    # NuE
-    '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/NuGen/21218/*/*00.hdf5',
 
-    # # Manuel's MuonGun
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*0000.hdf5',
-    # '/net/big-tank/POOL/users/mhuennefeld/data/event_selection/training_data/cascade_egenerator_vertex/MuonGun/2131*/*/*00.hdf5',
+    # SnowStorm NuGen
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/NuGen/214*/level2_dev/*/*0.hdf5',
 
+    # Corsika 20904
+    '/data/ana/reconstruction/2018/gnn/training_data/dnn_selections/DNNNeutrinos/reduced_summary_stats/Corsika/20904/level2_dev/*/*0.hdf5',
   ]
 
-'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 12
 'file_capacity' : 5
@@ -109,10 +91,7 @@
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
 
-'log_path' : "../logs/\
-                {unique_name}/\
-                {model_file}__\
-                {model_name}"
+'log_path' : "../logs/{unique_name}"
 
 #----------------------
 # Data Handler settings
@@ -124,21 +103,13 @@
 # Name of data global time offset key (e.g. DOMPulseTimeRangeStart, dnn_data_global_time_offset)
 'data_handler_time_offset_name': dnn_data_global_time_offset
 
-'data_handler_num_bins': 14
+'data_handler_num_bins': 3
 
-# Number of splits to make for a loaded file --> reduce size of batch for queue
-'data_handler_num_splits': 10
-
-'data_handler_label_file': 'default_labels'
-'data_handler_label_name': 'simple_label_loader'
-'data_handler_misc_file': 'default_misc'
-'data_handler_misc_name': 'general_misc_loader'
-'data_handler_filter_file': 'default_filter'
-'data_handler_filter_name': 'general_filter'
-
+data_handler_label_class: dnn_reco.modules.data.labels.default_labels.simple_label_loader
+data_handler_misc_class: dnn_reco.modules.data.misc.default_misc.general_misc_loader
+data_handler_filter_class: dnn_reco.modules.data.filters.default_filters.general_filter
 
 'data_handler_label_key': 'LabelsDeepLearning_p150'
-
 
 # must be a list of keys or empty list
 'data_handler_relative_time_keys': []
@@ -157,10 +128,7 @@
   # 'CscdL3_Cont_Tag': 'value',
   # 'CscdL3': 'value',
   'LabelsDeepLearning': ['p_outside_cascade', 'p_starting', 'p_starting_300m'],
-  'LabelsDeepLearning_p150': [
-    'p_starting_cc_e', 'p_starting_cc_mu', 'p_starting_cc',
-    'p_outside_cascade', 'p_starting_300m', 'p_starting',
-  ],
+  'LabelsDeepLearning_p150': ['p_outside_cascade', 'p_starting_300m', 'p_starting'],
   'FilterMask': ['MuonFilter', 'CascadeFilter'],
   'weights': ['GaisserH4a_atmod12_SIBYLL',  # MuonGun
               'GaisserH4a_atmod12_DPMJET_C',  # MuonGun
@@ -207,13 +175,13 @@
 
 # only apply filter on these PDG encodings of the MC Primary
 # (All other events are accepted regardless)
-# 'filter_apply_on_pdg_encodings': [-12, 12, -14, 14, -16, 16]
+'filter_apply_on_pdg_encodings': [-12, 12, -14, 14, -16, 16]
 
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
   # 'LabelsDeepLearning_p_outside_cascade': False,
   # 'FilterMask_CascadeFilter': True,
-  'LabelsDeepLearning_p150_p_starting_cc': True,
+  'LabelsDeepLearning_p150_p_starting_300m': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
@@ -239,7 +207,7 @@
     # Select biased event if: label[key] < value
     'label_less': {},
     # Select biased event if: label[key] == value
-    'label_equal': {'p_starting_cc_mu': True},
+    'label_equal': {'p_starting': True},
     # Select biased event if: label[key] != value
     'label_unequal': {},
     # Select biased event if: (true - pred)[key] > value
@@ -277,9 +245,8 @@
   # 'VertexX': 1,
   # 'VertexY': 1,
   # 'VertexZ': 1,
-  'p_starting_cc_e': 1,
   # 'p_starting': 1,
-  # 'p_starting_300m': 1,
+  'p_starting_300m': 1,
   # 'p_is_track': 1,
   # 'p_entering': 1,
   # 'p_entering_muon_single': 1,
@@ -335,8 +302,7 @@
 # ---------------------
 # Event weight settings
 # ---------------------
-'event_weight_file': 'event_weights'
-'event_weight_name': 'clipped_astroness_weights'
+event_weight_class: dnn_reco.modules.data.event_weights.event_weights.clipped_astroness_weights
 
 # NuGen astro and conv weights
 'event_weights_nugen_astro_weight': 'weights_mese_flux'
@@ -346,26 +312,23 @@
 #---------------------------
 # General Training settings
 #---------------------------
-'num_training_iterations' : 2001000
+'num_training_iterations' : 100000000
 'validation_frequency' : 100
 'save_frequency' : 500
-'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
-'evaluation_file': #default_evaluation
-'evaluation_name': #eval_direction
+evaluation_class: #dnn_reco.modules.evaluation.default_evaluation.eval_direction
 
 #---------------------------
 # Trafo settings
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 10000
-'trafo_model_path' : '../data/trafo_models/egen_vertex_track_numu_cc_vs_nue_cc_01.npy'
+'trafo_model_path' : '../data/trafo_models/dnn_cscd_l3a_starting_events_300m_red_summary_stats_fast_01.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False
-'trafo_log_dom_bins' : [False, False, False, False, False, False, False, False,
-                        False, False, False, False, False, False]
+'trafo_log_dom_bins' : [True, False, False]
 'trafo_log_label_bins' : {
                          }
 'trafo_log_misc_bins' : False
@@ -375,10 +338,7 @@
 #------------------
 # NN Model Training
 #------------------
-'model_checkpoint_path' : "../checkpoints/nn_model/\
-                              {model_file}__\
-                              {model_name}/\
-                              {unique_name}/model"
+'model_checkpoint_path' : "../checkpoints/nn_model/{unique_name}/model"
 'model_restore_model' : True
 'model_save_model' : True
 
@@ -389,10 +349,9 @@
 #   'vars': str or list of str specifying the variables the optimizer is
 #           adujusting. E.g. ['unc', 'pred'] to optimize weights of the
 #           main prediction network and the uncertainty subnetwork.
-#   'loss_file': str or list of str, defines file of loss function
-#   'loss_name': str or list of str, defines name of loss function
-#                If loss_file and loss_name are lists, they must have the same
-#                length. In this case, a sum of each loss will be performed
+#   'loss_class': str or list of str
+#                 Defines the loss function. If provided as a list, the
+#                 losses will be summed up.
 #   'l1_regularization': Regularization strength (lambda) for L1-Regularization
 #   'l2_regularization': Regularization strength (lambda) for L2-Regularization
 # This structure might seem a bit confusing, but it enables the use of
@@ -408,7 +367,7 @@
             'learning_rate': {
                 'full_class_string': 'dnn_reco.utils.learning_rate.MultiLearningRateScheduler',
                 'settings':{
-                    'boundaries': [1000, 1001000],
+                    'boundaries': [1000],
                     'scheduler_settings': [
                         {
                         'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
@@ -427,22 +386,12 @@
                             'power': 2,
                             },
                         },
-                        {
-                        'full_class_string': 'tensorflow.keras.optimizers.schedules.PolynomialDecay',
-                        'settings': {
-                            'initial_learning_rate': 0.001,
-                            'end_learning_rate': 0.000001,
-                            'decay_steps': 1000000,
-                            'power': 2,
-                            },
-                        },
                     ]
                 },
             },
         },
         'vars' : ['unc', 'pred'],
-        'loss_file': 'default_loss',
-        'loss_name': 'mse_and_cross_entropy',
+        'loss_class': 'dnn_reco.modules.loss.default_loss.mse_and_cross_entropy',
         'l1_regularization': 0.,
         'l2_regularization': 0.,
         'clip_gradients_value': 1.,
@@ -452,8 +401,7 @@
   #                 'optimizer': 'AdamOptimizer',
   #                 'optimizer_settings': {'learning_rate': 0.000001,},
   #                 'vars' : ['unc'],
-  #                 'loss_file': 'default_loss',
-  #                 'loss_name': 'gaussian_likelihood',
+  #                 'loss_class': 'dnn_reco.modules.loss.default_loss.gaussian_likelihood',
   #                 'l1_regularization': 0.,
   #                 'l2_regularization': 0.00001,
   #                 'clip_gradients_value': ,
@@ -464,89 +412,104 @@
 #----------------------
 # NN Model Architecture
 #----------------------
-'model_file' : 'general_IC86_models'
-'model_name' : 'general_model_IC86_opt4'
-'model_is_training' : True
-'model_enforce_direction_norm': False
+model_class: 'dnn_reco.modules.models.general_IC86_cnn.GeneralIC86CNN'
 
-# 2D convolutional layer of upper DeepCore
-'conv_upper_DeepCore_settings': {
-    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3]],
-    'num_filters_list': [30, 30, 30, 10],
-    'pooling_type_list': [False, 'avg', False, 'avg'],
-    'pooling_strides_list': [1, 1, 2, 1],
-    'pooling_ksize_list': [1, 1, 2, 1],
-    'use_dropout_list': True,
-    'padding_list': 'SAME',
-    'strides_list': [1, 1, 1, 1],
-    'use_batch_normalisation_list': False,
-    'activation_list': 'elu',
-    'use_residual_list': True,
+model_kwargs: {
+    is_training : True,
+    random_seed: 42,
+
+    dtype: 'float32',
+    enforce_direction_norm: False,
+    add_prediction_to_unc_input: False,
+
+    keep_prob_dom: 0.95,
+    keep_prob_conv: 1.0,
+    keep_prob_flat: 1.0,
+    keep_prob_fc: 1.0,
+
+    # 2D convolutional layer of upper DeepCore
+    conv_upper_DeepCore_settings: {
+        'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3]],
+        'num_filters_list': [10, 10, 10, 10],
+        'pooling_type_list': [False, 'avg', False, 'avg'],
+        'pooling_strides_list': [1, 1, 2, 1],
+        'pooling_ksize_list': [1, 1, 2, 1],
+        'use_dropout_list': True,
+        'padding_list': 'SAME',
+        'strides_list': [1, 1, 1, 1],
+        'use_batch_normalisation_list': False,
+        'activation_list': 'elu',
+        'use_residual_list': True,
+        'method_list': 'convolution',
+    },
+
+    # 2D convolutional layer of lower DeepCore
+    conv_lower_DeepCore_settings: {
+        'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3],
+                            [1, 3], [1, 3], [1, 3], [1, 3]],
+        'num_filters_list': [10, 10, 10, 10, 10, 10, 10, 10],
+        'pooling_type_list': [False, 'avg',
+                              False, 'avg',
+                              False, 'avg',
+                              False, 'avg'],
+        'pooling_strides_list': [1, 1, 2, 1],
+        'pooling_ksize_list': [1, 1, 2, 1],
+        'use_dropout_list': True,
+        'padding_list': 'SAME',
+        'strides_list': [1, 1, 1, 1],
+        'use_batch_normalisation_list': False,
+        'activation_list': 'elu',
+        'use_residual_list': True,
+        'method_list': 'convolution',
+    },
+
+    # 3D hexagonal convolution over main IceCube array (IC78)
+    conv_IC78_settings : {
+        'filter_size_list': [[2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
+                            [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3]],
+        'num_filters_list': [10, 10, 10, 10, 10, 10, 10, 10],
+        'pooling_type_list': [False, 'avg', False, 'avg',
+                              False, 'avg', False, 'avg'],
+        'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                                [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                                [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                                [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
+        'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                              [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                              [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                              [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
+        'use_dropout_list': True,
+        'padding_list': 'SAME',
+        'strides_list': [1, 1, 1, 1, 1],
+        'use_batch_normalisation_list': False,
+        'activation_list': 'elu',
+        'use_residual_list': True,
+        'hex_zero_out_list': False,
+        'dilation_rate_list': ,
+        'hex_num_rotations_list': 1,
+        'method_list': 'hex_convolution',
+    },
+
+    # Fully connected layer settings (Combine results from convolutions)
+    fc_settings: {
+        'fc_sizes': [50, -1], # last one will be overwritten with num labels
+        'use_dropout_list': [True, False],
+        'activation_list': ['elu', ''],
+        'use_batch_normalisation_list': False,
+        'use_residual_list': [False, True],
+        'max_out_size_list': ,
+    },
+
+    # Fully connected layer settings for uncertainty subnetwork
+    fc_unc_settings: {
+        'fc_sizes': [50, -1], # last one will be overwritten with num labels
+        'use_dropout_list': [True, False],
+        'activation_list': ['elu', 'abs'],
+        'use_batch_normalisation_list': False,
+        'use_residual_list': False,
+        'max_out_size_list': ,
+    },
 }
 
-# 2D convolutional layer of lower DeepCore
-'conv_lower_DeepCore_settings': {
-    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3],
-                         [1, 3], [1, 3], [1, 3], [1, 3]],
-    'num_filters_list': [30, 30, 30, 30, 30, 30, 30, 10],
-    'pooling_type_list': [False, 'avg',
-                          False, 'avg',
-                          False, 'avg',
-                          False, 'avg'],
-    'pooling_strides_list': [1, 1, 2, 1],
-    'pooling_ksize_list': [1, 1, 2, 1],
-    'use_dropout_list': True,
-    'padding_list': 'SAME',
-    'strides_list': [1, 1, 1, 1],
-    'use_batch_normalisation_list': False,
-    'activation_list': 'elu',
-    'use_residual_list': True,
-}
-
-# 3D hexagonal convolution over main IceCube array (IC78)
-'conv_IC78_settings' : {
-    'filter_size_list': [[2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
-                         [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3]],
-    'num_filters_list': [50, 50, 50, 50, 50, 50, 50, 10],
-    'pooling_type_list': [False, 'avg', False, 'avg',
-                          False, 'avg', False, 'avg'],
-    'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
-    'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
-                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
-    'use_dropout_list': True,
-    'padding_list': 'SAME',
-    'strides_list': [1, 1, 1, 1, 1],
-    'use_batch_normalisation_list': False,
-    'activation_list': 'elu',
-    'use_residual_list': True,
-    'hex_zero_out_list': False,
-    'dilation_rate_list': ,
-    'hex_num_rotations_list': 1,
-}
-
-# Fully connected layer settings (Combine results from convolutions)
-'fc_settings': {
-    'fc_sizes': [50, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, False],
-    'activation_list': ['elu', ''],
-    'use_batch_normalisation_list': False,
-    'use_residual_list': [False, True],
-    'max_out_size_list': ,
-}
-
-# Fully connected layer settings for uncertainty subnetwork
-'fc_unc_settings': {
-    'fc_sizes': [50, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, False],
-    'activation_list': ['elu', 'abs'],
-    'use_batch_normalisation_list': False,
-    'use_residual_list': False,
-    'max_out_size_list': ,
-}
 
 ...

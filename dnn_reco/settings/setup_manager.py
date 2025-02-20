@@ -53,9 +53,6 @@ class SetupManager:
             Relevant for IceCubeDataHandler
             Defines how many times events of the loaded files are used before
             new files are loaded.
-        dom_response_shape : list of int
-            The shape of the DOM response tensor excluding the batch dimension.
-            E.g.: [x_dim, y_dim, z_dim, num_bins]
         DOM_init_values: float or array-like
             The x_ic78 and deepcore array will be initialized with these
             values via:
@@ -75,54 +72,32 @@ class SetupManager:
         save_frequency : int
             Defines the interval at which the model parameters will be stored
             to file.
-        keep_global_count : bool
-            If true, a global count of training iterations is performed.
-            The amount of previous training iterations is inferred
-            from the latest checkpoint file.
-            If false, counting of training iterations will start at zero.
-        keep_probability_list : list of float
-            A list of keep probabilities for dropout layers.
-            A tensorflow placeholder is created for each float given in this
-            list. These placeholders can then be used in the generator or
-            discriminator networks by defining the index of the correct keep
-            probability.
-            During training these placeholders will be set to the values as
-            defined in 'keep_probability_list'. During testing and validation
-            these will be set to 1.0, e.g. no dropout is applied.
-        hypothesis_smearing : None or list of float
-            Smearing to be used for cascade hypothesis during training.
-            'hypothesis_smearing' is a list of floats with the length equal to
-            the number of cascade parameters.
-            The ith value in 'smearing'  resembles the std deviation of the
-            gaussian that will be added as a smearing.
-            Cascade Parameters: x, y, z, zenith, azimuth, energy, t
-            If smearing is None, no smearing will be applied.
 
     Trafo settings
 
         trafo_model_path : str
             Path to trafo model file.
-        trafo_data_file : str
-            Path to trafo data file.
-        trafo_load_model : bool
-            If true, the transformation model will be loaded from file.
-            If false, a new transorfmation model will be created from the data
-                      specified by the 'trafo_data' key.
-        trafo_save_model : bool
-            If true, the transformation model will be saved to the file
-                     specified by the 'trafo_model_path' key.
-                     Note: This will overwrite the file!
-        trafo_normalize : bool
-            If true, data will be normalized to have a mean of 0 and a variance
-            of 1.
-        trafo_log_bins : bool, list of bool
-            The natural logarithm is applied to the hits prior
-            to normalization.
+        trafo_normalize_dom_data : bool
+            If true, the DOM input data will be normalized to have a
+            mean of 0 and a variance of 1.
+        trafo_normalize_label_data : bool
+            If true, the label data will be normalized to have a
+            mean of 0 and a variance of 1.
+        trafo_normalize_misc_data : bool
+            If true, the misc data will be normalized to have a
+            mean of 0 and a variance of 1.
+        trafo_log_dom_bins : bool, list of bool
+            The natural logarithm is to the DOM input data.
             If a list is given, the length of the list must match the number of
             bins 'num_bins'. The logarithm is applied to bin i if the ith entry
             of the log_bins list is True.
-        trafo_log_energy : bool, list of bool
-            The natural logarithm is applied to the cascade energy.
+        trafo_log_label_bins : dict[key: bool]
+            The natural logarithm is applied to the specified labels
+        trafo_log_misc_bins : bool, list of bool
+            The natural logarithm is applied to the misc data.
+            If a list is given, the length of the list must match the number of
+            misc keys. The logarithm is applied to key i if the ith entry
+            of the log_bins list is True.
         trafo_treat_doms_equally : bool
             All DOMs are treated equally, e.g. the mean and variance is
             calculated over all DOMs and not individually.
@@ -132,39 +107,25 @@ class SetupManager:
 
     NN Model Architecture
 
-        generator_model_file : str
-            Name of python file in dnn_reco/modules/model/ directory in
-            which the generator is defined.
-        generator_model_name : str
-            Name of function in the 'generator_model_file' that is used to
-            define the generator.
+        model_class : str
+            Name of class that is used to define the model.
+        model_kwargs : dict
+            A dictionary of arguments that are passed on to the model class.
 
     NN Model Training
 
         model_checkpoint_path : str
-            Path to directory in which the generator checkpoints are
+            Path to directory in which the model checkpoints are
             stored.
-        generator_restore_model : bool
-            If true, generator parameters are restored from file.
-            If false, generator parameters are randomly initialized.
-        generator_save_model : bool
-            If true, the generator parameters are saved to file.
+        model_restore_model : bool
+            If true, model parameters are restored from file.
+            If false, model parameters are randomly initialized.
+        model_save_model : bool
+            If true, the model parameters are saved to file.
                 Note: This will overwrite possible existing files.
-        generator_perform_training : bool
-            If true, the generator will be trained in a perform_training call
-                     if it has trainable parameters.
-        generator_loss_file : str
-            Name of python file in dnn_reco/modules/loss/ directory in
-            which the loss function for the generator optimizer is defined.
-        generator_loss_name : str
-            Name of function in the 'generator_loss_file' that is used to
-            define the loss function for the generator optimizer.
-
-        generator_optimizer_name : str
-            Name of the tensorflow optimizer to use for the generator training.
-
-        generator_optimizer_settings : dict
-            Settings for the chosen generator optimizer.
+        model_optimizer_dict : dict
+            Defines the loss functions and optimizers that are used for
+            training.
 
     Attributes
     ----------
@@ -187,7 +148,7 @@ class SetupManager:
         "data_handler_num_splits": None,
     }
 
-    def __init__(self, config_files):
+    def __init__(self, config_files, num_threads=None):
         """Initializes the DNN reco Setup Manager
 
         Loads and merges yaml config files, sets up necessary directories.
@@ -198,6 +159,9 @@ class SetupManager:
             List of yaml config files.
         program_options : str
             A string defining the program options.
+        num_threads : int, optional
+            Number of threads to use for tensorflow operations.
+            If not given, the number of threads is not limited.
         """
         self._config_files = config_files
 
@@ -207,6 +171,16 @@ class SetupManager:
 
         # load and combine configs
         self._setup_config()
+
+        # set up tensorflow
+        # limit GPU usage
+        gpu_devices = tf.config.list_physical_devices("GPU")
+        for device in gpu_devices:
+            tf.config.experimental.set_memory_growth(device, True)
+
+        # limit number of CPU threads
+        tf.config.threading.set_intra_op_parallelism_threads(num_threads)
+        tf.config.threading.set_inter_op_parallelism_threads(num_threads)
 
     def _setup_config(self):
         """Loads and merges config
@@ -254,9 +228,6 @@ class SetupManager:
         # define numpy and tensorflow float precision
         config["tf_float_precision"] = getattr(tf, config["float_precision"])
         config["np_float_precision"] = getattr(np, config["float_precision"])
-        import tfscripts as tfs
-
-        tfs.FLOAT_PRECISION = config["tf_float_precision"]
 
         # get git repo information
         config["git_short_sha"] = str(version_control.short_sha)

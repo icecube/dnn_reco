@@ -2,17 +2,16 @@ import os
 import logging
 import glob
 import numpy as np
-import tensorflow as tf
 import timeit
 from collections import deque
 
 from icecube import icetray, dataclasses
 
+from dnn_reco import misc
 from dnn_reco.settings.yaml import yaml_loader
 from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
-from dnn_reco.model import NNModel
 
 
 class DeepLearningReco(icetray.I3ConditionalModule):
@@ -104,7 +103,10 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             os.path.join(self._model_path, "config_training_*.yaml")
         )
         last_training_file = np.sort(training_files)[-1]
-        setup_manager = SetupManager([last_training_file])
+        setup_manager = SetupManager(
+            config_files=[last_training_file],
+            num_threads=self._parallelism_threads,
+        )
         self.config = setup_manager.get_config()
 
         # ToDo: Adjust necessary values in config
@@ -115,8 +117,6 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.config["trafo_model_path"] = os.path.join(
             self._model_path, "trafo_model.npy"
         )
-        if self._parallelism_threads is not None:
-            self.config["tf_parallelism_threads"] = self._parallelism_threads
 
         # ----------------------------------------------------------------
         # Check if settings of data container match settings in model path
@@ -125,30 +125,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         with open(cfg_file, "r") as stream:
             data_config = yaml_loader.load(stream)
 
-        # Backwards compatibility for older exported models which did not
-        # include this setting. In this case the separated format, e.g.
-        # icecube array + deepcore array is used as opposed to the string-dom
-        # format: [batch, 86, 60, num_bins]
-        if "is_str_dom_format" not in data_config:
-            data_config["is_str_dom_format"] = False
-
         for k in self._container.config:
-
-            # backwards compatibility for older exported models which did not
-            # export these settings
-            if k not in data_config and k in [
-                "pulse_key",
-                "dom_exclusions",
-                "partial_exclusion",
-                "cascade_key",
-                "allowed_pulse_keys",
-                "allowed_cascade_keys",
-            ]:
-                msg = "Warning: not checking if parameter {!r} is correctly "
-                msg += "configured for model {!r} because the setting "
-                msg += "was not exported."
-                logging.warning(msg.format(k, self._model_path))
-                continue
 
             # check for allowed pulse keys
             if (
@@ -210,93 +187,66 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._pframe_counter = 0
         self._batch_event_index = 0
 
-        # Create a new tensorflow graph and session for this instance of
-        # dnn reco
-        g = tf.Graph()
-        if "tf_parallelism_threads" in self.config:
-            n_cpus = self.config["tf_parallelism_threads"]
-            sess = tf.compat.v1.Session(
-                graph=g,
-                config=tf.compat.v1.ConfigProto(
-                    gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
-                    device_count={"GPU": 1},
-                    intra_op_parallelism_threads=n_cpus,
-                    inter_op_parallelism_threads=n_cpus,
-                ),
-            )
-        else:
-            sess = tf.compat.v1.Session(
-                graph=g,
-                config=tf.compat.v1.ConfigProto(
-                    gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
-                    device_count={"GPU": 1},
-                ),
-            )
-        with g.as_default():
-            # Create Data Handler object
-            self.data_handler = DataHandler(self.config)
-            self.data_handler.setup_with_config(
-                os.path.join(self._model_path, "config_meta_data.yaml")
-            )
+        # Create Data Handler object
+        self.data_handler = DataHandler(self.config)
+        self.data_handler.setup_with_config(
+            os.path.join(self._model_path, "config_meta_data.yaml")
+        )
 
-            # Get time vars that need to be corrected by global time offset
-            self._time_indices = []
-            for i, name in enumerate(self.data_handler.label_names):
-                if name in self.data_handler.relative_time_keys:
-                    self._time_indices.append(i)
+        # Get time vars that need to be corrected by global time offset
+        self._time_indices = []
+        for i, name in enumerate(self.data_handler.label_names):
+            if name in self.data_handler.relative_time_keys:
+                self._time_indices.append(i)
 
-            # create data transformer
-            self.data_transformer = DataTransformer(
-                data_handler=self.data_handler,
-                treat_doms_equally=self.config["trafo_treat_doms_equally"],
-                normalize_dom_data=self.config["trafo_normalize_dom_data"],
-                normalize_label_data=self.config["trafo_normalize_label_data"],
-                normalize_misc_data=self.config["trafo_normalize_misc_data"],
-                log_dom_bins=self.config["trafo_log_dom_bins"],
-                log_label_bins=self.config["trafo_log_label_bins"],
-                log_misc_bins=self.config["trafo_log_misc_bins"],
-                norm_constant=self.config["trafo_norm_constant"],
+        # create data transformer
+        self.data_transformer = DataTransformer(
+            data_handler=self.data_handler,
+            treat_doms_equally=self.config["trafo_treat_doms_equally"],
+            normalize_dom_data=self.config["trafo_normalize_dom_data"],
+            normalize_label_data=self.config["trafo_normalize_label_data"],
+            normalize_misc_data=self.config["trafo_normalize_misc_data"],
+            log_dom_bins=self.config["trafo_log_dom_bins"],
+            log_label_bins=self.config["trafo_log_label_bins"],
+            log_misc_bins=self.config["trafo_log_misc_bins"],
+            norm_constant=self.config["trafo_norm_constant"],
+        )
+
+        # load trafo model from file
+        self.data_transformer.load_trafo_model(self.config["trafo_model_path"])
+
+        # create NN model
+        ModelClass = misc.load_class(self.config["model_class"])
+        self.model = ModelClass(
+            is_training=False,
+            config=self.config,
+            data_handler=self.data_handler,
+            data_transformer=self.data_transformer,
+        )
+
+        # compile model: initialize and finalize graph
+        self.model.compile()
+
+        # restore model weights
+        self.model.restore()
+
+        # Get trained labels, e.g. labels with weights greater than zero
+        self._mask_labels = (
+            self.model.shared_objects["label_weight_config"] > 0
+        )
+        self._non_zero_labels = [
+            n
+            for n, b in zip(self.data_handler.label_names, self._mask_labels)
+            if b
+        ]
+        self._non_zero_log_bins = [
+            log_bin
+            for log_bin, bin in zip(
+                self.data_transformer.trafo_model["log_label_bins"],
+                self._mask_labels,
             )
-
-            # load trafo model from file
-            self.data_transformer.load_trafo_model(
-                self.config["trafo_model_path"]
-            )
-
-            # create NN model
-            self.model = NNModel(
-                is_training=False,
-                config=self.config,
-                data_handler=self.data_handler,
-                data_transformer=self.data_transformer,
-                sess=sess,
-            )
-
-            # compile model: initialize and finalize graph
-            self.model.compile()
-
-            # restore model weights
-            self.model.restore()
-
-            # Get trained labels, e.g. labels with weights greater than zero
-            self._mask_labels = (
-                self.model.shared_objects["label_weight_config"] > 0
-            )
-            self._non_zero_labels = [
-                n
-                for n, b in zip(
-                    self.data_handler.label_names, self._mask_labels
-                )
-                if b
-            ]
-            self._non_zero_log_bins = [
-                log_bin
-                for log_bin, bin in zip(
-                    self.data_transformer.trafo_model["log_label_bins"],
-                    self._mask_labels,
-                )
-                if bin
-            ]
+            if bin
+        ]
 
     def Process(self):
         """Process incoming frames.
