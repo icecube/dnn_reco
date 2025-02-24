@@ -380,11 +380,6 @@ class GeneralIC86CNN(BaseNNModel):
             seed=self.cnt(),
         )
 
-        if self.verbose:
-            print("    flat IC78:", layer_flat_ic78)
-            print("    flat Upper DeepCore:", layer_flat_deepcore_1)
-            print("    flat Lower DeepCore:", layer_flat_deepcore_2)
-
         return layer_flat
 
     @tf.function(experimental_relax_shapes=True)
@@ -609,15 +604,6 @@ class GeneralIC86CNN(BaseNNModel):
         y_unc_pred_trafo = (
             tf.nn.elu(y_unc_pred_trafo) + 1 + self.min_uncertainty_values
         )
-
-        # -----------------------------------
-        # print architecture
-        # -----------------------------------
-        if self.verbose:
-            print("    layer_flat:", layer_flat)
-            print("    unc_input:", unc_input)
-            print("    y_pred_trafo:", y_pred_trafo)
-            print("    y_unc_pred_trafo:", y_unc_pred_trafo)
 
         # -----------------------------------
         # collect model variables that need to be saved

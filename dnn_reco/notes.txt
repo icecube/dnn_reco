@@ -76,12 +76,6 @@ New:
 ---------------------------------------
 Steps to migrate to tensorflow 2
 ---------------------------------------
-- nan in direction reco
-- reduce number of retracings
-- check some models: classifier, direction estimator, energy estimator
-- switch to keras model in tfscripts if possible for egenerator+dnn_reco
-
-- check export (old and new settings)
 - check application in ic3 module
 - update tutorial: use ic3-processing + newer MC
 
