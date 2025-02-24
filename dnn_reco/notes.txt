@@ -27,7 +27,7 @@ Change to full class/function import string:
 
     'data_handler_filter_file': 'default_filter'
     'data_handler_filter_name': 'general_filter'
-    --> data_handler_filter_class: dnn_reco.modules.data.filters.default_filters.general_filter
+    --> data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_filter
 
     'event_weight_file': 'event_weights'
     'event_weight_name': 'clipped_astroness_weights
@@ -57,12 +57,33 @@ Change to full class/function import string:
                 {model_name}"
     --> 'log_path' : "../logs/{unique_name}"
 
+Lower-case:
+    conv_upper_DeepCore_settings -> conv_upper_deepcore_settings
+    conv_lower_DeepCore_settings -> conv_lower_deepcore_settings
+    conv_IC78_settings -> conv_ic78_settings
+
+explicitly required:
+    in model_optimizer_dict:
+        clip_gradients_value
+        remove_nan_gradients
+
+New:
+    'model_checkpoint_manager_kwargs': {
+        'max_to_keep': 3,
+    }
+
+
 ---------------------------------------
 Steps to migrate to tensorflow 2
 ---------------------------------------
-- fix line breaks and linting
-- fix tf.summary logic
-- transition from tf.compat.* symbols to more idomatic tensorflow 2 logic
+- nan in direction reco
+- reduce number of retracings
+- check some models: classifier, direction estimator, energy estimator
+- switch to keras model in tfscripts if possible for egenerator+dnn_reco
+
+- check export (old and new settings)
+- check application in ic3 module
+- update tutorial: use ic3-processing + newer MC
 
 ----------------
 Additional ToDos

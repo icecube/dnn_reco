@@ -38,6 +38,7 @@ It is expected to have the following signature:
 
 import numpy as np
 import tensorflow as tf
+from tfscripts.utils import SeedCounter
 from tfscripts import layers as tfs
 
 from dnn_reco.model import BaseNNModel
@@ -166,6 +167,7 @@ class GeneralIC86CNN(BaseNNModel):
 
         self.verbose = verbose
         self.random_seed = random_seed
+        self.cnt = SeedCounter(random_seed)
         self.min_uncertainty_values = min_uncertainty_values
         self.add_prediction_to_unc_input = add_prediction_to_unc_input
         self.enforce_direction_norm = enforce_direction_norm
@@ -178,7 +180,7 @@ class GeneralIC86CNN(BaseNNModel):
 
         self.preprocess = PreprocessIceCubeDataLayer(
             keep_prob=keep_prob_dom,
-            name=name + "__preprocess",
+            name=self.name + "__preprocess",
             seed=random_seed,
         )
 
@@ -189,7 +191,7 @@ class GeneralIC86CNN(BaseNNModel):
         self.cnn_upper_deepcore = tfs.ConvNdLayers(
             input_shape=self.input_shape_upper,
             float_precision=dtype,
-            name=name + "__upper_deepcore",
+            name=self.name + "__upper_deepcore",
             verbose=verbose,
             seed=random_seed,
             **conv_upper_deepcore_settings,
@@ -198,7 +200,7 @@ class GeneralIC86CNN(BaseNNModel):
         self.cnn_lower_deepcore = tfs.ConvNdLayers(
             input_shape=self.input_shape_lower,
             float_precision=dtype,
-            name=name + "__lower_deepcore",
+            name=self.name + "__lower_deepcore",
             verbose=verbose,
             seed=random_seed,
             **conv_lower_deepcore_settings,
@@ -207,7 +209,7 @@ class GeneralIC86CNN(BaseNNModel):
         self.cnn_ic78 = tfs.ConvNdLayers(
             input_shape=self.input_shape_ic78,
             float_precision=dtype,
-            name=name + "__ic78",
+            name=self.name + "__ic78",
             verbose=verbose,
             seed=random_seed,
             **conv_ic78_settings,
@@ -217,10 +219,6 @@ class GeneralIC86CNN(BaseNNModel):
         if fc_input_shape is None or fc_unc_input_shape is None:
             fc_input_shape = self.infer_fc_input_shape()
             fc_unc_input_shape = self.infer_fc_unc_input_shape(fc_input_shape)
-
-            if verbose:
-                print("Inferred fc_input_shape:", fc_input_shape)
-                print("Inferred fc_unc_input_shape:", fc_unc_input_shape)
 
         self.fc_input_shape = fc_input_shape
         self.fc_unc_input_shape = fc_input_shape
@@ -234,7 +232,7 @@ class GeneralIC86CNN(BaseNNModel):
         self.fc_layers = tfs.FCLayers(
             input_shape=fc_input_shape,
             float_precision=dtype,
-            name=name + "__fc",
+            name=self.name + "__fc",
             verbose=verbose,
             seed=random_seed,
             **fc_settings,
@@ -243,7 +241,7 @@ class GeneralIC86CNN(BaseNNModel):
         self.fc_unc_layers = tfs.FCLayers(
             input_shape=fc_unc_input_shape,
             float_precision=dtype,
-            name=name + "__fc_unc",
+            name=self.name + "__fc_unc",
             verbose=verbose,
             seed=random_seed,
             **fc_unc_settings,
@@ -251,7 +249,8 @@ class GeneralIC86CNN(BaseNNModel):
 
         # collect all trainable variables
         self.vars_pred = (
-            self.cnn_upper_deepcore.trainable_variables
+            self.preprocess.trainable_variables
+            + self.cnn_upper_deepcore.trainable_variables
             + self.cnn_lower_deepcore.trainable_variables
             + self.cnn_ic78.trainable_variables
             + self.fc_layers.trainable_variables
@@ -300,6 +299,7 @@ class GeneralIC86CNN(BaseNNModel):
         )
         return layer_flat.shape.as_list()
 
+    @tf.function(experimental_relax_shapes=True)
     def _apply_convolutions(
         self,
         data_batch_dict,
@@ -381,13 +381,13 @@ class GeneralIC86CNN(BaseNNModel):
         )
 
         if self.verbose:
-            print("flat IC78:", layer_flat_ic78)
-            print("flat Upper DeepCore:", layer_flat_deepcore_1)
-            print("flat Lower DeepCore:", layer_flat_deepcore_2)
+            print("    flat IC78:", layer_flat_ic78)
+            print("    flat Upper DeepCore:", layer_flat_deepcore_1)
+            print("    flat Lower DeepCore:", layer_flat_deepcore_2)
 
         return layer_flat
 
-    @tf.function
+    @tf.function(experimental_relax_shapes=True)
     def __call__(self, data_batch_dict, is_training=True, summary_writer=None):
         """Forward pass through the model.
 
@@ -492,13 +492,23 @@ class GeneralIC86CNN(BaseNNModel):
                     # within [-1, 1]. We'll leave a little bit of leeway
                     # to allow for [-1.1, 1.1] due to asymptotic behavior
                     # of tanh
+                    if self.limit_dir_vec is None:
+                        raise ValueError(
+                            "If dir_z_independent and enforce_direction_norm"
+                            "are True, limit_dir_vec must be set."
+                        )
                     assert np.abs(self.limit_dir_vec - 1) < 0.1
                     norm_xy = tf.math.sqrt(
                         (
                             y_pred_list[index_dir_x] ** 2
                             + y_pred_list[index_dir_y] ** 2
                         )
-                        / (1 - tf.stop_gradient(y_pred_list[index_dir_z]) ** 2)
+                        / tf.clip_by_value(
+                            1
+                            - tf.stop_gradient(y_pred_list[index_dir_z]) ** 2,
+                            1e-3,
+                            1,
+                        )
                     )
                     y_pred_list[index_dir_x] /= norm_xy
                     y_pred_list[index_dir_y] /= norm_xy
@@ -508,6 +518,7 @@ class GeneralIC86CNN(BaseNNModel):
                         + y_pred_list[index_dir_y] ** 2
                         + y_pred_list[index_dir_z] ** 2
                     )
+                    norm = tf.clip_by_value(norm, 1e-3, 1)
 
                     y_pred_list[index_dir_x] /= norm
                     y_pred_list[index_dir_y] /= norm
@@ -603,10 +614,10 @@ class GeneralIC86CNN(BaseNNModel):
         # print architecture
         # -----------------------------------
         if self.verbose:
-            print("layer_flat:", layer_flat)
-            print("unc_input:", unc_input)
-            print("y_pred_trafo:", y_pred_trafo)
-            print("y_unc_pred_trafo:", y_unc_pred_trafo)
+            print("    layer_flat:", layer_flat)
+            print("    unc_input:", unc_input)
+            print("    y_pred_trafo:", y_pred_trafo)
+            print("    y_unc_pred_trafo:", y_unc_pred_trafo)
 
         # -----------------------------------
         # collect model variables that need to be saved

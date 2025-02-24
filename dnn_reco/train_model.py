@@ -2,7 +2,7 @@
 import click
 import logging
 
-from dnn_reco.utils import misc
+from dnn_reco import misc
 from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
@@ -15,7 +15,12 @@ from dnn_reco.data_trafo import DataTransformer
     type=click.Choice(["DEBUG", "INFO", "WARNING"]),
     default="INFO",
 )
-def main(config_files, log_level):
+@click.option(
+    "--num_threads",
+    type=int,
+    default=None,
+)
+def main(config_files, log_level, num_threads):
     """Script to train the NN model.
 
     Creates data handler, data transformer, and build NN model as specified
@@ -27,15 +32,17 @@ def main(config_files, log_level):
         List of yaml config files.
     log_level : str
         Log level for logging.
+    num_threads : int
+        Number of threads to use for tensorflow.
     """
     # set up logging
     logging.basicConfig(level=log_level)
 
     # read in and combine config files and set up
-    setup_manager = SetupManager(config_files)
+    setup_manager = SetupManager(config_files, num_threads=num_threads)
     config = setup_manager.get_config()
 
-    if not config["model_is_training"]:
+    if not config["model_kwargs"]["is_training"]:
         raise ValueError("Model must be in training mode!")
 
     # Create Data Handler object
@@ -92,10 +99,10 @@ def main(config_files, log_level):
     # create NN model
     ModelClass = misc.load_class(config["model_class"])
     model = ModelClass(
-        is_training=True,
         config=config,
         data_handler=data_handler,
         data_transformer=data_transformer,
+        **config["model_kwargs"]
     )
 
     # compile model: define loss function and optimizer

@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'l2_starting_events_300m_red_summary_stats_fast'
+'unique_name': 'l2_energy_visible_red_summary_stats_fast'
 
 #---------------------------
 # General settings
@@ -178,9 +178,9 @@ data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_f
 
 # For events to pass filter, the following must be True: misc[key] == value
 'filter_equal': {
-    # 'LabelsDeepLearning_p_outside_cascade': False,
-    # 'FilterMask_CascadeFilter': True,
-    'LabelsDeepLearning_p150_p_starting_300m': True,
+    # # 'LabelsDeepLearning_p_outside_cascade': False,
+    # # 'FilterMask_CascadeFilter': True,
+    # 'LabelsDeepLearning_p150_p_starting_300m': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
@@ -206,7 +206,7 @@ data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_f
     # Select biased event if: label[key] < value
     'label_less': {},
     # Select biased event if: label[key] == value
-    'label_equal': {'p_starting': True},
+    'label_equal': {'p_neutrino': True},
     # Select biased event if: label[key] != value
     'label_unequal': {},
     # Select biased event if: (true - pred)[key] > value
@@ -233,7 +233,7 @@ data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_f
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
-    # 'EnergyVisible': 1,
+    'EnergyVisible': 1,
     # 'VertexTime': 1,
     # 'LengthInDetector': 1,
     # 'PrimaryAzimuth': 1,
@@ -245,7 +245,7 @@ data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_f
     # 'VertexY': 1,
     # 'VertexZ': 1,
     # 'p_starting': 1,
-    'p_starting_300m': 1,
+    # 'p_starting_300m': 1,
     # 'p_is_track': 1,
     # 'p_entering': 1,
     # 'p_entering_muon_single': 1,
@@ -254,7 +254,7 @@ data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_f
 }
 # Keys to use for I3Particle
 'label_particle_keys': {
-    # 'energy': EnergyVisible,
+    'energy': EnergyVisible,
     # 'time': VertexTime,
     # 'length': LengthInDetector,
     # 'dir_x': PrimaryDirectionX,
@@ -338,13 +338,14 @@ evaluation_class: #dnn_reco.modules.evaluation.default_evaluation.eval_direction
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 10000
-'trafo_model_path' : '../data/trafo_models/dnn_cscd_l3a_starting_events_300m_red_summary_stats_fast_01.npy'
+'trafo_model_path' : '../data/trafo_models/l2_energy_visible_red_summary_stats_fast.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False
 'trafo_log_dom_bins' : [True, False, False]
 'trafo_log_label_bins' : {
-                         }
+    'EnergyVisible': True,
+}
 'trafo_log_misc_bins' : False
 'trafo_treat_doms_equally' : True
 'trafo_norm_constant' : 0.0001
@@ -407,8 +408,8 @@ evaluation_class: #dnn_reco.modules.evaluation.default_evaluation.eval_direction
                 },
             },
         },
-        'vars' : ['pred'], # ['unc', 'pred'],
-        'loss_class': 'dnn_reco.modules.loss.default_loss.mse_and_cross_entropy',
+        'vars' : ['unc', 'pred'],
+        'loss_class': 'dnn_reco.modules.loss.default_loss.gaussian_likelihood',
         'l1_regularization': 0.,
         'l2_regularization': 0.,
         'clip_gradients_value': ,

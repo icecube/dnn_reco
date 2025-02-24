@@ -113,7 +113,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.config["model_checkpoint_path"] = os.path.join(
             self._model_path, "model"
         )
-        self.config["model_is_training"] = False
+        self.config["model_kwargs"]["is_training"] = False
         self.config["trafo_model_path"] = os.path.join(
             self._model_path, "trafo_model.npy"
         )
@@ -217,11 +217,13 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
         # create NN model
         ModelClass = misc.load_class(self.config["model_class"])
+        model_kwargs = self.config["model_kwargs"]
+        model_kwargs["is_training"] = False
         self.model = ModelClass(
-            is_training=False,
             config=self.config,
             data_handler=self.data_handler,
             data_transformer=self.data_transformer,
+            **model_kwargs
         )
 
         # compile model: initialize and finalize graph

@@ -8,7 +8,7 @@ import logging
 from copy import deepcopy
 
 from dnn_reco import misc
-from dnn_reco.settings.yaml import yaml_loader, yaml_dumper
+from dnn_reco.settings import yaml
 from dnn_reco.modules.loss.utils import loss_utils
 
 
@@ -143,7 +143,7 @@ class BaseNNModel(tf.Module):
         # Load training iterations dict
         if os.path.isfile(self._training_steps_file):
             with open(self._training_steps_file, "r") as stream:
-                self._training_iterations_dict = yaml_loader.load(stream)
+                self._training_iterations_dict = yaml.yaml_loader.load(stream)
         else:
             misc.print_warning(
                 "Did not find {!r}. Creating new one".format(
@@ -292,9 +292,8 @@ class BaseNNModel(tf.Module):
         return event_weights
 
     @tf.function
-    def _compile_optimizer(self):
+    def _compile_optimizers(self):
         """Compile the optimizer by running it with zero gradients."""
-
         for optimizer in self.optimizers.values():
             zero_grads = [tf.zeros_like(w) for w in self.trainable_variables]
             optimizer.apply_gradients(
@@ -332,13 +331,13 @@ class BaseNNModel(tf.Module):
                     optimizer_settings["learning_rate"] = scheduler
 
             self.optimizers[name] = getattr(
-                tf.optimizers, opt_config["optimizer_name"]
+                tf.optimizers, opt_config["optimizer"]
             )(**optimizer_settings)
 
         # run optimizers with zero gradients to create optimizer variables
         self._compile_optimizers()
 
-    @tf.function
+    @tf.function(experimental_relax_shapes=True)
     def __call__(self, data_batch_dict, is_training=True, summary_writer=None):
         """Forward pass through the model.
 
@@ -353,7 +352,7 @@ class BaseNNModel(tf.Module):
                 and the transformed versions of these.
         is_training : bool, optional
             True if model is in training mode, false if in inference mode.
-        summary_writer : tf.summary.FileWriter, optional
+        summary_writer : tf.summary.SummaryWriter, optional
             A summary writer to write summaries to.
 
         Returns
@@ -370,7 +369,7 @@ class BaseNNModel(tf.Module):
         """
         raise NotImplementedError
 
-    @tf.function
+    @tf.function(experimental_relax_shapes=True)
     def get_tensors(self, data_batch, is_training=True, summary_writer=None):
         """Get result tensors from the model.
 
@@ -384,7 +383,7 @@ class BaseNNModel(tf.Module):
             This is typically: x_ic78, x_deepcore, labels, misc_data
         is_training : bool, optional
             True if model is in training mode, false if in inference mode.
-        summary_writer : tf.summary.FileWriter, optional
+        summary_writer : tf.summary.SummaryWriter, optional
             A summary writer to write summaries to.
 
         Returns
@@ -395,6 +394,12 @@ class BaseNNModel(tf.Module):
         """
         print("Tracing get_tensors")
         x_ic78, x_deepcore, labels, misc_data = data_batch
+
+        x_ic78 = tf.convert_to_tensor(x_ic78, dtype=self.dtype)
+        x_deepcore = tf.convert_to_tensor(x_deepcore, dtype=self.dtype)
+        labels = tf.convert_to_tensor(labels, dtype=self.dtype)
+        misc_data = tf.convert_to_tensor(misc_data, dtype=self)
+
         data_batch_dict = {
             "x_ic78": x_ic78,
             "x_deepcore": x_deepcore,
@@ -436,6 +441,14 @@ class BaseNNModel(tf.Module):
             "y_diff_trafo",
             "mse_values_trafo",
             "rmse_values_trafo",
+            "label_weight_config",
+            "non_zero_mask",
+            "label_weights",
+            "median_abs_dev",
+            "label_loss_dict",
+            "mse_values",
+            "rmse_values",
+            "y_diff",
         ]
         for key in avoid_keys:
             if key in result_tensors:
@@ -471,7 +484,7 @@ class BaseNNModel(tf.Module):
             result_tensors["y_pred_trafo"], data_type="label"
         )
         result_tensors["y_unc"] = self.data_transformer.inverse_transform(
-            result_tensors["y_unc_trafo"],
+            result_tensors["y_unc_pred_trafo"],
             data_type="label",
             bias_correction=False,
         )
@@ -511,7 +524,7 @@ class BaseNNModel(tf.Module):
 
         return result_tensors
 
-    @tf.function
+    @tf.function(experimental_relax_shapes=True)
     def get_loss(self, data_batch, is_training=True, summary_writer=None):
         """Get optimizers and loss terms as defined in config.
 
@@ -522,7 +535,7 @@ class BaseNNModel(tf.Module):
                 x_ic78, x_deepcore, labels, misc_data
         is_training : bool, optional
             True if model is in training mode, false if in inference mode.
-        summary_writer : tf.summary.FileWriter, optional
+        summary_writer : tf.summary.SummaryWriter, optional
             A summary writer to write summaries to.
 
         Returns
@@ -652,6 +665,7 @@ class BaseNNModel(tf.Module):
 
         return shared_objects
 
+    @tf.function(experimental_relax_shapes=True)
     def perform_training_step(self, data_batch, summary_writer=None):
         """Perform a single training step.
 
@@ -660,7 +674,7 @@ class BaseNNModel(tf.Module):
         data_batch : list
             A list containing the input data.
             This is typically: x_ic78, x_deepcore, labels, misc_data
-        summary_writer : tf.summary.FileWriter, optional
+        summary_writer : tf.summary.SummaryWriter, optional
             A summary writer to write summaries to.
 
         Returns
@@ -670,7 +684,7 @@ class BaseNNModel(tf.Module):
             auxiliary tensors.
         """
         print("Tracing perform_training_step")
-        with tf.GradientTape() as tape:
+        with tf.GradientTape(persistent=True) as tape:
             shared_objects = self.get_loss(
                 data_batch=data_batch,
                 is_training=True,
@@ -694,23 +708,15 @@ class BaseNNModel(tf.Module):
             )
 
             # remove nans in gradients and replace these with zeros
-            if "remove_nan_gradients" in opt_config:
-                remove_nan_gradients = opt_config["remove_nan_gradients"]
-            else:
-                remove_nan_gradients = False
-            if remove_nan_gradients:
+            if opt_config["remove_nan_gradients"]:
                 gradients = [
                     tf.where(tf.math.is_nan(grad), tf.zeros_like(grad), grad)
                     for grad in gradients
                 ]
 
-            if "clip_gradients_value" in opt_config:
-                clip_gradients_value = opt_config["clip_gradients_value"]
-            else:
-                clip_gradients_value = None
-            if clip_gradients_value is not None:
+            if opt_config["clip_gradients_value"] is not None:
                 gradients, _ = tf.clip_by_global_norm(
-                    gradients, clip_gradients_value
+                    gradients, opt_config["clip_gradients_value"]
                 )
 
             # Ensure finite values
@@ -741,6 +747,16 @@ class BaseNNModel(tf.Module):
         )
         checkpoint_vars["step"] = self.step
 
+        # check that all trainable variables are set
+        trainable_vars = set([v.ref() for v in self.trainable_variables])
+        vars_model = set([v.ref() for v in self.vars_pred]) | set(
+            [v.ref() for v in self.vars_unc]
+        )
+        if trainable_vars != vars_model:
+            raise ValueError(
+                "Trainable variables do not match model variables."
+            )
+
         if self.is_training:
             self._create_optimizers()
             for name, optimizer in self.optimizers.items():
@@ -751,27 +767,30 @@ class BaseNNModel(tf.Module):
 
         # create a tensorflow checkpoint object and keep track of variables
         self._checkpoint = tf.train.Checkpoint(**checkpoint_vars)
+        self._checkpoint_manager = tf.train.CheckpointManager(
+            self._checkpoint,
+            self.config["model_checkpoint_path"],
+            **self.config["model_checkpoint_manager_kwargs"],
+        )
 
         num_vars, num_total_vars = self._count_number_of_variables()
         msg = f"\nNumber of Model Variables for {self.name}:\n"
-        msg = f"\tFree: {num_vars}\n"
+        msg += f"\tFree: {num_vars}\n"
         msg += f"\tTotal: {num_total_vars}"
         self._logger.info(msg)
 
     def restore(self):
         """Restore model weights from checkpoints"""
-        latest_checkpoint = tf.train.latest_checkpoint(
-            os.path.dirname(self.config["model_checkpoint_path"])
-        )
+        latest_checkpoint = self._checkpoint_manager.latest_checkpoint
         if latest_checkpoint is None:
             misc.print_warning(
                 "Could not find previous checkpoint. Creating new one!"
             )
         else:
-            self._logger.debug(
+            self._logger.info(
                 f"[Model] Loading checkpoint: {latest_checkpoint}"
             )
-            self._checkpoint.read(latest_checkpoint).assert_consumed()
+            self._checkpoint.restore(latest_checkpoint).assert_consumed()
 
     def predict_batched(
         self, x_ic78, x_deepcore, max_size, transformed=False, *args, **kwargs
@@ -852,7 +871,7 @@ class BaseNNModel(tf.Module):
         if transformed:
             return_values = (
                 result_tensors["y_pred_trafo"].numpy(),
-                result_tensors["y_unc_trafo"].numpy(),
+                result_tensors["y_unc_pred_trafo"].numpy(),
             )
         else:
             # transform back
@@ -860,7 +879,7 @@ class BaseNNModel(tf.Module):
                 result_tensors["y_pred_trafo"], data_type="label"
             ).numpy()
             y_unc = self.data_transformer.inverse_transform(
-                result_tensors["y_unc_trafo"],
+                result_tensors["y_unc_pred_trafo"],
                 data_type="label",
                 bias_correction=False,
             ).numpy()
@@ -916,17 +935,13 @@ class BaseNNModel(tf.Module):
         # training loop
         # ----------------
         start_time = timeit.default_timer()
+        t_validation = start_time
         num_training_steps = 0
-        for i in range(self.step.numpy() + 1, num_training_iterations + 1):
-
-            # increment step counter
-            self.increment_step()
-            num_training_steps += 1
+        for step_i in range(self.step.numpy(), num_training_iterations):
 
             # perform a training step
             train_result = self.perform_training_step(
                 data_batch=next(train_data_generator),
-                # summary_writer=self._train_writer,
             )
 
             # -------------------------------------
@@ -968,7 +983,7 @@ class BaseNNModel(tf.Module):
                     raise ValueError("FOUND NANS!")
 
                 # every n steps: update label_weights
-                if i % self.config["validation_frequency"] == 0:
+                if step_i % self.config["validation_frequency"] == 0:
                     new_weights = 1.0 / (
                         np.sqrt(np.abs(label_weight_mean) + 1e-6) + 1e-3
                     )
@@ -976,7 +991,10 @@ class BaseNNModel(tf.Module):
                     new_weights *= self.shared_objects["label_weight_config"]
 
                     # assign new label weight updates
-                    self._update_label_weights(new_weights)
+                    self._update_label_weights(
+                        new_weights,
+                        summary_writer=self._train_writer,
+                    )
 
                     # reset values
                     label_weight_n = 0.0
@@ -986,7 +1004,11 @@ class BaseNNModel(tf.Module):
             # ----------------
             # validate performance
             # ----------------
-            if i % self.config["validation_frequency"] == 0:
+            if step_i % self.config["validation_frequency"] == 0:
+                delta_t = timeit.default_timer() - t_validation
+                t_step = delta_t / self.config["validation_frequency"]
+                t_total = timeit.default_timer() - start_time
+                t_validation = timeit.default_timer()
 
                 updated_weights = np.array(
                     self.shared_objects["label_weights"]
@@ -1025,8 +1047,10 @@ class BaseNNModel(tf.Module):
                             result_msg += f"{name}: {loss.numpy():2.3f} "
                     return result_msg
 
-                result_msg_train = get_result_msg(results_train)
-                result_msg_val = get_result_msg(results_val)
+                result_msg_train = get_result_msg(
+                    results_train["label_loss_dict"]
+                )
+                result_msg_val = get_result_msg(results_val["label_loss_dict"])
 
                 y_true_train = batch_train[2]
                 y_true_val = batch_val[2]
@@ -1038,13 +1062,9 @@ class BaseNNModel(tf.Module):
                     y_true_val, data_type="label"
                 )
 
-                msg = "Step: {:08d}, Runtime: {:2.2f}s, Benchmark: {:3.3f}"
                 print(
-                    msg.format(
-                        i,
-                        timeit.default_timer() - start_time,
-                        np.sum(updated_weights),
-                    )
+                    f"Step: {step_i:08d}, Runtime: {t_total:.1f}s, Per-Step: {t_step:1.3f}s, "
+                    f"Benchmark: {np.sum(updated_weights):3.3f}"
                 )
                 print("\t[Train]      " + result_msg_train)
                 print("\t[Validation] " + result_msg_val)
@@ -1060,7 +1080,9 @@ class BaseNNModel(tf.Module):
                                 results_train["y_pred_trafo"].numpy()[:, index]
                                 - y_true_trafo_train[:, index]
                             )
-                            / results_train["y_unc_trafo"].numpy()[:, index],
+                            / results_train["y_unc_pred_trafo"].numpy()[
+                                :, index
+                            ],
                             ddof=1,
                         )
                         unc_pull_val = np.std(
@@ -1068,7 +1090,9 @@ class BaseNNModel(tf.Module):
                                 results_val["y_pred_trafo"].numpy()[:, index]
                                 - y_true_trafo_val[:, index]
                             )
-                            / results_val["y_unc_trafo"].numpy()[:, index],
+                            / results_val["y_unc_pred_trafo"].numpy()[
+                                :, index
+                            ],
                             ddof=1,
                         )
 
@@ -1079,10 +1103,12 @@ class BaseNNModel(tf.Module):
                         print(
                             msg.format(
                                 weight=updated_weights[index],
-                                train=results_train["rmse_trafo"].numpy()[
+                                train=results_train[
+                                    "rmse_values_trafo"
+                                ].numpy()[index],
+                                val=results_val["rmse_values_trafo"].numpy()[
                                     index
                                 ],
-                                val=results_val["rmse_trafo"].numpy()[index],
                                 name=name,
                                 mean_train=np.mean(y_true_train[:, index]),
                                 mean_val=np.mean(y_true_val[:, index]),
@@ -1110,13 +1136,16 @@ class BaseNNModel(tf.Module):
             # ----------------
             # save models
             # ----------------
-            if i % self.config["save_frequency"] == 0:
-                if self.config["model_save_model"]:
-                    self._save_training_config(self.step.numpy())
-                    self._checkpoint.write(
-                        self.config["model_checkpoint_path"]
-                    )
-            # ----------------
+            if num_training_steps % self.config["save_frequency"] == 0:
+                if self.config["model_save_model"] and num_training_steps > 0:
+                    self._save_training_config(num_training_steps)
+                    self._checkpoint_manager.save(self.step)
+
+            # ----------------------
+            # increment step counter
+            # ----------------------
+            self.step.assign_add(1)
+            num_training_steps += 1
 
     def _save_training_config(self, iteration):
         """Save Training config and iterations to file.
@@ -1124,7 +1153,8 @@ class BaseNNModel(tf.Module):
         Parameters
         ----------
         iteration : int
-            The current training iteration.
+            The current training iteration of this specific
+            execution of the training loop. note
 
         Raises
         ------
@@ -1162,14 +1192,17 @@ class BaseNNModel(tf.Module):
             training_config = dict(self.config)
             del training_config["np_float_precision"]
             del training_config["tf_float_precision"]
+            training_config = yaml.convert_nested_list_wrapper(training_config)
 
             with open(self._training_config_file, "w") as yaml_file:
-                yaml_dumper.dump(training_config, yaml_file)
+                yaml.yaml_dumper.dump(training_config, yaml_file)
 
         # update number of training iterations in training_steps.yaml
         self._training_iterations_dict[self._training_step] = iteration
         with open(self._training_steps_file, "w") as yaml_file:
-            yaml_dumper.dump(self._training_iterations_dict, yaml_file)
+            yaml.yaml_dumper.dump(
+                dict(self._training_iterations_dict), yaml_file
+            )
 
     def _count_number_of_variables(self):
         """Counts number of model variables

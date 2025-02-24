@@ -658,30 +658,6 @@ class DataHandler(object):
             """
             local_random_state = np.random.RandomState(seed)
 
-            # ----------------------------------------------
-            # Create NN model instance for  biased selection
-            # ----------------------------------------------
-            if (
-                "nn_biased_selection" in self._config
-                and self._config["nn_biased_selection"] is not None
-            ):
-
-                cfg_sel = self._config["nn_biased_selection"]
-                if (
-                    cfg_sel["apply_biased_selection"]
-                    and cfg_sel["biased_fraction"] > 0
-                ):
-                    biased_selection_func = (
-                        self._create_biased_selection_func()
-                    )
-                    nn_biased_selection = True
-                else:
-                    nn_biased_selection = False
-
-            else:
-                nn_biased_selection = False
-            # ----------------------------------------------
-
             while not processed_all_files.value:
 
                 # get file
@@ -716,10 +692,6 @@ class DataHandler(object):
                             init_values=init_values,
                             nan_fill_value=nan_fill_value,
                         )
-
-                        # biased selection
-                        if nn_biased_selection:
-                            icecube_data = biased_selection_func(icecube_data)
 
                         if icecube_data is not None:
 
@@ -785,6 +757,30 @@ class DataHandler(object):
                     if processed_all_files.value and data_batch_queue.empty():
                         data_left_in_queue.value = False
 
+            # ---------------------------------------------
+            # Create NN model instance for biased selection
+            # ---------------------------------------------
+            if (
+                "nn_biased_selection" in self._config
+                and self._config["nn_biased_selection"] is not None
+            ):
+
+                cfg_sel = self._config["nn_biased_selection"]
+                if (
+                    cfg_sel["apply_biased_selection"]
+                    and cfg_sel["biased_fraction"] > 0
+                ):
+                    biased_selection_func = (
+                        self._create_biased_selection_func()
+                    )
+                    nn_biased_selection = True
+                else:
+                    nn_biased_selection = False
+
+            else:
+                nn_biased_selection = False
+            # ---------------------------------------------
+
             # reset event batch
             size = 0
             ic78_batch = []
@@ -833,6 +829,19 @@ class DataHandler(object):
                 labels = np.concatenate(label_list, axis=0)
                 if self.misc_data_exists:
                     misc_data = np.concatenate(misc_list, axis=0)
+
+                # biased selection
+                if nn_biased_selection:
+                    if self.misc_data_exists:
+                        x_ic78, x_deepcore, labels, misc_data = (
+                            biased_selection_func(
+                                (x_ic78, x_deepcore, labels, misc_data)
+                            )
+                        )
+                    else:
+                        x_ic78, x_deepcore, labels = biased_selection_func(
+                            (x_ic78, x_deepcore, labels)
+                        )
 
                 queue_size = x_ic78.shape[0]
                 if verbose:
@@ -1027,11 +1036,13 @@ class DataHandler(object):
 
         # create NN model
         ModelClass = misc.load_class(cfg["model_class"])
+        model_kwargs = deepcopy(cfg["model_kwargs"])
+        model_kwargs["is_training"] = False
         model = ModelClass(
-            is_training=False,
             config=cfg,
             data_handler=data_handler,
             data_transformer=data_transformer,
+            **model_kwargs
         )
 
         # compile model: initialize and finalize graph
@@ -1277,12 +1288,12 @@ class DataHandler(object):
 
             # apply mask
             icecube_data_masked = [
-                np.array(icecube_data[0][mask]),
-                np.array(icecube_data[1][mask]),
-                np.array(icecube_data[2][mask]),
+                icecube_data[0][mask],
+                icecube_data[1][mask],
+                icecube_data[2][mask],
             ]
             if self.misc_data_exists:
-                icecube_data_masked.append(np.array(icecube_data[3][mask]))
+                icecube_data_masked.append(icecube_data[3][mask])
             else:
                 icecube_data_masked.append(None)
 

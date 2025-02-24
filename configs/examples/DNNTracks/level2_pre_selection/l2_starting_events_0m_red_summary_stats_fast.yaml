@@ -7,7 +7,7 @@
 ##############
 
 # Provide a unique name for the model
-'unique_name': 'l2_starting_events_300m_red_summary_stats_fast'
+'unique_name': 'l2_starting_events_0m_red_summary_stats_fast'
 
 #---------------------------
 # General settings
@@ -111,7 +111,7 @@ data_handler_label_class: dnn_reco.modules.data.labels.default_labels.simple_lab
 data_handler_misc_class: dnn_reco.modules.data.misc.default_misc.general_misc_loader
 data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_filter
 
-'data_handler_label_key': 'LabelsDeepLearning_p150'
+'data_handler_label_key': 'LabelsDeepLearning'
 
 # must be a list of keys or empty list
 'data_handler_relative_time_keys': []
@@ -180,7 +180,7 @@ data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_f
 'filter_equal': {
     # 'LabelsDeepLearning_p_outside_cascade': False,
     # 'FilterMask_CascadeFilter': True,
-    'LabelsDeepLearning_p150_p_starting_300m': True,
+    'LabelsDeepLearning_p_starting': True,
 }
 # For events to pass filter, the following must be True: misc[key] > value
 'filter_greater_than': {
@@ -244,8 +244,8 @@ data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_f
     # 'VertexX': 1,
     # 'VertexY': 1,
     # 'VertexZ': 1,
-    # 'p_starting': 1,
-    'p_starting_300m': 1,
+    'p_starting': 1,
+    # 'p_starting_300m': 1,
     # 'p_is_track': 1,
     # 'p_entering': 1,
     # 'p_entering_muon_single': 1,
@@ -338,7 +338,7 @@ evaluation_class: #dnn_reco.modules.evaluation.default_evaluation.eval_direction
 #---------------------------
 'trafo_num_jobs' : 25
 'trafo_num_batches' : 10000
-'trafo_model_path' : '../data/trafo_models/dnn_cscd_l3a_starting_events_300m_red_summary_stats_fast_01.npy'
+'trafo_model_path' : '../data/trafo_models/l2_starting_events_0m_red_summary_stats_fast.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False

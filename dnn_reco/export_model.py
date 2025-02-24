@@ -99,10 +99,10 @@ def main(config_files, output_folder, data_settings, logs, log_level):
     # create NN model
     ModelClass = misc.load_class(config["model_class"])
     model = ModelClass(
-        is_training=True,
         config=config,
         data_handler=data_handler,
         data_transformer=data_transformer,
+        **config["model_kwargs"]
     )
 
     # compile model: define loss function and optimizer

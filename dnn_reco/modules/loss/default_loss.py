@@ -76,7 +76,7 @@ def weighted_mse(
         shared_objects=shared_objects,
     )
 
-    unc_trafo = tf.stop_gradient(shared_objects["y_unc_trafo"])
+    unc_trafo = tf.stop_gradient(shared_objects["y_unc_pred_trafo"])
     unc_trafo = tf.clip_by_value(unc_trafo, 1e-3, float("inf"))
 
     loss_event = tf.square(y_diff_trafo / unc_trafo)
@@ -131,7 +131,7 @@ def mse(
     )
 
     loss_event = tf.square(y_diff_trafo)
-    unc_diff = shared_objects["y_unc_trafo"] - tf.stop_gradient(
+    unc_diff = shared_objects["y_unc_pred_trafo"] - tf.stop_gradient(
         tf.abs(y_diff_trafo)
     )
 
@@ -189,7 +189,7 @@ def abs(
     )
 
     loss_event = tf.abs(y_diff_trafo)
-    unc_diff = shared_objects["y_unc_trafo"] - tf.stop_gradient(
+    unc_diff = shared_objects["y_unc_pred_trafo"] - tf.stop_gradient(
         tf.abs(y_diff_trafo)
     )
 
@@ -250,7 +250,9 @@ def gaussian_likelihood(
     eps = 1e-6
 
     # uncertainty estimate on prediction
-    unc = tf.clip_by_value(shared_objects["y_unc_trafo"], eps, float("inf"))
+    unc = tf.clip_by_value(
+        shared_objects["y_unc_pred_trafo"], eps, float("inf")
+    )
 
     loss_event = 2 * tf.math.log(unc) + (y_diff_trafo / unc) ** 2
 
@@ -318,7 +320,9 @@ def pull_distribution_scale(
     eps = 1e-6
 
     # uncertainty estimate on prediction
-    unc = tf.clip_by_value(shared_objects["y_unc_trafo"], eps, float("inf"))
+    unc = tf.clip_by_value(
+        shared_objects["y_unc_pred_trafo"], eps, float("inf")
+    )
 
     pull = y_diff_trafo / unc
 

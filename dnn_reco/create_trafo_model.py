@@ -90,8 +90,11 @@ def main(config_files, log_level):
         directory, "config_trafo__{}.yaml".format(base_name)
     )
 
+    dump_config = dict(config)
+    del dump_config["np_float_precision"]
+    del dump_config["tf_float_precision"]
     with open(trafo_config_file, "w") as yaml_file:
-        yaml_dumper.dump(config, yaml_file)
+        yaml_dumper.dump(dump_config, yaml_file)
     data_transformer.save_trafo_model(config["trafo_model_path"])
 
     # kill multiprocessing queues and workers

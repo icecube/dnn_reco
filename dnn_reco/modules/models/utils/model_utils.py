@@ -25,7 +25,7 @@ class PreprocessIceCubeDataLayer(tf.Module):
         self.cnt = SeedCounter(seed)
         self.keep_prob = keep_prob
 
-    def call(self, inputs, is_training, keep_prob=None, seed=None):
+    def __call__(self, inputs, is_training, keep_prob=None, seed=None):
         """Applies preprocessing to input data.
 
         Parameters
