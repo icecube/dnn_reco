@@ -325,11 +325,11 @@ class GeneralIC86CNN(BaseNNModel):
         tf.Tensor
             The flattened and combined output of the convolutional layers.
         """
-        x_ic78_trafo = tf.convert_to_tensor(
+        x_ic78_trafo = tf.cast(
             data_batch_dict["x_ic78_trafo"],
             dtype=self.dtype,
         )
-        x_deepcore_trafo = tf.convert_to_tensor(
+        x_deepcore_trafo = tf.cast(
             data_batch_dict["x_deepcore_trafo"],
             dtype=self.dtype,
         )

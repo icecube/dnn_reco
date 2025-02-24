@@ -237,17 +237,8 @@ def export_data_settings(data_settings, output_folder, config):
     config : dict
         Configuration of the NN model.
     """
-    try:
-        with open(data_settings, "r") as stream:
-            data_config = yaml_loader.load(stream)
-    except Exception as e:
-        print(e)
-        print("Falling back to modified SafeLoader")
-        with open(data_settings, "r") as stream:
-            # yaml.SafeLoader.add_constructor(
-            #     "tag:yaml.org,2002:python/unicode", lambda _, node: node.value
-            # )
-            data_config = dict(yaml_loader.load(stream))
+    with open(data_settings, "r") as stream:
+        data_config = yaml_loader.load(stream)
 
     for k in [
         "pulse_time_quantiles",
@@ -272,6 +263,9 @@ def export_data_settings(data_settings, output_folder, config):
             print(e)
             print("Could not extract data settings. Aborting export!")
             raise e
+
+    if "is_str_dom_format" not in data_settings:
+        data_settings["is_str_dom_format"] = False
 
     print("\n=========================")
     print("= Found Data Settings:  =")
@@ -309,7 +303,6 @@ def ic3_processing_scripts(data_config, config):
         for segment_cfg in step_config["tray_segments"]:
             if segment_cfg["ModuleClass"] == "ic3_data.segments.CreateDNNData":
 
-                print("segment_cfg", segment_cfg)
                 # check correct output names
                 if "OutputKey" in segment_cfg["ModuleKwargs"]:
                     base = segment_cfg["ModuleKwargs"]["OutputKey"]

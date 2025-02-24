@@ -110,9 +110,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.config = setup_manager.get_config()
 
         # ToDo: Adjust necessary values in config
-        self.config["model_checkpoint_path"] = os.path.join(
-            self._model_path, "model"
-        )
+        self.config["model_checkpoint_path"] = self._model_path
         self.config["model_kwargs"]["is_training"] = False
         self.config["trafo_model_path"] = os.path.join(
             self._model_path, "trafo_model.npy"
@@ -223,6 +221,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             config=self.config,
             data_handler=self.data_handler,
             data_transformer=self.data_transformer,
+            verbose=False,
             **model_kwargs
         )
 
@@ -230,7 +229,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self.model.compile()
 
         # restore model weights
-        self.model.restore()
+        self.model.restore(is_training=False)
 
         # Get trained labels, e.g. labels with weights greater than zero
         self._mask_labels = (

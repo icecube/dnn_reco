@@ -105,11 +105,11 @@ class BaseNNModel(tf.Module):
                 os.path.join(self.config["log_path"], "val")
             )
 
-            # create label weights and non zero mask
-            self._create_label_weights()
+        # create label weights and non zero mask
+        self._create_label_weights()
 
-            # create variables necessary for tukey loss
-            self._create_tukey_vars()
+        # create variables necessary for tukey loss
+        self._create_tukey_vars()
 
     def _setup_directories(self):
         """Creates necessary directories"""
@@ -207,11 +207,12 @@ class BaseNNModel(tf.Module):
 
         self.shared_objects["label_weights"] = label_weights
 
-        misc.print_warning(
-            "Total Benchmark should be: {:3.3f}".format(
-                sum(self.shared_objects["label_weight_config"])
+        if self.is_training:
+            misc.print_warning(
+                "Total Benchmark should be: {:3.3f}".format(
+                    sum(self.shared_objects["label_weight_config"])
+                )
             )
-        )
 
     def _update_tukey_vars(self, new_values, tukey_decay=0.001):
         """Update tukey variables"""
@@ -779,7 +780,7 @@ class BaseNNModel(tf.Module):
         msg += f"\tTotal: {num_total_vars}"
         self._logger.info(msg)
 
-    def restore(self):
+    def restore(self, is_training=True):
         """Restore model weights from checkpoints"""
         latest_checkpoint = self._checkpoint_manager.latest_checkpoint
         if latest_checkpoint is None:
@@ -790,7 +791,63 @@ class BaseNNModel(tf.Module):
             self._logger.info(
                 f"[Model] Loading checkpoint: {latest_checkpoint}"
             )
-            self._checkpoint.restore(latest_checkpoint).assert_consumed()
+            status = self._checkpoint.restore(latest_checkpoint)
+            if is_training:
+                status.assert_consumed()
+            else:
+                status.expect_partial()
+
+    def predict(
+        self, x_ic78, x_deepcore, transformed=False, is_training=False
+    ):
+        """Reconstruct events.
+
+        Parameters
+        ----------
+        x_ic78 : float, list or numpy.ndarray
+            The input data for the main IceCube array.
+        x_deepcore : float, list or numpy.ndarray
+            The input data for the DeepCore array.
+        transformed : bool, optional
+            If true, the normalized and transformed values are returned.
+        is_training : bool, optional
+            True if model is in training mode, false if in inference mode.
+
+        Returns
+        -------
+        np.ndarray, np.ndarray
+            The prediction and estimated uncertainties
+        """
+        data_batch_dict = {
+            "x_ic78": x_ic78,
+            "x_deepcore": x_deepcore,
+            "x_ic78_trafo": self.data_transformer.transform(
+                x_ic78, data_type="ic78"
+            ),
+            "x_deepcore_trafo": self.data_transformer.transform(
+                x_deepcore, data_type="deepcore"
+            ),
+        }
+        result_tensors = self(data_batch_dict, is_training=is_training)
+
+        if transformed:
+            return_values = (
+                result_tensors["y_pred_trafo"].numpy(),
+                result_tensors["y_unc_pred_trafo"].numpy(),
+            )
+        else:
+            # transform back
+            y_pred = self.data_transformer.inverse_transform(
+                result_tensors["y_pred_trafo"], data_type="label"
+            ).numpy()
+            y_unc = self.data_transformer.inverse_transform(
+                result_tensors["y_unc_pred_trafo"],
+                data_type="label",
+                bias_correction=False,
+            ).numpy()
+            return_values = (y_pred, y_unc)
+
+        return return_values
 
     def predict_batched(
         self, x_ic78, x_deepcore, max_size, transformed=False, *args, **kwargs
@@ -840,52 +897,6 @@ class BaseNNModel(tf.Module):
         y_unc = np.concatenate(y_unc_list, axis=0)
 
         return y_pred, y_unc
-
-    def predict(
-        self, x_ic78, x_deepcore, transformed=False, is_training=False
-    ):
-        """Reconstruct events.
-
-        Parameters
-        ----------
-        x_ic78 : float, list or numpy.ndarray
-            The input data for the main IceCube array.
-        x_deepcore : float, list or numpy.ndarray
-            The input data for the DeepCore array.
-        transformed : bool, optional
-            If true, the normalized and transformed values are returned.
-        is_training : bool, optional
-            True if model is in training mode, false if in inference mode.
-
-        Returns
-        -------
-        np.ndarray, np.ndarray
-            The prediction and estimated uncertainties
-        """
-        data_batch_dict = {
-            "x_ic78": x_ic78,
-            "x_deepcore": x_deepcore,
-        }
-        result_tensors = self(data_batch_dict, is_training=is_training)
-
-        if transformed:
-            return_values = (
-                result_tensors["y_pred_trafo"].numpy(),
-                result_tensors["y_unc_pred_trafo"].numpy(),
-            )
-        else:
-            # transform back
-            y_pred = self.data_transformer.inverse_transform(
-                result_tensors["y_pred_trafo"], data_type="label"
-            ).numpy()
-            y_unc = self.data_transformer.inverse_transform(
-                result_tensors["y_unc_pred_trafo"],
-                data_type="label",
-                bias_correction=False,
-            ).numpy()
-            return_values = (y_pred, y_unc)
-
-        return return_values
 
     def fit(
         self,
@@ -1161,7 +1172,7 @@ class BaseNNModel(tf.Module):
         ValueError
             Description
         """
-        if iteration == 0:
+        if iteration <= self.config["save_frequency"]:
             if not self.config["model_restore_model"]:
                 # Delete old training config files and create a new and empty
                 # training_steps.txt, since we are training a new model
