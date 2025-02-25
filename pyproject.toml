@@ -61,7 +61,7 @@ line-length = 79
 # technically, black does not support python2.
 # This is all python versions black knows of and gets
 # rid of the trailing comma bug
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py33", "py34", "py35", "py36", "py37", "py38", "py39", "py310", "py311"]
 
 [tool.ruff]
 # select = ["ALL"]
