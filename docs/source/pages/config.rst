@@ -36,12 +36,6 @@ General Settings
     one of these files to obtain meta data, such as the labels and misc data
     names.
 
-``tf_random_seed``:
-    Random seed for tensorflow weight initialization.
-    Note: due to the parallel reading and processing of the training data,
-    this will not guarantee the exact same results for multiple trained models
-    with the same configuration files.
-
 ``float_precision``:
     Float precision to be used.
 
@@ -115,52 +109,21 @@ Data Handler
 ``data_handler_num_bins``:
     Size of per DOM input feature vector.
 
-``data_handler_label_file``:
-    How and which labels will be loaded from the hdf5 files is defined by
-    a function in the ``dnn_reco.modules.data.labels`` directory.
-    Which function to use is defined by the ``data_handler_label_file``
-    and ``data_handler_label_name`` keys.
-    This key specifies the file to use in that directory.
-    Default: `default_labels`
+``data_handler_label_class``:
+    Defines the function/class that is used to load the labels from
+    the hdf5 files.
+    Default: `dnn_reco.modules.data.labels.default_labels.simple_label_loader`
 
-``data_handler_label_name``:
-    How and which labels will be loaded from the hdf5 files is defined by
-    a function in the ``dnn_reco.modules.data.labels`` directory.
-    Which function to use is defined by the ``data_handler_label_file``
-    and ``data_handler_label_name`` keys.
-    This key specifies the function name.
-    Default: `simple_label_loader`
+``data_handler_misc_class``:
+    Defines the function/class that is used to load the misc data from
+    the hdf5 files.
+    Default: `dnn_reco.modules.data.misc.default_misc.general_misc_loader`
 
-``data_handler_misc_file``:
-    How and which misc data will be loaded from the hdf5 files is defined by
-    a function in the ``dnn_reco.modules.data.misc`` directory.
-    Which function to use is defined by the ``data_handler_misc_file``
-    and ``data_handler_misc_name`` keys.
-    This key specifies the file to use in that directory.
-    Default: `default_misc`
-
-``data_handler_misc_name``:
-    How and which misc data will be loaded from the hdf5 files is defined by
-    a function in the ``dnn_reco.modules.data.misc`` directory.
-    Which function to use is defined by the ``data_handler_misc_file``
-    and ``data_handler_misc_name`` keys.
-    This key specifies the function name.
-    Default: `general_misc_loader`
-
-``data_handler_filter_file``:
+``data_handler_filter_class``:
     Sometime it can be helpful to choose a subselection of events to train on.
-    The ``data_handler_filter_file`` and ``data_handler_filter_name`` keys
-    define the function to use to filter the events.
-    This key specifies the file to use in the
-    ``dnn_reco.modules.data.filter`` directory.
-    Default: `default_filter`
-
-``data_handler_filter_name``:
-    Sometime it can be helpful to choose a subselection of events to train on.
-    The ``data_handler_filter_file`` and ``data_handler_filter_name`` keys
-    define the function to use to filter the events.
-    This key specifies the function name.
-    Default: `general_filter`
+    The ``data_handler_filter_class`` defines the class/function to use to
+    filter the events.
+    Default: `dnn_reco.modules.data.filter.default_filter.general_filter`
 
 ``data_handler_label_key``:
     This is a key used by the default label loader.
@@ -314,21 +277,10 @@ General Training Settings
     Defines the frequency at which the model should be saved.
     The frequency is given in number of training iterations.
 
-``keep_probability_list``:
-    Keep rates for the dropout layers, if they are used within the specified
-    neural network architecture.
-    You may specify an arbitrary long list here.
-
-``evaluation_file``:
+``evaluation_class``:
     A custom evaluation method can be defined.
-    This key defines which file to use in the ``dnn_reco.modules.evaluation``
-    directory.
-    Default: 'default_evaluation'
-
-``evaluation_name``:
-    A custom evaluation method can be defined.
-    This key defines the name of the evaluation method to be run.
-    Default: 'eval_direction'
+    This key defines the class/function to use.
+    Example: 'dnn_reco.modules.evaluation.default_evaluation.eval_direction'
 
 
 Trafo Settings
@@ -436,24 +388,39 @@ NN Model Training
 NN Model Architecture
 =====================
 
-``model_file``:
+``model_class``:
     The network architecture that will be used is defined by the
-    ``model_file`` and ``model_name`` keys.
-    The ``model_file`` defines the file that will be used in the
-    ``dnn_reco.modules.models`` dicetory.
-    Default: `general_IC86_models`
+    ``model_class`` key.
+    Default: `dnn_reco.modules.models.general_IC86_cnn.GeneralIC86CNN`
 
-``model_name``:
-    The network architecture that will be used is defined by the
-    ``model_file`` and ``model_name`` keys.
-    The ``model_name`` defines the function that will be used to
-    create and build the model.
-    Default: `general_model_IC86`
+``model_kwargs``:
+    A dictionary containing the settings for the network architecture.
+    Some of the settings are defined below:
 
-``model_is_training``:
+model_kwargs:
+-------------
+``is_training``:
     A bool indicating whether the network is in training mode.
     This is needed for certain layers such as batch normalisation.
     Default: `True`
+
+``keep_prob_dom / _conv / _flat / _ fc``:
+    Keep rates for dropout layers on the input data, convolutional layers,
+    flattened+combined layers, and fully connected layers.
+
+``dtype``:
+    The float precision to be used for the model architecture,
+
+``random_seed``:
+    The random seed to be used for the model architecture.
+
+``add_prediction_to_unc_input``:
+    whether to add the model prediction output to the input of the
+    uncertainty subnetwork.
+    Default: `False`
+
+``enforce_direction_norm``:
+    If True, the direction vector will be normalized to unit length.
 
 ``conv_upper_DeepCore_settings``:
     This key is used by the default architectures and defines the

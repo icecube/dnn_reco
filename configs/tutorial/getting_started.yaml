@@ -13,19 +13,34 @@
 # General settings
 #---------------------------
 'training_data_file' : [
-    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_00000*.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*1.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*2.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*3.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*4.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*5.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*6.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*7.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*8.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*9.hdf5',
   ]
 'trafo_data_file' : [
-    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/00000-00999/11883_*DOMPulseData_00000*.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*1.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*2.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*3.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*4.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*5.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*6.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*7.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*8.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*9.hdf5',
   ]
 'validation_data_file' : [
-    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/01000-01999/11883_*DOMPulseData_00001*.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*0.hdf5',
   ]
 'test_data_file' : [
-    '{insert_DNN_HOME}/training_data/datasets/11883/clsim-base-4.0.5*/output/summaryV2_clipped/01000-01999/11883_*DOMPulseData_00001*.hdf5',
+    '{insert_DNN_HOME}/training_data/NuGen/2264*/level2_dev/*/*0.hdf5',
   ]
 
-'tf_random_seed': 42
 'float_precision': float32
 'num_jobs' : 3
 'file_capacity' : 5
@@ -35,10 +50,7 @@
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
 
-'log_path' : "../logs/\
-                {unique_name}/\
-                {model_file}__\
-                {model_name}"
+'log_path' : "../logs/{unique_name}"
 
 #----------------------
 # Data Handler settings
@@ -51,14 +63,11 @@
 'data_handler_time_offset_name': dnn_data_global_time_offset
 
 'data_handler_num_bins': 9
+data_handler_nan_fill_value:
 
-'data_handler_label_file': 'default_labels'
-'data_handler_label_name': 'simple_label_loader'
-'data_handler_misc_file': 'default_misc'
-'data_handler_misc_name': 'general_misc_loader'
-'data_handler_filter_file': 'default_filter'
-'data_handler_filter_name': 'general_filter'
-
+data_handler_label_class: dnn_reco.modules.data.labels.default_labels.simple_label_loader
+data_handler_misc_class: dnn_reco.modules.data.misc.default_misc.general_misc_loader
+data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_filter
 
 'data_handler_label_key': 'LabelsDeepLearning'
 
@@ -76,9 +85,13 @@
 # These values will then be added to the misc values under the name:
 #     'hdf key'_'column'
 'misc_load_dict': {
-  'LabelsDeepLearning': 'LengthInDetector',
-  'CorsikaWeightMap': 'Multiplicity',
+    'LabelsDeepLearning': 'LengthInDetector',
 }
+
+# Define a fill value for key column pairs that do not exist.
+# If key column pair does not exist in file and no fill value is provided,
+# an error will be thrown.
+'misc_fill_values': {}
 
 # --------------
 # Filter settings
@@ -105,37 +118,37 @@
 # Weights of each label are initialized with label_weight_initialization,
 # unless defined otherwise here
 'label_weight_dict': {
-  'EnergyVisible': 1.,
-  'PrimaryEnergy': 0.1,
-  # 'VertexTime': 1,
-  # 'LengthInDetector': 0.1,
-  # 'PrimaryAzimuth': 1,
-  # 'PrimaryZenith': 1,
-  # 'PrimaryDirectionX': 3,
-  # 'PrimaryDirectionY': 3,
-  # 'PrimaryDirectionZ': 3,
-  # 'VertexX': 1,
-  # 'VertexY': 1,
-  # 'VertexZ': 1,
-  # 'p_starting': 0,
-  # 'p_starting_300m': 0,
-  # 'p_is_track': 0,
-  # 'p_entering': 0,
-  # 'p_entering_muon_single': 0,
-  # 'p_entering_muon_bundle': 0,
-  # 'p_outside_cascade': 0,
+    'EnergyVisible': 1.,
+    'PrimaryEnergy': 0.1,
+    # 'VertexTime': 1,
+    # 'LengthInDetector': 0.1,
+    # 'PrimaryAzimuth': 1,
+    # 'PrimaryZenith': 1,
+    # 'PrimaryDirectionX': 3,
+    # 'PrimaryDirectionY': 3,
+    # 'PrimaryDirectionZ': 3,
+    # 'VertexX': 1,
+    # 'VertexY': 1,
+    # 'VertexZ': 1,
+    # 'p_starting': 0,
+    # 'p_starting_300m': 0,
+    # 'p_is_track': 0,
+    # 'p_entering': 0,
+    # 'p_entering_muon_single': 0,
+    # 'p_entering_muon_bundle': 0,
+    # 'p_outside_cascade': 0,
 }
 # Keys to use for I3Particle
 'label_particle_keys': {
-  'energy': EnergyVisible,
-  # 'time': VertexTime,
-  # 'length': LengthInDetector,
-  # 'dir_x': PrimaryDirectionX,
-  # 'dir_y': PrimaryDirectionY,
-  # 'dir_z': PrimaryDirectionZ,
-  # 'pos_x': VertexX,
-  # 'pos_y': VertexY,
-  # 'pos_z': VertexZ,
+    'energy': EnergyVisible,
+    # 'time': VertexTime,
+    # 'length': LengthInDetector,
+    # 'dir_x': PrimaryDirectionX,
+    # 'dir_y': PrimaryDirectionY,
+    # 'dir_z': PrimaryDirectionZ,
+    # 'pos_x': VertexX,
+    # 'pos_y': VertexY,
+    # 'pos_z': VertexZ,
 }
 # Update label weights during training
 'label_update_weights': True
@@ -158,7 +171,7 @@
 # Define pid keys. The labels defined here will be fors to range [0, 1]
 # (depends on the chosen neural network model)
 'label_pid_keys': [
-    'p_cc_e', 'p_cc_mu', 'p_cc_tau', 'p_nc',
+    'p_cc_e', 'p_cc_mu', 'p_cc_tau', 'p_nc', 'p_neutrino',
     'p_starting', 'p_starting_300m', 'p_starting_glashow',
     'p_starting_nc', 'p_starting_cc', 'p_starting_cc_e',
     'p_starting_cc_mu', 'p_starting_cc_tau',
@@ -168,32 +181,36 @@
     'p_outside_cascade', 'p_entering_muon_single_stopping',
 ]
 
+# replace non-finite values of these labels with the provided fill value
+label_nan_fill_value: {
+    'EnergyVisible': 0.,
+    'VertexTime': 0.,
+}
+
 #---------------------------
 # General Training settings
 #---------------------------
 'num_training_iterations' : 1000000
 'validation_frequency' : 100
 'save_frequency' : 500
-'keep_probability_list' : [0.95, 1.0, 1.0, 1.0]
 # A custom evaluation method can be defined here.
 # If defined, this method will be run during each validation step.
-'evaluation_file':
-'evaluation_name':
+evaluation_class: #dnn_reco.modules.evaluation.default_evaluation.eval_direction
 
 #---------------------------
 # Trafo settings
 #---------------------------
 'trafo_num_jobs' : 3
 'trafo_num_batches' : 100  # This should be higher (only so low for tutorial!)
-'trafo_model_path' : '../data/trafo_models/dnn_reco_11883_tutorial_trafo_model.npy'
+'trafo_model_path' : '../data/trafo_models/getting_started.npy'
 'trafo_normalize_dom_data' : True
 'trafo_normalize_label_data' : True
 'trafo_normalize_misc_data' : False
 'trafo_log_dom_bins' : [True, True, True, False, False, False, False, False, False]
 'trafo_log_label_bins' : {
-                            'EnergyVisible': True,
-                            'PrimaryEnergy': True,
-                         }
+    'EnergyVisible': True,
+    'PrimaryEnergy': True,
+}
 'trafo_log_misc_bins' : False
 'trafo_treat_doms_equally' : True
 'trafo_norm_constant' : 0.0001
@@ -201,10 +218,10 @@
 #------------------
 # NN Model Training
 #------------------
-'model_checkpoint_path' : "../checkpoints/nn_model/\
-                              {model_file}__\
-                              {model_name}/\
-                              {unique_name}/model"
+'model_checkpoint_manager_kwargs': {
+    'max_to_keep': 3,
+}
+'model_checkpoint_path' : "../checkpoints/nn_model/{unique_name}/model"
 'model_restore_model' : True
 'model_save_model' : True
 
@@ -231,8 +248,7 @@
         'optimizer': 'Adam',
         'optimizer_settings': {'learning_rate': 0.001,},
         'vars' : ['pred', 'unc'],
-        'loss_file': 'default_loss',
-        'loss_name': 'gaussian_likelihood',
+        'loss_class': 'dnn_reco.modules.loss.default_loss.gaussian_likelihood',
         'l1_regularization': 0.,
         'l2_regularization': 0.,
         'clip_gradients_value': 1.,
@@ -252,88 +268,103 @@
 #----------------------
 # NN Model Architecture
 #----------------------
-'model_file' : 'general_IC86_models'
-'model_name' : 'general_model_IC86'
-'model_is_training' : True
+model_class: 'dnn_reco.modules.models.general_IC86_cnn.GeneralIC86CNN'
 
-# 2D convolutional layer of upper DeepCore
-'conv_upper_DeepCore_settings': {
-    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3]],
-    'num_filters_list': [5, 5, 5, 5],
-    'pooling_type_list': [False, 'avg', False, 'avg'],
-    'pooling_strides_list': [1, 1, 2, 1],
-    'pooling_ksize_list': [1, 1, 2, 1],
-    'use_dropout_list': True,
-    'padding_list': 'SAME',
-    'strides_list': [1, 1, 1, 1],
-    'use_batch_normalisation_list': False,
-    'activation_list': 'elu',
-    'use_residual_list': True,
-}
+model_kwargs: {
+    is_training : True,
+    random_seed: 42,
 
-# 2D convolutional layer of lower DeepCore
-'conv_lower_DeepCore_settings': {
-    'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3],
-                         [1, 3], [1, 3], [1, 3], [1, 3]],
-    'num_filters_list': [5, 5, 5, 5, 5, 5, 5, 5],
-    'pooling_type_list': [False, 'avg',
-                          False, 'avg',
-                          False, 'avg',
-                          False, 'avg'],
-    'pooling_strides_list': [1, 1, 2, 1],
-    'pooling_ksize_list': [1, 1, 2, 1],
-    'use_dropout_list': True,
-    'padding_list': 'SAME',
-    'strides_list': [1, 1, 1, 1],
-    'use_batch_normalisation_list': False,
-    'activation_list': 'elu',
-    'use_residual_list': True,
-}
+    dtype: 'float32',
+    enforce_direction_norm: False,
+    add_prediction_to_unc_input: False,
 
-# 3D hexagonal convolution over main IceCube array (IC78)
-'conv_IC78_settings' : {
-    'filter_size_list': [[2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
-                         [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3]],
-    'num_filters_list': [5, 5, 5, 5, 5, 5, 5, 5],
-    'pooling_type_list': [False, 'avg', False, 'avg',
-                          False, 'avg', False, 'avg'],
-    'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                             [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
-    'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
-                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
-                           [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
-    'use_dropout_list': True,
-    'padding_list': 'SAME',
-    'strides_list': [1, 1, 1, 1, 1],
-    'use_batch_normalisation_list': False,
-    'activation_list': 'elu',
-    'use_residual_list': True,
-    'hex_zero_out_list': False,
-    'dilation_rate_list': ,
-    'hex_num_rotations_list': 1,
-}
+    keep_prob_dom: 0.95,
+    keep_prob_conv: 1.0,
+    keep_prob_flat: 1.0,
+    keep_prob_fc: 1.0,
 
-# Fully connected layer settings (Combine results from convolutions)
-'fc_settings': {
-    'fc_sizes': [50, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, False],
-    'activation_list': ['elu', ''],
-    'use_batch_normalisation_list': False,
-    'use_residual_list': [False, True],
-    'max_out_size_list': ,
-}
+    # 2D convolutional layer of upper DeepCore
+    conv_upper_deepcore_settings: {
+        'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3]],
+        'num_filters_list': [5, 5, 5, 5],
+        'pooling_type_list': [False, 'avg', False, 'avg'],
+        'pooling_strides_list': [1, 1, 2, 1],
+        'pooling_ksize_list': [1, 1, 2, 1],
+        'use_dropout_list': True,
+        'padding_list': 'SAME',
+        'strides_list': [1, 1, 1, 1],
+        'use_batch_normalisation_list': False,
+        'activation_list': 'elu',
+        'use_residual_list': True,
+        'method_list': 'convolution',
+    },
 
-# Fully connected layer settings for uncertainty subnetwork
-'fc_unc_settings': {
-    'fc_sizes': [50, -1], # last one will be overwritten with num labels
-    'use_dropout_list': [True, False],
-    'activation_list': ['elu', 'abs'],
-    'use_batch_normalisation_list': False,
-    'use_residual_list': False,
-    'max_out_size_list': ,
+    # 2D convolutional layer of lower DeepCore
+    conv_lower_deepcore_settings: {
+        'filter_size_list': [[1, 3], [1, 3], [1, 3], [1, 3],
+                            [1, 3], [1, 3], [1, 3], [1, 3]],
+        'num_filters_list': [5, 5, 5, 5, 5, 5, 5, 5],
+        'pooling_type_list': [False, 'avg',
+                              False, 'avg',
+                              False, 'avg',
+                              False, 'avg'],
+        'pooling_strides_list': [1, 1, 2, 1],
+        'pooling_ksize_list': [1, 1, 2, 1],
+        'use_dropout_list': True,
+        'padding_list': 'SAME',
+        'strides_list': [1, 1, 1, 1],
+        'use_batch_normalisation_list': False,
+        'activation_list': 'elu',
+        'use_residual_list': True,
+        'method_list': 'convolution',
+    },
+
+    # 3D hexagonal convolution over main IceCube array (IC78)
+    conv_ic78_settings : {
+        'filter_size_list': [[2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3],
+                            [2, 0, 3], [2, 0, 3], [2, 0, 3], [2, 0, 3]],
+        'num_filters_list': [5, 5, 5, 5, 5, 5, 5, 5],
+        'pooling_type_list': [False, 'avg', False, 'avg',
+                              False, 'avg', False, 'avg'],
+        'pooling_strides_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                                [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                                [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                                [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
+        'pooling_ksize_list': [[1, 1, 1, 1, 1], [1, 1, 1, 2, 1],
+                              [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                              [1, 1, 1, 1, 1], [1, 2, 2, 2, 1],
+                              [1, 1, 1, 1, 1], [1, 2, 2, 2, 1]],
+        'use_dropout_list': True,
+        'padding_list': 'SAME',
+        'strides_list': [1, 1, 1, 1, 1],
+        'use_batch_normalisation_list': False,
+        'activation_list': 'elu',
+        'use_residual_list': True,
+        'hex_zero_out_list': False,
+        'dilation_rate_list': ,
+        'hex_num_rotations_list': 1,
+        'method_list': 'hex_convolution',
+    },
+
+    # Fully connected layer settings (Combine results from convolutions)
+    fc_settings: {
+        'fc_sizes': [50, -1], # last one will be overwritten with num labels
+        'use_dropout_list': [True, False],
+        'activation_list': ['elu', ''],
+        'use_batch_normalisation_list': False,
+        'use_residual_list': [False, True],
+        'max_out_size_list': ,
+    },
+
+    # Fully connected layer settings for uncertainty subnetwork
+    fc_unc_settings: {
+        'fc_sizes': [50, -1], # last one will be overwritten with num labels
+        'use_dropout_list': [True, False],
+        'activation_list': ['elu', ''],
+        'use_batch_normalisation_list': False,
+        'use_residual_list': False,
+        'max_out_size_list': ,
+    },
 }
 
 ...

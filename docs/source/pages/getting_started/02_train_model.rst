@@ -31,9 +31,10 @@ We now need to edit the keys:
 ``training_data_file``, ``trafo_data_file``, ``validation_data_file``,
 ``test_data_file``,
 so that they point to the paths of our training data.
-To train our model we are going to use the first 1000 hdf5 files.
-The transformation model will be built by using the same files.
-Our validation and test data are files 1000 to 1009.
+To train our model we are going to use all hdf5 files ending in 0 for
+the validation set and all other files for training.
+The transformation model will be built by using the same files
+as we used for the training data.
 We can make these changes by hand or by executing the following command which
 will replace the string '{insert_DNN_HOME}' with our environment variable
 $DNN_HOME:
@@ -74,10 +75,10 @@ The output will look something like this:
     ===============================
     = Completed Counting Events:  =
     ===============================
-    Found 7485 events for 'test_data_file'
-    Found 7485 events for 'validation_data_file'
-    Found 753802 events for 'training_data_file'
-    Found 753802 events for 'trafo_data_file'
+    Found 214559 events for 'test_data_file'
+    Found 214559 events for 'validation_data_file'
+    Found 1928037 events for 'training_data_file'
+    Found 1928037 events for 'trafo_data_file'
 
 
 For advanced users: one can add filters to apply when loading input data
@@ -199,9 +200,10 @@ Train Neural Network Model
 ==========================
 
 The network architecture that will be used in this tutorial is the
-``general_model_IC86`` architecture which is defined in the module
-``dnn_reco.modules.models.general_IC86_models``.
-This is a smaller convolutional neural network with 4 convolutional layers for
+``GeneralIC86CNN`` architecture which is defined in the module
+``dnn_reco.modules.models.general_IC86_cnn``.
+In our ``getting_started.yaml`` configuration file, we defined a smaller
+convolutional neural network with 4 convolutional layers for
 the upper and 8 convolutional layers for the lower DeepCore part.
 8 convolutional layers are performed over the main IceCube array.
 Every convolutional layer uses 10 kernels.
@@ -218,7 +220,8 @@ You may change the architecture by modifying the settings below
 
 in the configuration file.
 You can also define your own neural network architecture, by changing the keys
-``model_file`` and ``model_name`` to point to the correct file and function.
+``model_class`` to point to your newly defined NN class. Note that this class
+must inherit from the ``BaseModel`` class in the ``dnn_reco.modules.models.base_model`` module.
 
 During training, we can provide weights to each of the labels.
 That way we can force the training to focus on the labels that we care about.
@@ -248,9 +251,8 @@ A few basic loss functions are already implemented in
 ``dnn_reco.modules.loss``.
 Amongst others, these include the Mean Squared Error (MSE) and cross-entropy
 for classification tasks.
-You are free to add your custom loss functions by adding a file/function in
-the ``dnn_reco.modules.loss`` module and by then adjusting the ``loss_file``
-and ``loss_name`` keys.
+Similar to the NN model, you can utilize custom loss functions by adjusting
+the ``loss_class`` key to point to your custom loss function.
 Other more advanced features are available such as defining learning rate
 schedulers, but these are not covered in this tutorial.
 
@@ -316,7 +318,7 @@ The easiest way to achieve this is to have a separate configuration file for
 each of your models.
 
 .. note::
-    Many more configuration options are available which are documented in
+    Many more configuration options are available of which some are documented in
     :ref:`Configuration Options`.
     The software framework is meant to provide high flexibility.
     Therefore you can easily swap out modules and create custom ones.
@@ -359,15 +361,15 @@ environment and start training:
     export DNN_HOME=/data/user/${USER}/DNN_tutorial
 
     # load virtual environment (we don't need icecube env for this)
-    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/setup.sh)
-    source ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
+    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/setup.sh)
+    source ${DNN_HOME}/py3-v4.3.0_tensorflow2.14/bin/activate
 
     # add paths to CUDA installation so that we can use the GPU
-    export CUDA_HOME=/data/user/mhuennefeld/software/cuda/cuda-10.1
+    export CUDA_HOME=/data/user/mhuennefeld/software/cuda/cuda-11.8
     export PATH=$PATH:${CUDA_HOME}/bin
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64
 
-    # we need to turn file locking off
+    # we may need to turn file locking off
     export HDF5_USE_FILE_LOCKING='FALSE'
 
     # go into directory

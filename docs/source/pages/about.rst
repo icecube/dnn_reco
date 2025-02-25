@@ -51,6 +51,8 @@ correct settings and input parameters.
 
 * `DNN-reco paper <https://arxiv.org//abs/2101.11589>`_
 
+* `Dissertation <http://dx.doi.org/10.17877/DE290R-24043>`_
+
 .. fad
     .. figure:: figures/runtime-1.png
         :width: 70 %

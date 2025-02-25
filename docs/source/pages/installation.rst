@@ -14,12 +14,13 @@ The following packages need to be installed to be able to use DNN reco:
 Additionally, to create the training data we need the following:
 
 * https://github.com/icecube/ic3-labels
+* https://github.com/mhuen/ic3-processing
 
 This guide will explain how to create a virtual environment with the necessary
 software packages. An alternative is to use singularity containers which have
 tensorflow installed. Documentation on how to use the singularity containers will follow in the future.
-Here we will create a virtual environment based on cvmfs python py3-v4.1.1
-and combo V01-01-01.
+Here we will create a virtual environment based on cvmfs python py3-v4.3.0
+and icetray v1.12.0.
 
 Define Environment Variables for Installation
 =============================================
@@ -37,7 +38,7 @@ environment variables here.
     mkdir --parents $DNN_HOME
 
     # load cvmfs python environment
-    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/setup.sh)
+    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/setup.sh)
 
 .. source /cvmfs/icecube.opensciencegrid.org/py2-v3.0.1/RHEL_7_x86_64/metaprojects/simulation/V06-01-01/env-shell.sh
 
@@ -55,10 +56,10 @@ In the following we will create a virtual environment with virtualenv.
 
     # Create virtualenv
     cd $DNN_HOME
-    python -m virtualenv --no-site-packages py3-v4.1.1_tensorflow2.3
+    python -m virtualenv py3-v4.3.0_tensorflow2.14
 
     # activate virtual environment
-    source ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
+    source ${DNN_HOME}/py3-v4.3.0_tensorflow2.14/bin/activate
 
 
 Modify Virtual Environment Activation Script
@@ -99,8 +100,8 @@ We can change the activation scripts manually or by executing the following comm
 
     # change activation script such that it prepends the path
     # to the virtual environment to the PYTHONPATH environment variable
-    perl -i -0pe 's/_OLD_VIRTUAL_PATH\="\$PATH"\nPATH\="\$VIRTUAL_ENV\/bin:\$PATH"\nexport PATH/_OLD_VIRTUAL_PATH\="\$PATH"\nPATH\="\$VIRTUAL_ENV\/bin:\$PATH"\nexport PATH\n\n# prepend virtual env path to PYTHONPATH if set\nif ! \[ -z "\$\{PYTHONPATH+_\}" \] ; then\n    _OLD_VIRTUAL_PYTHONPATH\="\$PYTHONPATH"\n    export PYTHONPATH\=\$VIRTUAL_ENV\/lib\/python3.7\/site-packages:\$PYTHONPATH\nfi/' ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
-    perl -i -0pe 's/        export PYTHONHOME\n        unset _OLD_VIRTUAL_PYTHONHOME\n    fi/        export PYTHONHOME\n        unset _OLD_VIRTUAL_PYTHONHOME\n    fi\n\n    if ! \[ -z "\$\{_OLD_VIRTUAL_PYTHONPATH+_\}" \] ; then\n        PYTHONPATH\="\$_OLD_VIRTUAL_PYTHONPATH"\n        export PYTHONPATH\n        unset _OLD_VIRTUAL_PYTHONPATH\n    fi/' ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
+    perl -i -0pe 's/_OLD_VIRTUAL_PATH\="\$PATH"\nPATH\="\$VIRTUAL_ENV\/bin:\$PATH"\nexport PATH/_OLD_VIRTUAL_PATH\="\$PATH"\nPATH\="\$VIRTUAL_ENV\/bin:\$PATH"\nexport PATH\n\n# prepend virtual env path to PYTHONPATH if set\nif ! \[ -z "\$\{PYTHONPATH+_\}" \] ; then\n    _OLD_VIRTUAL_PYTHONPATH\="\$PYTHONPATH"\n    export PYTHONPATH\=\$VIRTUAL_ENV\/lib\/python3.7\/site-packages:\$PYTHONPATH\nfi/' ${DNN_HOME}/py3-v4.3.0_tensorflow2.14/bin/activate
+    perl -i -0pe 's/        export PYTHONHOME\n        unset _OLD_VIRTUAL_PYTHONHOME\n    fi/        export PYTHONHOME\n        unset _OLD_VIRTUAL_PYTHONHOME\n    fi\n\n    if ! \[ -z "\$\{_OLD_VIRTUAL_PYTHONPATH+_\}" \] ; then\n        PYTHONPATH\="\$_OLD_VIRTUAL_PYTHONPATH"\n        export PYTHONPATH\n        unset _OLD_VIRTUAL_PYTHONPATH\n    fi/' ${DNN_HOME}/py3-v4.3.0_tensorflow2.14/bin/activate
 
 
 Note that the following commands via pip are meant to be executed with
@@ -114,7 +115,7 @@ pip is being used, you can execute the following.
     # you can check this by executing
     which pip
     # It should point to:
-    echo ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/pip
+    echo ${DNN_HOME}/py3-v4.3.0_tensorflow2.14/bin/pip
 
 
 Install Prerequisites and DNN reco
@@ -142,15 +143,15 @@ for tensorflow version 2.3.
 
 .. code-block:: bash
 
-    # install tensorflow 2.3.0 which needs cuDNN 7.6 and cuda 10.1
-    pip install tensorflow==2.3.0 tensorflow_probability==0.11.1
+    # install tensorflow 2.14 (CUDA 11 and cuDNN 8.7)
+    pip install tensorflow==2.14 tensorflow_probability==0.22.1
 
 To run the GPU version with the prebuilt wheel you will need to have a GPU and
 CUDA 10.1 + cuDNN 7.6 available. You can use:
 
 .. code-block:: bash
 
-    export CUDA_HOME=/data/user/mhuennefeld/software/cuda/cuda-10.1
+    export CUDA_HOME=/data/user/mhuennefeld/software/cuda/cuda-11.8
     export PATH=$PATH:${CUDA_HOME}/bin
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64
 
@@ -179,14 +180,17 @@ simply manually set them prior to the installation of ``ic3-data``.
 
     # set I3_BUILD and I3_SRC to correct directories
     # these are needed for ic3-data to find the icecube headers
-    export I3_BUILD=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/metaprojects/combo/V01-01-01/
-    export I3_SRC=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/metaprojects/combo/V01-01-01/
+    export I3_BUILD=/cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/RHEL_7_x86_64/metaprojects/icetray/v1.12.0/
+    export I3_SRC=/cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/metaprojects/icetray/v1.12.0/
 
     # install required repositories
     # specific versions may be checked out by adding tag, e.g. "@v2.1.0"
-    pip install git+git://github.com/icecube/TFScripts.git
-    pip install git+git://github.com/icecube/ic3-data.git
-    pip install git+git://github.com/icecube/ic3-labels.git
+    # Note: if there are issues with installing directly from the
+    # repositories, you can clone the repositories first and then install
+    # them via pip install /path/to/repo [see instructions below for dnn_reco]
+    pip install git+ssh://git@github.com/icecube/TFScripts
+    pip install git+ssh://git@github.com/icecube/ic3-labels
+    pip install git+ssh://git@github.com/icecube/ic3-data
 
 The prebuilt binaries for python package h5py are
 built against a specific hdf version, which usually differs
@@ -200,7 +204,7 @@ it from source.
     # Use: 'h5cc -showconfig' to obtain hdf5 configuration and library version
     # use: 'ls -lah $(which h5cc)' to obtain path to hdf5 directory
     pip uninstall h5py
-    HDF5_VERSION=1.10.5 HDF5_DIR=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/spack/opt/spack/linux-centos7-x86_64/gcc-9.2.0spack/hdf5-1.10.5-tzqwgit6tpz6facq4b3kuuudvcygayc4 pip install --no-binary=h5py h5py==2.10.0
+    HDF5_VERSION=1.14.0 HDF5_DIR=/cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/RHEL_7_x86_64/spack/opt/spack/linux-centos7-x86_64_v2/gcc-13.1.0/hdf5-1.14.0-4p2djysy6f7vful3egmycsguijjddkah pip install --no-binary=h5py h5py==3.11.0
 
 
 Install DNN Reco
@@ -222,6 +226,21 @@ these changes without having to reinstall the package after each change.
     # install package
     pip install -e  ${DNN_HOME}/repositories/dnn_reco
 
+Install Processing Scripts (ic3-processing)
+-------------------------------------------
+
+We will use this package to create the training data.
+
+.. code-block:: bash
+
+    cd  ${DNN_HOME}/repositories
+
+    # clone repository (or clone via ssh)
+    git clone https://github.com/mhuen/ic3-processing.git
+
+    # install package
+    pip install -e  ${DNN_HOME}/repositories/ic3-processing
+
 
 .. _verify_installation:
 
@@ -237,27 +256,28 @@ Log in to a fresh shell and load the environment via:
     export DNN_HOME=/data/user/${USER}/DNN_tutorial
 
     # load icecube environment
-    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/setup.sh)
-    source /cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/metaprojects/combo/V01-01-01/env-shell.sh
+    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/setup.sh)
+    /cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/RHEL_7_x86_64/metaprojects/icetray/v1.12.0/env-shell.sh
 
-    # set I3_BUILD and I3_SRC to correct directories
-    # (technically this should be unessary if correctly set in  env-shell)
-    export I3_BUILD=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/metaprojects/combo/V01-01-01/
-    export I3_SRC=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/metaprojects/combo/V01-01-01/
+Now that the icecube environment is loaded, we can activate our virtual environment.
+
+.. code-block:: bash
 
     # activate python virtual environment
-    source ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
+    source ${DNN_HOME}/py3-v4.3.0_tensorflow2.14/bin/activate
+
+    # set CUDA environment variables
+    export CUDA_HOME=/data/user/mhuennefeld/software/cuda/cuda-11.8
+    export PATH=$PATH:${CUDA_HOME}/bin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64
 
 To verify if our environment was installed correctly, we can
 try to create a tensorflow session and to import |dnn_reco|.
 
 .. code-block:: bash
 
-    # the following should successfully create a tensorflow session
-    # (if running with TF1, use tf.Session() instead)
-    python -c 'import tensorflow as tf; print(tf.__version__); tf.compat.v1.Session()'
-
-    # try to import dnn_reco (This should run without giving any output)
+    # the following commands should run without any errors
+    python -c 'import tensorflow as tf; print(tf.__version__)'
     python -c 'import dnn_reco; import tfscripts; import ic3_labels; import ic3_data'
 
 
@@ -266,7 +286,7 @@ try to create a tensorflow session and to import |dnn_reco|.
     These are not available on cobalts 1 through 4.
     Attempting to import tensorflow will lead to an "illegal instructions"
     error. Therefore, if running on the cobalts, simply choose one of the
-    newer machines: cobalt 5 through 8.
+    newer machines: cobalt >=5.
     On NPX, if running CPU jobs, you can request nodes with avx2 and ssse3
     support by adding: ``requirements = (TARGET.has_avx2) && (TARGET.has_ssse3)``. This is only necessary for CPU jobs. For GPU jobs,
     these requirements should not be set.

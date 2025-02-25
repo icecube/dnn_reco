@@ -76,8 +76,7 @@ New:
 ---------------------------------------
 Steps to migrate to tensorflow 2
 ---------------------------------------
-- check application in ic3 module
-- update tutorial: use ic3-processing + newer MC
+- update manual unittests to v2 model
 
 ----------------
 Additional ToDos

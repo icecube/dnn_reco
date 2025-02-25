@@ -114,10 +114,10 @@ def main(config_files):
                 test_data_trafo, data_type
             )
 
-            sess = tf.Session()
-            test_data, test_data_trafo, test_data_inv_trafo = sess.run(
-                [test_data, test_data_trafo, test_data_inv_trafo]
-            )
+            test_data = test_data.numpy()
+            test_data_trafo = test_data_trafo.numpy()
+            test_data_inv_trafo = test_data_inv_trafo.numpy()
+
             deviations = np.reshape(
                 np.abs(test_data_inv_trafo - test_data), [-1]
             )
