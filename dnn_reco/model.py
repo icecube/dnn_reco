@@ -338,7 +338,7 @@ class BaseNNModel(tf.Module):
         # run optimizers with zero gradients to create optimizer variables
         self._compile_optimizers()
 
-    @tf.function(experimental_relax_shapes=True)
+    @tf.function(reduce_retracing=True)
     def __call__(self, data_batch_dict, is_training=True, summary_writer=None):
         """Forward pass through the model.
 
@@ -370,7 +370,7 @@ class BaseNNModel(tf.Module):
         """
         raise NotImplementedError
 
-    @tf.function(experimental_relax_shapes=True)
+    @tf.function(reduce_retracing=True)
     def get_tensors(self, data_batch, is_training=True, summary_writer=None):
         """Get result tensors from the model.
 
@@ -525,7 +525,7 @@ class BaseNNModel(tf.Module):
 
         return result_tensors
 
-    @tf.function(experimental_relax_shapes=True)
+    @tf.function(reduce_retracing=True)
     def get_loss(self, data_batch, is_training=True, summary_writer=None):
         """Get optimizers and loss terms as defined in config.
 
@@ -666,7 +666,7 @@ class BaseNNModel(tf.Module):
 
         return shared_objects
 
-    @tf.function(experimental_relax_shapes=True)
+    @tf.function(reduce_retracing=True)
     def perform_training_step(self, data_batch, summary_writer=None):
         """Perform a single training step.
 

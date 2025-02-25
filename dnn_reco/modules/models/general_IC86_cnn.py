@@ -299,7 +299,7 @@ class GeneralIC86CNN(BaseNNModel):
         )
         return layer_flat.shape.as_list()
 
-    @tf.function(experimental_relax_shapes=True)
+    @tf.function(reduce_retracing=True)
     def _apply_convolutions(
         self,
         data_batch_dict,
@@ -382,7 +382,7 @@ class GeneralIC86CNN(BaseNNModel):
 
         return layer_flat
 
-    @tf.function(experimental_relax_shapes=True)
+    @tf.function(reduce_retracing=True)
     def __call__(self, data_batch_dict, is_training=True, summary_writer=None):
         """Forward pass through the model.
 
