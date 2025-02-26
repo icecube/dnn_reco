@@ -65,7 +65,7 @@ keys_error = [
 ]
 
 dir_original = os.path.join(
-    SCRIPT_DIR, "test_data/dnn_reco_test_01_base_v2_0_0_dev"
+    SCRIPT_DIR, "test_data/dnn_reco_test_01_base_v2_0_0"
 )
 test_dirs = glob.glob(os.path.join(SCRIPT_DIR, "test_data/*"))
 test_dirs.remove(dir_original)

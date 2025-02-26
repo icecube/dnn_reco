@@ -195,6 +195,7 @@ def main(config_files, output_folder, data_settings, logs, log_level):
     # Export package versions and git hash
     # ------------------------------------
     version_control = {
+        "dnn_reco_version": config["dnn_reco_version"],
         "git_short_sha": config["git_short_sha"],
         "git_sha": config["git_sha"],
         "git_origin": config["git_origin"],

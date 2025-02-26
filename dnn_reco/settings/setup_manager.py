@@ -2,6 +2,8 @@ import os
 import numpy as np
 import tensorflow as tf
 
+import dnn_reco
+from dnn_reco import misc
 from dnn_reco.settings.yaml import yaml_loader
 from dnn_reco.settings import version_control
 
@@ -230,24 +232,23 @@ class SetupManager:
         config["np_float_precision"] = getattr(np, config["float_precision"])
 
         # check for version mismatch of dnn-reco (only major version)
-        if "pip_installed_packages" in config:
-            for pkg_name, version in config["pip_installed_packages"]:
-                if pkg_name == "dnn-reco":
-                    restore_version = version
-                    break
-            for pkg_name, version in version_control.installed_packages:
-                if pkg_name == "dnn-reco":
-                    this_version = version
-                    break
-
+        if "dnn_reco_version" in config:
+            restore_version = config["dnn_reco_version"]
             restore_major = int(restore_version.split(".")[0])
-            this_major = int(this_version.split(".")[0])
-            if this_major != restore_major:
+            if restore_version != dnn_reco.__version__:
+                misc.print_warning(
+                    f"Resoring model with version {restore_version}. "
+                    f"Version of dnn-reco is {dnn_reco.__version__}."
+                )
+            if dnn_reco.__version_major__ != restore_major:
                 raise ValueError(
-                    "Version mismatch of dnn-reco. The model was created with "
-                    f"version {restore_version}, but version is {this_version} "
+                    "Mismatch of major version number of dnn-reco. "
+                    f"The model was created with version {restore_version}, "
+                    f"but version is {dnn_reco.__version__} "
                     "is currently being used."
                 )
+        else:
+            config["dnn_reco_version"] = dnn_reco.__version__
 
         # get git repo information
         config["git_short_sha"] = str(version_control.short_sha)
