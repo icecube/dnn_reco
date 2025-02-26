@@ -1,4 +1,3 @@
-from __future__ import division, print_function
 import pandas as pd
 import numpy as np
 import multiprocessing
@@ -7,14 +6,12 @@ import resource
 import time
 import timeit
 import os
-import ruamel.yaml as yaml
+from dnn_reco.settings.yaml import yaml_loader
 from copy import deepcopy
-import tensorflow as tf
 
 from dnn_reco import misc
 from dnn_reco import detector
 from dnn_reco.data_trafo import DataTransformer
-from dnn_reco.model import NNModel
 
 
 class DataHandler(object):
@@ -129,7 +126,7 @@ class DataHandler(object):
             Description
         """
         with open(config_file, "r") as stream:
-            config_meta = yaml.YAML(typ="safe", pure=True).load(stream)
+            config_meta = yaml_loader.load(stream)
 
         self.label_names = config_meta["label_names"]
         self.label_name_dict = config_meta["label_name_dict"]
@@ -146,11 +143,9 @@ class DataHandler(object):
 
     def _get_label_meta_data(self):
         """Loads labels from a sample file to obtain label meta data."""
-        class_string = "dnn_reco.modules.data.labels.{}.{}".format(
-            self._config["data_handler_label_file"],
-            self._config["data_handler_label_name"],
+        label_reader = misc.load_class(
+            self._config["data_handler_label_class"]
         )
-        label_reader = misc.load_class(class_string)
         labels, label_names = label_reader(
             self.test_input_data[0], self._config
         )
@@ -162,11 +157,7 @@ class DataHandler(object):
 
     def _get_misc_meta_data(self):
         """Loads misc data from a sample file to obtain misc meta data."""
-        class_string = "dnn_reco.modules.data.misc.{}.{}".format(
-            self._config["data_handler_misc_file"],
-            self._config["data_handler_misc_name"],
-        )
-        misc_reader = misc.load_class(class_string)
+        misc_reader = misc.load_class(self._config["data_handler_misc_class"])
         misc_data, misc_names = misc_reader(
             self.test_input_data[0], self._config
         )
@@ -339,11 +330,9 @@ class DataHandler(object):
         # --------------
         # read in labels
         # --------------
-        class_string = "dnn_reco.modules.data.labels.{}.{}".format(
-            self._config["data_handler_label_file"],
-            self._config["data_handler_label_name"],
+        label_reader = misc.load_class(
+            self._config["data_handler_label_class"]
         )
-        label_reader = misc.load_class(class_string)
         labels, _ = label_reader(
             input_data, self._config, label_names=self.label_names
         )
@@ -367,11 +356,7 @@ class DataHandler(object):
         # -------------------
         # read in misc values
         # -------------------
-        class_string = "dnn_reco.modules.data.misc.{}.{}".format(
-            self._config["data_handler_misc_file"],
-            self._config["data_handler_misc_name"],
-        )
-        misc_reader = misc.load_class(class_string)
+        misc_reader = misc.load_class(self._config["data_handler_misc_class"])
         misc_data, _ = misc_reader(
             input_data, self._config, misc_names=self.misc_names
         )
@@ -381,11 +366,9 @@ class DataHandler(object):
         # -------------
         # filter events
         # -------------
-        class_string = "dnn_reco.modules.data.filter.{}.{}".format(
-            self._config["data_handler_filter_file"],
-            self._config["data_handler_filter_name"],
+        filter_func = misc.load_class(
+            self._config["data_handler_filter_class"]
         )
-        filter_func = misc.load_class(class_string)
         mask = filter_func(
             self,
             input_data,
@@ -675,30 +658,6 @@ class DataHandler(object):
             """
             local_random_state = np.random.RandomState(seed)
 
-            # ----------------------------------------------
-            # Create NN model instance for  biased selection
-            # ----------------------------------------------
-            if (
-                "nn_biased_selection" in self._config
-                and self._config["nn_biased_selection"] is not None
-            ):
-
-                cfg_sel = self._config["nn_biased_selection"]
-                if (
-                    cfg_sel["apply_biased_selection"]
-                    and cfg_sel["biased_fraction"] > 0
-                ):
-                    biased_selection_func = (
-                        self._create_biased_selection_func()
-                    )
-                    nn_biased_selection = True
-                else:
-                    nn_biased_selection = False
-
-            else:
-                nn_biased_selection = False
-            # ----------------------------------------------
-
             while not processed_all_files.value:
 
                 # get file
@@ -733,10 +692,6 @@ class DataHandler(object):
                             init_values=init_values,
                             nan_fill_value=nan_fill_value,
                         )
-
-                        # biased selection
-                        if nn_biased_selection:
-                            icecube_data = biased_selection_func(icecube_data)
 
                         if icecube_data is not None:
 
@@ -802,6 +757,30 @@ class DataHandler(object):
                     if processed_all_files.value and data_batch_queue.empty():
                         data_left_in_queue.value = False
 
+            # ---------------------------------------------
+            # Create NN model instance for biased selection
+            # ---------------------------------------------
+            if (
+                "nn_biased_selection" in self._config
+                and self._config["nn_biased_selection"] is not None
+            ):
+
+                cfg_sel = self._config["nn_biased_selection"]
+                if (
+                    cfg_sel["apply_biased_selection"]
+                    and cfg_sel["biased_fraction"] > 0
+                ):
+                    biased_selection_func = (
+                        self._create_biased_selection_func()
+                    )
+                    nn_biased_selection = True
+                else:
+                    nn_biased_selection = False
+
+            else:
+                nn_biased_selection = False
+            # ---------------------------------------------
+
             # reset event batch
             size = 0
             ic78_batch = []
@@ -850,6 +829,19 @@ class DataHandler(object):
                 labels = np.concatenate(label_list, axis=0)
                 if self.misc_data_exists:
                     misc_data = np.concatenate(misc_list, axis=0)
+
+                # biased selection
+                if nn_biased_selection:
+                    if self.misc_data_exists:
+                        x_ic78, x_deepcore, labels, misc_data = (
+                            biased_selection_func(
+                                (x_ic78, x_deepcore, labels, misc_data)
+                            )
+                        )
+                    else:
+                        x_ic78, x_deepcore, labels = biased_selection_func(
+                            (x_ic78, x_deepcore, labels)
+                        )
 
                 queue_size = x_ic78.shape[0]
                 if verbose:
@@ -1022,65 +1014,44 @@ class DataHandler(object):
         NNModel
             The created DNN model.
         """
+        # Create Data Handler object
+        data_handler = DataHandler(cfg)
+        data_handler.setup_with_test_data(cfg["training_data_file"])
 
-        # Create a new tf graph and session for this model instance
-        g = tf.Graph()
-        if "tf_parallelism_threads" in cfg_sel:
-            n_cpus = cfg_sel["tf_parallelism_threads"]
-            sess = tf.compat.v1.Session(
-                graph=g,
-                config=tf.compat.v1.ConfigProto(
-                    gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
-                    device_count={"GPU": cfg_sel["GPU_device_count"]},
-                    intra_op_parallelism_threads=n_cpus,
-                    inter_op_parallelism_threads=n_cpus,
-                ),
-            )
-        else:
-            sess = tf.compat.v1.Session(
-                graph=g,
-                config=tf.compat.v1.ConfigProto(
-                    gpu_options=tf.compat.v1.GPUOptions(allow_growth=True),
-                    device_count={"GPU": cfg_sel["GPU_device_count"]},
-                ),
-            )
-        with g.as_default():
-            # Create Data Handler object
-            data_handler = DataHandler(cfg)
-            data_handler.setup_with_test_data(cfg["training_data_file"])
+        # create data transformer
+        data_transformer = DataTransformer(
+            data_handler=data_handler,
+            treat_doms_equally=cfg["trafo_treat_doms_equally"],
+            normalize_dom_data=cfg["trafo_normalize_dom_data"],
+            normalize_label_data=cfg["trafo_normalize_label_data"],
+            normalize_misc_data=cfg["trafo_normalize_misc_data"],
+            log_dom_bins=cfg["trafo_log_dom_bins"],
+            log_label_bins=cfg["trafo_log_label_bins"],
+            log_misc_bins=cfg["trafo_log_misc_bins"],
+            norm_constant=cfg["trafo_norm_constant"],
+        )
 
-            # create data transformer
-            data_transformer = DataTransformer(
-                data_handler=data_handler,
-                treat_doms_equally=cfg["trafo_treat_doms_equally"],
-                normalize_dom_data=cfg["trafo_normalize_dom_data"],
-                normalize_label_data=cfg["trafo_normalize_label_data"],
-                normalize_misc_data=cfg["trafo_normalize_misc_data"],
-                log_dom_bins=cfg["trafo_log_dom_bins"],
-                log_label_bins=cfg["trafo_log_label_bins"],
-                log_misc_bins=cfg["trafo_log_misc_bins"],
-                norm_constant=cfg["trafo_norm_constant"],
-            )
+        # load trafo model from file
+        data_transformer.load_trafo_model(cfg["trafo_model_path"])
 
-            # load trafo model from file
-            data_transformer.load_trafo_model(cfg["trafo_model_path"])
+        # create NN model
+        ModelClass = misc.load_class(cfg["model_class"])
+        model_kwargs = deepcopy(cfg["model_kwargs"])
+        model_kwargs["is_training"] = False
+        model = ModelClass(
+            config=cfg,
+            data_handler=data_handler,
+            data_transformer=data_transformer,
+            **model_kwargs
+        )
 
-            # create NN model
-            model = NNModel(
-                is_training=False,
-                config=cfg,
-                data_handler=data_handler,
-                data_transformer=data_transformer,
-                sess=sess,
-            )
+        # compile model: initialize and finalize graph
+        model.compile()
 
-            # compile model: initialize and finalize graph
-            model.compile()
+        # restore model weights
+        model.restore()
 
-            # restore model weights
-            model.restore()
-
-            return model, data_transformer, data_handler
+        return model, data_transformer, data_handler
 
     def _get_nn_biased_selection_mask(
         self,
@@ -1317,12 +1288,12 @@ class DataHandler(object):
 
             # apply mask
             icecube_data_masked = [
-                np.array(icecube_data[0][mask]),
-                np.array(icecube_data[1][mask]),
-                np.array(icecube_data[2][mask]),
+                icecube_data[0][mask],
+                icecube_data[1][mask],
+                icecube_data[2][mask],
             ]
             if self.misc_data_exists:
-                icecube_data_masked.append(np.array(icecube_data[3][mask]))
+                icecube_data_masked.append(icecube_data[3][mask])
             else:
                 icecube_data_masked.append(None)
 

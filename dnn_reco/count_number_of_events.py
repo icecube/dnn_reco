@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import division, print_function
 import click
 from tqdm import tqdm
 import glob
 import pandas as pd
 from multiprocessing import Pool
 
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco.settings.setup_manager import SetupManager
 
 
 def count_num_events(data):

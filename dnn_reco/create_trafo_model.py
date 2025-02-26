@@ -1,19 +1,23 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import division, print_function
 import os
 import click
-import ruamel.yaml as yaml
+import logging
 
+from dnn_reco.settings.yaml import yaml_dumper
 from dnn_reco import misc
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
 
 
 @click.command()
 @click.argument("config_files", type=click.Path(exists=True), nargs=-1)
-def main(config_files):
+@click.option(
+    "--log_level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING"]),
+    default="INFO",
+)
+def main(config_files, log_level):
     """Script to generate trafo model.
 
     Creates the desired trafo model as defined in the yaml configuration files
@@ -23,7 +27,11 @@ def main(config_files):
     ----------
     config_files : list of strings
         List of yaml config files.
+    log_level : str
+        Log level for logging.
     """
+    # set up logging
+    logging.basicConfig(level=log_level)
 
     # read in and combine config files and set up
     setup_manager = SetupManager(config_files)
@@ -82,13 +90,11 @@ def main(config_files):
         directory, "config_trafo__{}.yaml".format(base_name)
     )
 
+    dump_config = dict(config)
+    del dump_config["np_float_precision"]
+    del dump_config["tf_float_precision"]
     with open(trafo_config_file, "w") as yaml_file:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            config,
-            yaml_file,
-        )
+        yaml_dumper.dump(dump_config, yaml_file)
     data_transformer.save_trafo_model(config["trafo_model_path"])
 
     # kill multiprocessing queues and workers

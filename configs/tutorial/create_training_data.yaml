@@ -1,0 +1,253 @@
+# Example config file to process Level 2 MC i3-files
+#
+# Directory structure:
+#       At prompt of create_job_files.py a data_folder
+#       will be asked for in which the files are to be
+#       saved
+#
+#   Files are then stored as:
+#
+#   data_folder:
+#       processing:
+#           out_dir_pattern:
+#               jobs: (job files are stored here)
+#               logs: (log files are stored here)
+#
+#       out_dir_pattern:
+#
+#               run_folder:
+#                       out_file_pattern + '.' + i3_ending
+#                       out_file_pattern + '.hdf5'
+#
+#
+#               Where the run folder is given by:
+#               run_folder = folder_pattern.format(
+#                   folder_num=folder_num,
+#                   folder_num_pre_offset=folder_num_pre_offset,
+#                   folder_num_n_merged=folder_num_n_merged,
+#                   folder_num_pre_offset_n_merged=folder_num_pre_offset_n_merged,
+#                   **cfg
+#               )
+#
+#       The following variables are computed and can be used in input/output patterns
+#
+#       folder_num = folder_offset + run_number // n_jobs_per_folder
+#       folder_num_pre_offset = run_number // n_jobs_per_folder
+#       folder_num_n_merged = folder_offset + (n_runs_per_merge * run_number) // n_jobs_per_folder
+#       folder_num_pre_offset_n_merged = (n_runs_per_merge * run_number) // n_jobs_per_folder
+#
+
+#------------------------------
+# General job submission config
+#------------------------------
+
+keep_crashed_files: False
+
+resources:
+        # If gpus == 1 this will be run on a GPU with
+        gpus: 0
+        cpus: 1
+        memory: 3gb # runs with 1gb, but sometimes crashes
+        has_avx2: True
+        # has_ssse3: True
+
+dagman_max_jobs: 5000
+dagman_submits_interval: 500
+dagman_scan_interval: 1
+dagman_submit_delay: 0
+
+# If true, the input files will first be checked for corruption.
+# Note that this will take a while, since each input file has to be
+# iterated through. You generally only want to set this to true if you
+# are merging a number of input files of which some are known to be corrupt.
+exclude_corrupted_input_files: False
+
+#------------------------------
+# Define Datasets to process
+#------------------------------
+
+#------------------------------
+# Define Datasets to process
+#------------------------------
+
+#------
+# common settings shared by all datasets
+#------
+i3_ending: 'i3.zst'
+n_runs_per_merge: 1
+out_file_pattern: 'Level2_{flavor}_NuGenCCNC.{dataset_number:06d}.{run_number:06d}'
+out_dir_pattern: '{data_type}/{dataset_number}/{step}'
+folder_pattern: '{folder_num_pre_offset:04d}000-{folder_num_pre_offset:04d}999'
+folder_offset: 0
+n_jobs_per_folder: 1000
+gcd: '/cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_2020.Run134142.Pass2_V0.i3.gz'
+step: 'level2_dev'
+#------
+
+
+datasets:
+
+    # spice_ftp-v3 Ice Snowstorm MC using icetray.v1.9.2
+    NuGen_NuMu_1e2_1e4:
+        in_file_pattern: '/data/sim/IceCube/2023/filtered/level2/neutrino-generator/{dataset_number}/{folder_pattern}/Level2_{flavor}_NuGenCCNC.{dataset_number:06d}.{run_number:06d}.i3.zst'
+        folder_pattern: '{folder_num_pre_offset:04d}000-{folder_num_pre_offset:04d}999'
+        cycler:
+                dataset_number: [22646]
+
+        runs_range: [0, 1000] # 8000
+        flavor: 'NuMu'
+        data_type: 'NuGen'
+        year: 'IC86_2016'
+        n_events_per_run: 200000
+
+    NuGen_NuMu_1e4_1e6:
+        in_file_pattern: '/data/sim/IceCube/2023/filtered/level2/neutrino-generator/{dataset_number}/{folder_pattern}/Level2_{flavor}_NuGenCCNC.{dataset_number:06d}.{run_number:06d}.i3.zst'
+        folder_pattern: '{folder_num_pre_offset:04d}000-{folder_num_pre_offset:04d}999'
+        cycler:
+                dataset_number: [22645]
+
+        runs_range: [0, 1000] # 5000
+        flavor: 'NuMu'
+        data_type: 'NuGen'
+        year: 'IC86_2016'
+        n_events_per_run: 8000
+
+    NuGen_NuMu_1e6_1e8:
+        in_file_pattern: '/data/sim/IceCube/2023/filtered/level2/neutrino-generator/{dataset_number}/{folder_pattern}/Level2_{flavor}_NuGenCCNC.{dataset_number:06d}.{run_number:06d}.i3.zst'
+        folder_pattern: '{folder_num_pre_offset:04d}000-{folder_num_pre_offset:04d}999'
+        cycler:
+                dataset_number: [22644]
+
+        runs_range: [0, 1000] # 15000
+        flavor: 'NuMu'
+        data_type: 'NuGen'
+        year: 'IC86_2016'
+        n_events_per_run: 300
+
+
+# -------------------------------------------------------------
+# Define environment information shared across processing steps
+# -------------------------------------------------------------
+job_template: job_templates/cvmfs_python.sh
+script_name: general_i3_processing.py
+cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.2
+
+# add optional additions to the LD_LIBRARY_PATH
+# Note: '{ld_library_path_prepends}' is the default which does not add anything
+ld_library_path_prepends: '{ld_library_path_prepends}'
+
+# Defines environment variables that are set from python
+set_env_vars_from_python: {
+    # 'TF_DETERMINISTIC_OPS': '1',
+}
+
+#-----------------------------------------------
+# Define I3Traysegments for each processing step
+#-----------------------------------------------
+
+# a list of processing steps. Each processing step contains
+# information on the python and cvmfs environment as well as
+# a list of I3TraySegments/Modules that will be added to the I3Tray.
+# Any options defined in these nested dictionaries will supersede the
+# ones defined globally in this config.
+# Tray context can be accessed via "context-->key".
+# For nested dictionaries it's possible to do: "context-->key.key2.key3"
+# The configuration dictionary of the job can be passed via "<config>"
+# Special keys for the tray_segments:
+#       ModuleClass: str
+#           The module/segment to run.
+#       ModuleKwargs: dict
+#           The parameters for the specified module.
+#       ModuleTimer: str
+#           If provided, a timer for this module will be added.
+#           Results of all timers are saved in the frame key "Duration".
+processing_steps: [
+    # ---------------------------------
+    # Create training data for DNN reco
+    # ---------------------------------
+    {
+        # Define environment for this processing step
+        cvmfs_python: py3-v4.3.0,
+        icetray_metaproject: icetray/v1.12.0,
+        python_user_base_cpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
+        python_user_base_gpu: /data/user/mhuennefeld/DNN_reco/virtualenvs/tensorflow_gpu_py3-v4.3.0,
+        cuda_home: /data/user/mhuennefeld/software/cuda/cuda-11.8,
+
+        # define a list of tray segments to run
+        tray_segments: [
+            {
+                # add weighted primary
+                ModuleClass: 'ic3_processing.modules.labels.primary.add_weighted_primary',
+                ModuleKwargs: {},
+            },
+            {
+                # add labels
+                ModuleClass: 'ic3_labels.labels.modules.MCLabelsCascades',
+                ModuleKwargs: {
+                    PulseMapString: ,
+                    PrimaryKey: 'MCPrimary',
+                    ExtendBoundary: 0,
+                    OutputKey: 'LabelsDeepLearning',
+                },
+                ModuleTimer: True,
+            },
+            {
+                # write DNN-reco training data to file [9 inputs, un-cleaned]
+                ModuleClass: 'ic3_data.segments.CreateDNNData',
+                ModuleKwargs: {
+                    NumDataBins: 9,
+                    RelativeTimeMethod: time_range,
+                    DataFormat: pulse_summmary_clipped,
+                    PulseKey: InIceDSTPulses,
+                    DOMExclusions: ['SaturationWindows','BadDomsList','CalibrationErrata'],
+                    PartialExclusion: True,
+                },
+                ModuleTimer: True,
+            },
+        ],
+    },
+]
+
+#--------------------
+# File output options
+#--------------------
+
+# write output as i3 files via the I3Writer
+write_i3: False
+write_i3_kwargs: {
+
+    # only write these stream types,
+    # i.e ['Q', 'P', 'I', 'S', 'M', 'm', 'W', 'X']
+    'i3_streams': ['Q', 'P', 'I', 'S', 'M', 'm', 'W', 'X'],
+}
+
+# write output as hdf5 files via the I3HDFWriter
+write_hdf5: True
+write_hdf5_kwargs: {
+
+    # sub event streams to write
+    'SubEventStreams': ['in_ice',
+                    'InIceSplit',
+                    'Final',
+                    'topological_split'],
+
+    # HDF keys to write (in addition to the ones in
+    # tray.context['ic3_processing']['HDF_keys'])
+    # Note: added tray segments should add outputs that should be written
+    # to hdf5 to the tray context.
+    'Keys': [
+
+        # general
+        'I3EventHeader',
+        'DurationQ',
+        'DurationP',
+
+        # ic3-data input data creation for dnn_reco
+        'dnn_data_bin_values',
+        'dnn_data_bin_indices',
+        'dnn_data_global_time_offset',
+
+        # labels
+        'LabelsDeepLearning',
+    ],
+}

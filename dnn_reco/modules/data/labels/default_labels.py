@@ -27,7 +27,6 @@ All label functions must have the following parameters and return values:
         The names of the labels
 """
 
-from __future__ import division, print_function
 import pandas as pd
 import numpy as np
 
@@ -85,11 +84,12 @@ def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):
 
     if label_names is None:
         if "label_keys_to_load" in config:
-            name_list = config["label_keys_to_load"]
+            label_names = config["label_keys_to_load"]
         else:
-            name_list = _labels.keys().tolist()
-        label_names = [n for n in name_list if n not in ignore_columns]
+            label_names = _labels.keys().tolist()
 
+    # remove any ignore columns and load labels
+    label_names = [n for n in label_names if n not in ignore_columns]
     labels = [
         _labels[name] for name in label_names if name not in ignore_columns
     ]
@@ -136,5 +136,16 @@ def simple_label_loader(input_data, config, label_names=None, *args, **kwargs):
         labels.extend([x_at_t, y_at_t, z_at_t])
 
     labels = np.array(labels, dtype=config["np_float_precision"]).T
+
+    mask = ~np.isfinite(labels)
+    if np.any(mask):
+        for i, name in enumerate(label_names):
+            if np.any(mask[:, i]):
+                if name in config["label_nan_fill_value"]:
+                    labels[mask[:, i], i] = config["label_nan_fill_value"][
+                        name
+                    ]
+                else:
+                    print(f"Found {np.sum(mask[:, i])} NaNs in {name}")
 
     return labels, label_names

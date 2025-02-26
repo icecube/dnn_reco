@@ -89,8 +89,8 @@ All labels as well as the losses are automatically logged with tensorboard.
 If you would like to add more variables to log,
 just add these with the standard functions from the ``tf.summary`` module
 in your custom modules.
-Variables that need to be logged are collected via ``tf.summary.merge_all()``
-before the training procedure starts.
+Variables that need to be logged can be assigned to either of the FileWriter
+objects of the base model class: ``self._train_writer`` or ``self._val_writer``.
 
 .. figure:: ../figures/tensorboard.png
 

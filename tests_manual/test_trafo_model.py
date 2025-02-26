@@ -3,7 +3,7 @@ import click
 import numpy as np
 import tensorflow as tf
 
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
 
@@ -35,8 +35,8 @@ def main(config_files):
         "batch_size": config["batch_size"],
         "sample_randomly": True,
         "pick_random_files_forever": False,
-        "file_capacity": 1,
-        "batch_capacity": 2,
+        "file_capacity": 10,
+        "batch_capacity": 10,
         "num_jobs": config["num_jobs"],
         "num_add_files": 0,
         "num_repetitions": 1,
@@ -80,7 +80,7 @@ def main(config_files):
                 np.abs(test_data_inv_trafo - test_data), [-1]
             )
 
-            print("Checking numpy trafor for {}:".format(data_type))
+            print("Checking numpy trafo for {}:".format(data_type))
             print("\tChecking Mean:")
             print(
                 "\tOrig: {:2.5f}, Trafo: {:2.5f}, Inv-Trafo: {:2.5f}".format(
@@ -114,15 +114,15 @@ def main(config_files):
                 test_data_trafo, data_type
             )
 
-            sess = tf.Session()
-            test_data, test_data_trafo, test_data_inv_trafo = sess.run(
-                [test_data, test_data_trafo, test_data_inv_trafo]
-            )
+            test_data = test_data.numpy()
+            test_data_trafo = test_data_trafo.numpy()
+            test_data_inv_trafo = test_data_inv_trafo.numpy()
+
             deviations = np.reshape(
                 np.abs(test_data_inv_trafo - test_data), [-1]
             )
 
-            print("Checking tensorflow trafor for {}:".format(data_type))
+            print("Checking tensorflow trafo for {}:".format(data_type))
             print("\tChecking Mean:")
             print(
                 "\tOrig: {:2.5f}, Trafo: {:2.5f}, Inv-Trafo: {:2.5f}".format(

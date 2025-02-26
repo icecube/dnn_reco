@@ -15,7 +15,7 @@ and for the labels we will use ``ic3_labels.labels.modules.MCLabelsCascades``
 from the |ic3_labels| repository.
 You are free to include these modules in your processing set up of choice.
 Here we will use
-`these processing scripts <https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/sandbox/mhuennefeld/processing_scripts>`_.
+`these processing scripts <https://github.com/mhuen/ic3-processing>`_.
 
 The tray segment ``ic3_data.segments.CreateDNNData`` can write out different
 types of input data.
@@ -69,6 +69,8 @@ The settings we will use to achieve this are:
         RelativeTimeMethod="time_range",
         DataFormat="pulse_summmary_clipped",
         PulseKey="InIceDSTPulses",
+        DOMExclusions=["SaturationWindows", "BadDomsList", "CalibrationErrata"],
+        PartialExclusion=True,
     )
 
 To be able to train our neural network, we must also define labels.
@@ -125,35 +127,17 @@ Now we are ready to save the training data to hdf5 files:
         SubEventStreams=["InIceSplit"],
     )
 
-We can now put these modules together in a script and process the dataset 11883.
-To facilitate this process, we will use the mentioned `processing scripts <https://code.icecube.wisc.edu/projects/icecube/browser/IceCube/sandbox/mhuennefeld/processing_scripts>`_, in which this is already done.
-First we must fetch the processing scripts:
+We can now put these modules together in a script and process 1000 files for each of the NuMu datasets 22644, 226465, 22646.
+To facilitate this process, we will use the mentioned `processing scripts <https://github.com/mhuen/ic3-processing>`_.
+This repository allows to easily create processing scripts via a yaml configuration
+file. The configuration file we will use is provided within the |dnn_reco| repository.
+
+If we have installed ``ic3-processing`` (see :ref:`Installation and Requirements`), we can create the job files via:
 
 .. code-block:: bash
-
-    svn co http://code.icecube.wisc.edu/svn/sandbox/mhuennefeld/processing_scripts/trunk/processing/ $DNN_HOME/processing
-
-
-Within the svn repository, there is a already a configuration file available
-that we will use to create the training data.
-
-..
-    There is already a template configuration file available.
-    We will copy this file to another location and make our edits.
-
-    .. code-block:: bash
-
-        mkdir --parents $DNN_HOME/configs/processing/
-        cp $DNN_HOME/processing/configs/tutorial_dnn_reco/getting_started/create_training_data_01.yaml $DNN_HOME/configs/processing/
-
-Create the job files via:
-
-.. code-block:: bash
-
-    cd $DNN_HOME/processing
 
     # create job files (--help for more options)
-    python create_job_files.py configs/tutorial_dnn_reco/getting_started/create_training_data_01_py3-v4.1.1.yaml -d $DNN_HOME/training_data/
+    ic3_create_job_files $DNN_HOME/repositories/dnn_reco/configs/tutorial/create_training_data.yaml -d $DNN_HOME/training_data/
 
 This will write the executable job files and the configuration file that was used
 to the directory ``$DNN_HOME/training_data/processing``.
@@ -161,7 +145,7 @@ The output files will be written to ``$DNN_HOME/training_data/datasets``.
 You may also write DAGMan files if you pass the option ``--dagman``.
 Make sure to write the DAGMan files to condor scratch.
 If you created DAGMan files, you then start the DAGMan by executing the ``start_dagman.sh`` script.
-Alternatively, you can process the job files locally with the script ``process_local.py``.
+Alternatively, you can process the job files locally with the command ``ic3_process_local``.
 Check ``--help`` for options.
 To process a single file, you can also directly execute the shell script in a fresh shell:
 
@@ -171,17 +155,16 @@ To process a single file, you can also directly execute the shell script in a fr
     # environment. Redefine our $DNN_HOME variable.
     export DNN_HOME=/data/user/${USER}/DNN_tutorial
 
-    # process file number 0 (part of our training set)
-    $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/00000-00999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00000000.sh
+    # process file number 1 of dataset 22644 (part of our training set)
+    $DNN_HOME/training_data/processing/NuGen/22644/level2_dev/jobs/0000000-0000999/job_Level2_NuMu_NuGenCCNC.022644.000001.sh
 
-    # process file number 1000 (part of our validation set)
-    $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/jobs/01000-01999/job_11883_clsim-base-4.0.5.0.99_effDOMPulseData_00001000.sh
+    # process file number 0 of dataset 22644 (part of our validation set)
+    $DNN_HOME/training_data/processing/NuGen/22644/level2_dev/jobs/0000000-0000999/job_Level2_NuMu_NuGenCCNC.022644.000000.sh
 
 .. note::
     Make sure to open a fresh shell without loading an icecube environment to execute the job shell scripts. The shell scripts are set up such that they will load an icecube environment. Hence, if you already have
     one loaded in current shell, it will cause problems.
 
 To test the rest of the tutorial, it is enough to process one file
-from the training and validation set.
-However, the network will overfit on the training data which then only consists
-of about 700 events.
+from the training and validation set (run numbers ending with 0).
+However, the network will overfit on the training data due to the low number of available training events.

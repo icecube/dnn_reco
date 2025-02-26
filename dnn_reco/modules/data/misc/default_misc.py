@@ -27,7 +27,6 @@ All misc functions must have the following parameters and return values:
         The names of the misc variables.
 """
 
-from __future__ import division, print_function
 import h5py
 import pandas as pd
 import numpy as np

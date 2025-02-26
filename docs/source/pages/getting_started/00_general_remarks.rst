@@ -21,19 +21,24 @@ created during the installation steps (see :ref:`Installation and Requirements`)
 
 .. code-block:: bash
 
-    # Create environment variable if it doesn't already exist
+    # Redefine the environment variable
     export DNN_HOME=/data/user/${USER}/DNN_tutorial
 
-    # load icecube environment if not already loaded
-    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/setup.sh)
-    source /cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/metaprojects/combo/V01-01-01/env-shell.sh
+    # load icecube environment
+    eval $(/cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/setup.sh)
+    /cvmfs/icecube.opensciencegrid.org/py3-v4.3.0/RHEL_7_x86_64/metaprojects/icetray/v1.12.0/env-shell.sh
 
-    # set I3_BUILD and I3_SRC to correct directories if not set correctly
-    export I3_BUILD=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/RHEL_7_x86_64/metaprojects/combo/V01-01-01/
-    export I3_SRC=/cvmfs/icecube.opensciencegrid.org/py3-v4.1.1/metaprojects/combo/V01-01-01/
+Now that the icecube environment is loaded, we can activate our virtual environment.
 
-    # Activate virtual environment if not already activated
-    source ${DNN_HOME}/py3-v4.1.1_tensorflow2.3/bin/activate
+.. code-block:: bash
+
+    # activate python virtual environment
+    source ${DNN_HOME}/py3-v4.3.0_tensorflow2.14/bin/activate
+
+    # set CUDA environment variables
+    export CUDA_HOME=/data/user/mhuennefeld/software/cuda/cuda-11.8
+    export PATH=$PATH:${CUDA_HOME}/bin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64
 
 
 .. note::

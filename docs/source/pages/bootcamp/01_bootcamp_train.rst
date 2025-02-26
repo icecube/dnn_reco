@@ -221,7 +221,7 @@ To start training we run:
     CUDA_VISIBLE_DEVICES=0 python train_model.py $CONFIG_DIR/getting_started.yaml
 
 This will run for ``num_training_iterations`` many iterations or
- until we kill the process via ``ctrl + c``.
+until we kill the process via ``ctrl + c``.
 The current model is saved every ``save_frequency`` (default value: 500)
 iterations, so you may abort and restart at any time.
 

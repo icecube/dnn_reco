@@ -1,19 +1,25 @@
-from __future__ import division, print_function
 import os
 import tensorflow as tf
 import numpy as np
-import ruamel.yaml as yaml
 import click
 import timeit
 import glob
+import logging
 from copy import deepcopy
 
 from dnn_reco import misc
+from dnn_reco.settings import yaml
 from dnn_reco.modules.loss.utils import loss_utils
 
 
-class NNModel(object):
+class BaseNNModel(tf.Module):
     """Base class for neural network architecture
+
+    Derived classes must implement the __call__ method,
+    create all necessary variables in the __init__ method,
+    and set the following attributes in the __init__ method:
+        - self.vars_pred: a list of all variables used for the prediction
+        - self.vars_unc: a list of all variables used for the uncertainty
 
     Attributes
     ----------
@@ -35,8 +41,15 @@ class NNModel(object):
     """
 
     def __init__(
-        self, is_training, config, data_handler, data_transformer, sess=None
-    ):
+        self,
+        is_training,
+        config,
+        data_handler,
+        data_transformer,
+        dtype: str = "float32",
+        logger=None,
+        name: str | None = None,
+    ) -> None:
         """Initializes neural network base class.
 
         Parameters
@@ -49,19 +62,33 @@ class NNModel(object):
             An instance of the DataHandler class. The object is used to obtain
             meta data.
         data_transformer : :obj: of class DataTransformer
-                An instance of the DataTransformer class. The object is used to
-                transform data.
-        sess : tf.Session, optional
-            The tensorflow session to use. If None is given, the default
-            session will be used if it exists. Otherwise a new one will be
-            created
+            An instance of the DataTransformer class. The object is used to
+            transform data.
+        dtype : str, optional
+            The data type to use for the model, by default "float32".
+        logger : logging.logger, optional
+            A logging instance.
+        name : str, optional
+            The name of the model, by default "BaseNNModel".
         """
+        if name is None:
+            name = self.__class__.__name__
+        tf.Module.__init__(self, name=name)
+
+        self.dtype = dtype
+        self._logger = logger or logging.getLogger(
+            misc.get_full_class_string_of_object(self)
+        )
+
         self._model_is_compiled = False
-        self._step_offset = 0
         self.is_training = is_training
         self.config = dict(deepcopy(config))
         self.data_handler = data_handler
         self.data_transformer = data_transformer
+        self.vars_pred = None
+        self.vars_unc = None
+
+        self.shared_objects = {}
 
         if self.is_training:
             # create necessary directories
@@ -70,44 +97,19 @@ class NNModel(object):
             # create necessary variables to save training config files
             self._setup_training_config_saver()
 
-        self.shared_objects = {}
+            # create summary writers
+            self._train_writer = tf.summary.create_file_writer(
+                os.path.join(self.config["log_path"], "train")
+            )
+            self._val_writer = tf.summary.create_file_writer(
+                os.path.join(self.config["log_path"], "val")
+            )
 
-        # create tensorflow placeholders for input data
-        self._setup_placeholders()
+        # create label weights and non zero mask
+        self._create_label_weights()
 
-        # initialize label weights and non zero mask
-        self._intialize_label_weights()
-
-        # build NN architecture
-        self._build_model()
-
-        # get or create new default session
-        if sess is None:
-            sess = tf.compat.v1.get_default_session()
-            if sess is None:
-                if "tf_parallelism_threads" in self.config:
-                    n_cpus = self.config["tf_parallelism_threads"]
-                    sess = tf.compat.v1.Session(
-                        config=tf.compat.v1.ConfigProto(
-                            gpu_options=tf.compat.v1.GPUOptions(
-                                allow_growth=True
-                            ),
-                            device_count={"GPU": 1},
-                            intra_op_parallelism_threads=n_cpus,
-                            inter_op_parallelism_threads=n_cpus,
-                        )
-                    )
-                else:
-                    sess = tf.compat.v1.Session(
-                        config=tf.compat.v1.ConfigProto(
-                            gpu_options=tf.compat.v1.GPUOptions(
-                                allow_growth=True
-                            ),
-                            device_count={"GPU": 1},
-                        )
-                    )
-        self.sess = sess
-        tf.compat.v1.set_random_seed(self.config["tf_random_seed"])
+        # create variables necessary for tukey loss
+        self._create_tukey_vars()
 
     def _setup_directories(self):
         """Creates necessary directories"""
@@ -141,8 +143,7 @@ class NNModel(object):
         # Load training iterations dict
         if os.path.isfile(self._training_steps_file):
             with open(self._training_steps_file, "r") as stream:
-                yaml_loader = yaml.YAML(typ="safe", pure=True)
-                self._training_iterations_dict = yaml_loader.load(stream)
+                self._training_iterations_dict = yaml.yaml_loader.load(stream)
         else:
             misc.print_warning(
                 "Did not find {!r}. Creating new one".format(
@@ -177,118 +178,8 @@ class NNModel(object):
             "config_training_{:04d}.yaml".format(self._training_step),
         )
 
-    def _setup_placeholders(self):
-        """Sets up placeholders for input data."""
-        # define placeholders for keep probability for dropout
-        if "keep_probability_list" in self.config:
-            keep_prob_list = [
-                tf.compat.v1.placeholder(
-                    self.config["tf_float_precision"],
-                    name="keep_prob_{:0.2f}".format(i),
-                )
-                for i in self.config["keep_probability_list"]
-            ]
-            self.shared_objects["keep_prob_list"] = keep_prob_list
-
-        # IC78: main IceCube array
-        self.shared_objects["x_ic78"] = tf.compat.v1.placeholder(
-            self.config["tf_float_precision"],
-            shape=[None, 10, 10, 60, self.data_handler.num_bins],
-            name="x_ic78",
-        )
-        self.shared_objects["x_ic78_trafo"] = self.data_transformer.transform(
-            self.shared_objects["x_ic78"], data_type="ic78"
-        )
-
-        # DeepCore
-        self.shared_objects["x_deepcore"] = tf.compat.v1.placeholder(
-            self.config["tf_float_precision"],
-            shape=[None, 8, 60, self.data_handler.num_bins],
-            name="x_deepcore",
-        )
-        self.shared_objects["x_deepcore_trafo"] = (
-            self.data_transformer.transform(
-                self.shared_objects["x_deepcore"], data_type="deepcore"
-            )
-        )
-
-        # labels
-        self.shared_objects["y_true"] = tf.compat.v1.placeholder(
-            self.config["tf_float_precision"],
-            shape=[None] + self.data_handler.label_shape,
-            name="y_true",
-        )
-        self.shared_objects["y_true_trafo"] = self.data_transformer.transform(
-            self.shared_objects["y_true"], data_type="label"
-        )
-
-        # misc data
-        if self.data_handler.misc_shape is not None:
-            self.shared_objects["x_misc"] = tf.compat.v1.placeholder(
-                self.config["tf_float_precision"],
-                shape=[None] + self.data_handler.misc_shape,
-                name="x_misc",
-            )
-            self.shared_objects["x_misc_trafo"] = (
-                self.data_transformer.transform(
-                    self.shared_objects["x_misc"], data_type="misc"
-                )
-            )
-
-    def _build_model(self):
-        """Build neural network architecture."""
-        class_string = "dnn_reco.modules.models.{}.{}".format(
-            self.config["model_file"],
-            self.config["model_name"],
-        )
-        nn_model = misc.load_class(class_string)
-
-        print("\n----------------------")
-        print("Now Building Model ...")
-        print("----------------------\n")
-
-        y_pred_trafo, y_unc_trafo, model_vars_pred, model_vars_unc = nn_model(
-            is_training=self.is_training,
-            config=self.config,
-            data_handler=self.data_handler,
-            data_transformer=self.data_transformer,
-            shared_objects=self.shared_objects,
-        )
-
-        # transform back
-        y_pred = self.data_transformer.inverse_transform(
-            y_pred_trafo, data_type="label"
-        )
-        y_unc = self.data_transformer.inverse_transform(
-            y_unc_trafo, data_type="label", bias_correction=False
-        )
-
-        self.shared_objects["y_pred_trafo"] = y_pred_trafo
-        self.shared_objects["y_unc_trafo"] = y_unc_trafo
-        self.shared_objects["y_pred"] = y_pred
-        self.shared_objects["y_unc"] = y_unc
-        self.shared_objects["model_vars_pred"] = model_vars_pred
-        self.shared_objects["model_vars_unc"] = model_vars_unc
-        self.shared_objects["model_vars"] = model_vars_pred + model_vars_unc
-
-        y_pred_list = tf.unstack(self.shared_objects["y_pred"], axis=1)
-        for i, name in enumerate(self.data_handler.label_names):
-            tf.compat.v1.summary.histogram("y_pred_" + name, y_pred_list[i])
-
-        # count number of trainable parameters
-        print(
-            "Number of free parameters in NN model: {}\n".format(
-                self.count_parameters(self.shared_objects["model_vars"])
-            )
-        )
-
-        # create saver
-        self.saver = tf.compat.v1.train.Saver(
-            self.shared_objects["model_vars"]
-        )
-
-    def _intialize_label_weights(self):
-        """Initialize label weights and non zero mask"""
+    def _create_label_weights(self):
+        """Create label weights and non zero mask"""
         label_weight_config = np.ones(self.data_handler.label_shape)
         label_weight_config *= self.config["label_weight_initialization"]
 
@@ -300,6 +191,36 @@ class NNModel(object):
         self.shared_objects["label_weight_config"] = label_weight_config
         self.shared_objects["non_zero_mask"] = label_weight_config > 0
 
+        if self.config["label_update_weights"]:
+            label_weights = tf.Variable(
+                self.shared_objects["label_weight_config"],
+                name="label_weights",
+                trainable=False,
+                dtype=self.dtype,
+            )
+        else:
+            label_weights = tf.constant(
+                self.shared_objects["label_weight_config"],
+                shape=self.data_handler.label_shape,
+                dtype=self.dtype,
+            )
+
+        self.shared_objects["label_weights"] = label_weights
+
+        if self.is_training:
+            misc.print_warning(
+                "Total Benchmark should be: {:3.3f}".format(
+                    sum(self.shared_objects["label_weight_config"])
+                )
+            )
+
+    def _update_tukey_vars(self, new_values, tukey_decay=0.001):
+        """Update tukey variables"""
+        self.shared_objects["median_abs_dev"].assign(
+            self.shared_objects["median_abs_dev"] * (1.0 - tukey_decay)
+            + new_values * tukey_decay
+        )
+
     def _create_tukey_vars(self):
         """Create variables required for tukey loss"""
         if self.config["label_scale_tukey"]:
@@ -307,161 +228,348 @@ class NNModel(object):
                 np.ones(shape=self.data_handler.label_shape) * 0.67449,
                 name="median_abs_dev",
                 trainable=False,
-                dtype=self.config["tf_float_precision"],
-            )
-
-            self.shared_objects["new_median_abs_dev_values"] = (
-                tf.compat.v1.placeholder(
-                    self.config["tf_float_precision"],
-                    shape=self.data_handler.label_shape,
-                    name="new_median_abs_dev_values",
-                )
-            )
-
-            tukey_decay = 0.001
-            self.shared_objects["assign_new_median_abs_dev_values"] = (
-                median_abs_dev.assign(
-                    median_abs_dev * (1.0 - tukey_decay)
-                    + self.shared_objects["new_median_abs_dev_values"]
-                    * tukey_decay
-                )
+                dtype=self.dtype,
             )
 
         else:
             median_abs_dev = tf.constant(
                 np.ones(shape=self.data_handler.label_shape) * 0.67449,
                 shape=self.data_handler.label_shape,
-                dtype=self.config["tf_float_precision"],
+                dtype=self.dtype,
             )
 
         self.shared_objects["median_abs_dev"] = median_abs_dev
 
-    def _create_label_weights(self):
-        """Create label weights and update operation"""
-        if self.config["label_update_weights"]:
-            label_weights = tf.Variable(
-                self.shared_objects["label_weight_config"],
-                name="label_weights",
-                trainable=False,
-                dtype=self.config["tf_float_precision"],
-            )
+    def _update_label_weights(
+        self,
+        new_values,
+        label_weight_decay=0.5,
+        summary_writer=None,
+    ):
+        """Update label weights"""
+        label_weights = self.shared_objects["label_weights"]
+        label_weights.assign(
+            label_weights * (1.0 - label_weight_decay)
+            + new_values * label_weight_decay
+        )
 
-            self.shared_objects["new_label_weight_values"] = (
-                tf.compat.v1.placeholder(
-                    self.config["tf_float_precision"],
-                    shape=self.data_handler.label_shape,
-                    name="new_label_weight_values",
+        if summary_writer is not None:
+            with summary_writer.as_default():
+                tf.summary.histogram(
+                    "label_weights", label_weights, step=self.step
                 )
-            )
-
-            label_weight_decay = 0.5
-            self.shared_objects["assign_new_label_weights"] = (
-                label_weights.assign(
-                    label_weights * (1.0 - label_weight_decay)
-                    + self.shared_objects["new_label_weight_values"]
-                    * label_weight_decay
+                tf.summary.scalar(
+                    "label_weights_benchmark",
+                    tf.reduce_sum(label_weights),
+                    step=self.step,
                 )
-            )
 
-            # calculate MSE for each label
-            y_diff_trafo = loss_utils.get_y_diff_trafo(
-                config=self.config,
-                data_handler=self.data_handler,
-                data_transformer=self.data_transformer,
-                shared_objects=self.shared_objects,
-            )
+    def _get_event_weights(self, shared_objects):
+        """Compute event weights"""
+        event_weights = None
 
-            self.shared_objects["y_diff_trafo"] = y_diff_trafo
-            self.shared_objects["mse_values_trafo"] = tf.reduce_mean(
-                input_tensor=tf.square(y_diff_trafo), axis=0
-            )
-
-        else:
-            label_weights = tf.constant(
-                self.shared_objects["label_weight_config"],
-                shape=self.data_handler.label_shape,
-                dtype=self.config["tf_float_precision"],
-            )
-
-        self.shared_objects["label_weights"] = label_weights
-        self.shared_objects["label_weights_benchmark"] = tf.reduce_sum(
-            input_tensor=label_weights
-        )
-
-        tf.compat.v1.summary.histogram("label_weights", label_weights)
-        tf.compat.v1.summary.scalar(
-            "label_weights_benchmark",
-            self.shared_objects["label_weights_benchmark"],
-        )
-
-        misc.print_warning(
-            "Total Benchmark should be: {:3.3f}".format(
-                sum(self.shared_objects["label_weight_config"])
-            )
-        )
-
-    def _create_event_weights(self):
-        """Create event weights"""
         if (
-            "event_weight_file" in self.config
-            and self.config["event_weight_file"] is not None
+            "event_weight_class" in self.config
+            and self.config["event_weight_class"] is not None
         ):
 
             # get event weight function
-            class_string = "dnn_reco.modules.data.event_weights.{}.{}".format(
-                self.config["event_weight_file"],
-                self.config["event_weight_name"],
+            event_weight_function = misc.load_class(
+                self.config["event_weight_class"],
             )
-            event_weight_function = misc.load_class(class_string)
 
             # compute loss
-            self.shared_objects["event_weights"] = event_weight_function(
+            event_weights = event_weight_function(
                 config=self.config,
                 data_handler=self.data_handler,
                 data_transformer=self.data_transformer,
-                shared_objects=self.shared_objects,
+                shared_objects=shared_objects,
             )
 
-            shape = self.shared_objects["event_weights"].get_shape().as_list()
+            shape = event_weights.get_shape().as_list()
             assert (
                 len(shape) == 2 and shape[1] == 1
             ), "Expected shape [-1, 1] but got {!r}".format(shape)
+        return event_weights
 
-    def _get_optimizers_and_loss(self):
-        """Get optimizers and loss terms as defined in config.
+    @tf.function
+    def _compile_optimizers(self):
+        """Compile the optimizer by running it with zero gradients."""
+        for optimizer in self.optimizers.values():
+            zero_grads = [tf.zeros_like(w) for w in self.trainable_variables]
+            optimizer.apply_gradients(
+                zip(zero_grads, self.trainable_variables)
+            )
 
-        Raises
-        ------
-        ValueError
-            Description
-        """
+    def _create_optimizers(self):
+        """Create optimizers"""
         optimizer_dict = dict(self.config["model_optimizer_dict"])
 
         # create empty list to hold tensorflow optimizer operations
-        optimizer_ops = []
-
-        # create empty dictionary to hold loss values
-        self.shared_objects["label_loss_dict"] = {}
+        self.optimizers = {}
 
         # create each optimizer
         for name, opt_config in sorted(optimizer_dict.items()):
 
-            # sanity check: make sure loss file and name have same length
-            if isinstance(opt_config["loss_file"], str):
-                assert isinstance(opt_config["loss_name"], str)
-                opt_config["loss_file"] = [opt_config["loss_file"]]
-                opt_config["loss_name"] = [opt_config["loss_name"]]
+            optimizer_settings = dict(opt_config["optimizer_settings"])
 
-            assert len(opt_config["loss_file"]) == len(opt_config["loss_name"])
+            # create learning rate schedule if learning rate is a dict
+            if "learning_rate" in optimizer_settings:
+                if isinstance(optimizer_settings["learning_rate"], dict):
+
+                    # assume that the learning rate dictionary defines a schedule
+                    # In this case the dictionary must have the following keys:
+                    #   full_class_string: str
+                    #       The full class string of the scheduler class to use.
+                    #   settings: dict
+                    #       keyword arguments that are passed on to the scheduler
+                    #       class.
+                    lr_cfg = optimizer_settings.pop("learning_rate")
+                    scheduler_class = misc.load_class(
+                        lr_cfg["full_class_string"]
+                    )
+                    scheduler = scheduler_class(**lr_cfg["settings"])
+                    optimizer_settings["learning_rate"] = scheduler
+
+            self.optimizers[name] = getattr(
+                tf.optimizers, opt_config["optimizer"]
+            )(**optimizer_settings)
+
+        # run optimizers with zero gradients to create optimizer variables
+        self._compile_optimizers()
+
+    @tf.function(reduce_retracing=True)
+    def __call__(self, data_batch_dict, is_training=True, summary_writer=None):
+        """Forward pass through the model.
+
+        This method is to be implemented by derived class.
+
+        Parameters
+        ----------
+        data_batch_dict : dict
+            A dictionary containing the input data.
+            This includes:
+                x_ic78, x_deepcore, y_true, x_misc,
+                and the transformed versions of these.
+        is_training : bool, optional
+            True if model is in training mode, false if in inference mode.
+        summary_writer : tf.summary.SummaryWriter, optional
+            A summary writer to write summaries to.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the model predictions.
+            This must at least contain the following:
+                "y_pred_trafo": tf.Tensor
+                    The (transformed) predicted values, i.e. in
+                    normalized space.
+                "y_unc_pred_trafo": tf.Tensor
+                    The (transformed) predicted uncertainties, i.e. in
+                    normalized space.
+        """
+        raise NotImplementedError
+
+    @tf.function(reduce_retracing=True)
+    def get_tensors(self, data_batch, is_training=True, summary_writer=None):
+        """Get result tensors from the model.
+
+        Performs a forward pass through the model and adds
+        additional auxiliary tensors to the result dictionary.
+
+        Parameters
+        ----------
+        data_batch : list
+            A list containing the input data.
+            This is typically: x_ic78, x_deepcore, labels, misc_data
+        is_training : bool, optional
+            True if model is in training mode, false if in inference mode.
+        summary_writer : tf.summary.SummaryWriter, optional
+            A summary writer to write summaries to.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the model predictions and
+            auxiliary tensors.
+        """
+        print("Tracing get_tensors")
+        x_ic78, x_deepcore, labels, misc_data = data_batch
+
+        x_ic78 = tf.convert_to_tensor(x_ic78, dtype=self.dtype)
+        x_deepcore = tf.convert_to_tensor(x_deepcore, dtype=self.dtype)
+        labels = tf.convert_to_tensor(labels, dtype=self.dtype)
+        misc_data = tf.convert_to_tensor(misc_data, dtype=self)
+
+        data_batch_dict = {
+            "x_ic78": x_ic78,
+            "x_deepcore": x_deepcore,
+            "y_true": labels,
+            "x_misc": misc_data,
+            "x_ic78_trafo": self.data_transformer.transform(
+                x_ic78, data_type="ic78"
+            ),
+            "x_deepcore_trafo": self.data_transformer.transform(
+                x_deepcore, data_type="deepcore"
+            ),
+            "y_true_trafo": self.data_transformer.transform(
+                labels, data_type="label"
+            ),
+            "x_misc_trafo": self.data_transformer.transform(
+                misc_data, data_type="misc"
+            ),
+        }
+        result_tensors = self(data_batch_dict, is_training=is_training)
+
+        # sanity check to verify contents of the result_tensors
+        must_keys = ["y_pred_trafo", "y_unc_pred_trafo"]
+        for key in must_keys:
+            if key not in result_tensors:
+                raise ValueError(f"Key '{key}' not found in result_tensors.")
+
+        avoid_keys = [
+            "x_ic78",
+            "x_deepcore",
+            "y_true",
+            "x_misc",
+            "x_ic78_trafo",
+            "x_deepcore_trafo",
+            "y_true_trafo",
+            "x_misc_trafo",
+            "y_pred",
+            "y_unc_pred",
+            "event_weights",
+            "y_diff_trafo",
+            "mse_values_trafo",
+            "rmse_values_trafo",
+            "label_weight_config",
+            "non_zero_mask",
+            "label_weights",
+            "median_abs_dev",
+            "label_loss_dict",
+            "mse_values",
+            "rmse_values",
+            "y_diff",
+        ]
+        for key in avoid_keys:
+            if key in result_tensors:
+                raise ValueError(
+                    f"Key '{key}' is not allowed in result_tensors."
+                )
+
+        # add data_batch_dict to result_tensors
+        result_tensors.update(data_batch_dict)
+
+        # add event weights
+        event_weights = self._get_event_weights(data_batch_dict)
+        if event_weights is not None:
+            result_tensors["event_weights"] = event_weights
+
+        # compute auxiliary tensors
+        result_tensors["y_diff_trafo"] = loss_utils.get_y_diff_trafo(
+            config=self.config,
+            data_handler=self.data_handler,
+            data_transformer=self.data_transformer,
+            shared_objects=result_tensors,
+        )
+        result_tensors["mse_values_trafo"] = tf.reduce_mean(
+            result_tensors["y_diff_trafo"] ** 2,
+            axis=0,
+        )
+        result_tensors["rmse_values_trafo"] = tf.sqrt(
+            result_tensors["mse_values_trafo"]
+        )
+
+        # transform back
+        result_tensors["y_pred"] = self.data_transformer.inverse_transform(
+            result_tensors["y_pred_trafo"], data_type="label"
+        )
+        result_tensors["y_unc"] = self.data_transformer.inverse_transform(
+            result_tensors["y_unc_pred_trafo"],
+            data_type="label",
+            bias_correction=False,
+        )
+
+        # calculate RMSE of untransformed values
+        result_tensors["y_diff"] = (
+            result_tensors["y_pred"] - result_tensors["y_true"]
+        )
+        result_tensors["mse_values"] = tf.reduce_mean(
+            result_tensors["y_diff"] ** 2, axis=0
+        )
+        result_tensors["rmse_values"] = tf.sqrt(result_tensors["mse_values"])
+
+        if summary_writer is not None:
+            y_pred_list = tf.unstack(result_tensors["y_pred"], axis=1)
+            for i, name in enumerate(self.data_handler.label_names):
+                with summary_writer.as_default():
+                    tf.summary.histogram(
+                        "y_pred_" + name, y_pred_list[i], step=self.step
+                    )
+
+            # add the RMSE of each label as a tf.summary.scalar
+            for i, name in enumerate(self.data_handler.label_names):
+                tf.summary.scalar(
+                    "RMSE_" + name,
+                    result_tensors["rmse_values"][i],
+                    step=self.step,
+                )
+
+            tf.summary.scalar(
+                "Benchmark",
+                tf.reduce_sum(
+                    input_tensor=result_tensors["rmse_values_trafo"], axis=0
+                ),
+                step=self.step,
+            )
+
+        return result_tensors
+
+    @tf.function(reduce_retracing=True)
+    def get_loss(self, data_batch, is_training=True, summary_writer=None):
+        """Get optimizers and loss terms as defined in config.
+
+        Parameters
+        ----------
+        data_batch : list
+            A list containing the input data, containing:
+                x_ic78, x_deepcore, labels, misc_data
+        is_training : bool, optional
+            True if model is in training mode, false if in inference mode.
+        summary_writer : tf.summary.SummaryWriter, optional
+            A summary writer to write summaries to.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the model predictions and
+            auxiliary tensors.
+        """
+        print("Tracing get_loss")
+        optimizer_dict = dict(self.config["model_optimizer_dict"])
+
+        # run forward pass through the model
+        result_tensors = self.get_tensors(
+            data_batch=data_batch,
+            is_training=is_training,
+            summary_writer=summary_writer,
+        )
+        shared_objects = dict(self.shared_objects)
+        shared_objects.update(result_tensors)
+        shared_objects["label_loss_dict"] = {}
+
+        # collect all defined loss functions
+        for name, opt_config in sorted(optimizer_dict.items()):
+
+            # sanity check: make sure loss file and name have same length
+            if isinstance(opt_config["loss_class"], str):
+                opt_config["loss_class"] = [opt_config["loss_class"]]
 
             # aggregate over all defined loss functions
             label_loss = None
-            for file, name in zip(
-                opt_config["loss_file"], opt_config["loss_name"]
-            ):
+            for class_string in opt_config["loss_class"]:
 
                 # get loss function
-                class_string = "dnn_reco.modules.loss.{}.{}".format(file, name)
                 loss_function = misc.load_class(class_string)
 
                 # compute loss
@@ -469,7 +577,7 @@ class NNModel(object):
                     config=self.config,
                     data_handler=self.data_handler,
                     data_transformer=self.data_transformer,
-                    shared_objects=self.shared_objects,
+                    shared_objects=shared_objects,
                 )
 
                 # sanity check: make sure loss has expected shape
@@ -492,44 +600,16 @@ class NNModel(object):
             # use nested where trick to avoid NaNs:
             # https://stackoverflow.com/questions/33712178/tensorflow-nan-bug
             label_loss_safe = tf.where(
-                self.shared_objects["non_zero_mask"],
+                shared_objects["non_zero_mask"],
                 label_loss,
                 tf.zeros_like(label_loss),
             )
             weighted_label_loss = tf.where(
-                self.shared_objects["non_zero_mask"],
-                label_loss_safe * self.shared_objects["label_weights"],
+                shared_objects["non_zero_mask"],
+                label_loss_safe * shared_objects["label_weights"],
                 tf.zeros_like(label_loss),
             )
-            weighted_loss_sum = tf.reduce_sum(input_tensor=weighted_label_loss)
-
-            # create learning rate schedule if learning rate is a dict
-            optimizer_settings = dict(opt_config["optimizer_settings"])
-            if "learning_rate" in optimizer_settings:
-                if isinstance(optimizer_settings["learning_rate"], dict):
-
-                    # assume that the learning rate dictionary defines a
-                    # schedule of learning rates
-                    # In this case the dictionary must have the following keys:
-                    #   full_class_string: str
-                    #       The full class string of the scheduler class to use
-                    #   settings: dict
-                    #       keyword arguments that are passed on to the
-                    #       scheduler class.
-                    lr_cfg = optimizer_settings.pop("learning_rate")
-                    scheduler_class = misc.load_class(
-                        lr_cfg["full_class_string"]
-                    )
-                    scheduler = scheduler_class(**lr_cfg["settings"])
-                    optimizer_settings["learning_rate"] = scheduler
-
-            # get optimizer
-            # check for old-style (tf < 2) optimizers in tf.train
-            try:
-                optimizer_cls = getattr(tf.train, opt_config["optimizer"])
-            except AttributeError:
-                optimizer_cls = getattr(tf.optimizers, opt_config["optimizer"])
-            optimizer = optimizer_cls(**optimizer_settings)
+            weighted_loss_sum = tf.reduce_sum(weighted_label_loss)
 
             # get variable list
             if isinstance(opt_config["vars"], str):
@@ -537,14 +617,13 @@ class NNModel(object):
 
             var_list = []
             for var_name in opt_config["vars"]:
-                var_list.extend(self.shared_objects["model_vars_" + var_name])
+                var_list.extend(getattr(self, "vars_" + var_name))
 
             # apply regularization
             if (
                 opt_config["l1_regularization"] > 0.0
                 or opt_config["l2_regularization"] > 0.0
             ):
-
                 reg_loss = 0.0
 
                 # apply regularization
@@ -564,118 +643,211 @@ class NNModel(object):
                 total_loss = weighted_loss_sum
 
             # logging
-            self.shared_objects["label_loss_dict"].update(
+            shared_objects["label_loss_dict"].update(
                 {
                     "loss_label_" + name: weighted_label_loss,
                     "loss_sum_" + name: weighted_loss_sum,
                     "loss_sum_total_" + name: total_loss,
                 }
             )
+            if summary_writer is not None:
+                with summary_writer.as_default():
+                    tf.summary.histogram(
+                        "loss_label_" + name,
+                        weighted_label_loss,
+                        step=self.step,
+                    )
+                    tf.summary.scalar(
+                        "loss_sum_" + name, weighted_loss_sum, step=self.step
+                    )
+                    tf.summary.scalar(
+                        "loss_sum_total_" + name, total_loss, step=self.step
+                    )
 
-            tf.compat.v1.summary.histogram(
-                "loss_label_" + name, weighted_label_loss
+        return shared_objects
+
+    @tf.function(reduce_retracing=True)
+    def perform_training_step(self, data_batch, summary_writer=None):
+        """Perform a single training step.
+
+        Parameters
+        ----------
+        data_batch : list
+            A list containing the input data.
+            This is typically: x_ic78, x_deepcore, labels, misc_data
+        summary_writer : tf.summary.SummaryWriter, optional
+            A summary writer to write summaries to.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the model predictions and
+            auxiliary tensors.
+        """
+        print("Tracing perform_training_step")
+        with tf.GradientTape(persistent=True) as tape:
+            shared_objects = self.get_loss(
+                data_batch=data_batch,
+                is_training=True,
+                summary_writer=summary_writer,
             )
-            tf.compat.v1.summary.scalar("loss_sum_" + name, weighted_loss_sum)
-            tf.compat.v1.summary.scalar("loss_sum_total_" + name, total_loss)
 
-            # get gradients
-            # compatibility mode for old and new tensorflow versions
-            try:
-                gvs = optimizer.compute_gradients(
-                    total_loss, var_list=var_list
-                )
-            except AttributeError:
-                gradients = tf.gradients(total_loss, var_list)
-                gvs = zip(gradients, var_list)
+        optimizer_dict = dict(self.config["model_optimizer_dict"])
+        for name, opt_config in sorted(optimizer_dict.items()):
+
+            # get variable list
+            if isinstance(opt_config["vars"], str):
+                opt_config["vars"] = [opt_config["vars"]]
+
+            var_list = []
+            for var_name in opt_config["vars"]:
+                var_list.extend(getattr(self, "vars_" + var_name))
+
+            gradients = tape.gradient(
+                shared_objects["label_loss_dict"]["loss_sum_total_" + name],
+                var_list,
+            )
 
             # remove nans in gradients and replace these with zeros
-            if "remove_nan_gradients" in opt_config:
-                remove_nan_gradients = opt_config["remove_nan_gradients"]
-            else:
-                remove_nan_gradients = False
-            if remove_nan_gradients:
-                gvs = [
-                    (
-                        tf.where(
-                            tf.math.is_nan(grad), tf.zeros_like(grad), grad
-                        ),
-                        var,
-                    )
-                    for grad, var in gvs
-                    if grad is not None
+            if opt_config["remove_nan_gradients"]:
+                gradients = [
+                    tf.where(tf.math.is_nan(grad), tf.zeros_like(grad), grad)
+                    for grad in gradients
                 ]
 
-            if "clip_gradients_value" in opt_config:
-                clip_gradients_value = opt_config["clip_gradients_value"]
-            else:
-                clip_gradients_value = None
-            if clip_gradients_value is not None:
-                gradients, variables = zip(*gvs)
+            if opt_config["clip_gradients_value"] is not None:
                 gradients, _ = tf.clip_by_global_norm(
-                    gradients, clip_gradients_value
+                    gradients, opt_config["clip_gradients_value"]
                 )
-                capped_gvs = zip(gradients, variables)
-            else:
-                capped_gvs = gvs
-            optimizer_ops.append(optimizer.apply_gradients(capped_gvs))
 
-        self.shared_objects["optimizer_ops"] = optimizer_ops
+            # Ensure finite values
+            asserts = []
+            for gradient in gradients:
+                assert_finite = tf.Assert(
+                    tf.math.is_finite(tf.reduce_mean(gradient)),
+                    [
+                        tf.reduce_min(gradient),
+                        tf.reduce_mean(gradient),
+                        tf.reduce_max(gradient),
+                    ],
+                )
+                asserts.append(assert_finite)
+            with tf.control_dependencies(asserts):
+                self.optimizers[name].apply_gradients(zip(gradients, var_list))
 
-    def _merge_tensorboard_summaries(self):
-        """Merges summary variables for TensorBoard visualization and logging."""
-        self._merged_summary = tf.compat.v1.summary.merge_all()
-        self._train_writer = tf.compat.v1.summary.FileWriter(
-            self.config["log_path"] + "_train"
-        )
-        self._val_writer = tf.compat.v1.summary.FileWriter(
-            self.config["log_path"] + "_val"
-        )
-
-    def _initialize_and_finalize_model(self):
-        """Initialize and finalize model weights"""
-
-        # initialize variables
-        self.sess.run(tf.compat.v1.global_variables_initializer())
-
-        # finalize model: forbid any changes to computational graph
-        tf.compat.v1.get_default_graph().finalize()
+        return shared_objects
 
     def compile(self):
+        """Compile the model and create optimizers."""
+
+        checkpoint_vars = {"model": self.variables}
+
+        # create step counter for this object
+        self.step = tf.Variable(
+            0, trainable=False, dtype=tf.int64, name=self.name + "_step"
+        )
+        checkpoint_vars["step"] = self.step
+
+        # check that all trainable variables are set
+        trainable_vars = set([v.ref() for v in self.trainable_variables])
+        vars_model = set([v.ref() for v in self.vars_pred]) | set(
+            [v.ref() for v in self.vars_unc]
+        )
+        if trainable_vars != vars_model:
+            raise ValueError(
+                "Trainable variables do not match model variables."
+            )
 
         if self.is_training:
-
-            # create variables necessary for tukey loss
-            self._create_tukey_vars()
-
-            # create label_weights and assign op
-            self._create_label_weights()
-
-            self._create_event_weights()
-
-            self._get_optimizers_and_loss()
-
-            self._merge_tensorboard_summaries()
-
-        self._initialize_and_finalize_model()
+            self._create_optimizers()
+            for name, optimizer in self.optimizers.items():
+                assert name not in checkpoint_vars, name
+                checkpoint_vars[name] = optimizer
 
         self._model_is_compiled = True
 
-        # tukey scaling
-        # med_abs_dev
-        # update importance
-
-    def restore(self):
-        """Restore model weights from checkpoints"""
-        latest_checkpoint = tf.train.latest_checkpoint(
-            os.path.dirname(self.config["model_checkpoint_path"])
+        # create a tensorflow checkpoint object and keep track of variables
+        self._checkpoint = tf.train.Checkpoint(**checkpoint_vars)
+        self._checkpoint_manager = tf.train.CheckpointManager(
+            self._checkpoint,
+            self.config["model_checkpoint_path"],
+            **self.config["model_checkpoint_manager_kwargs"],
         )
+
+        num_vars, num_total_vars = self._count_number_of_variables()
+        msg = f"\nNumber of Model Variables for {self.name}:\n"
+        msg += f"\tFree: {num_vars}\n"
+        msg += f"\tTotal: {num_total_vars}"
+        self._logger.info(msg)
+
+    def restore(self, is_training=True):
+        """Restore model weights from checkpoints"""
+        latest_checkpoint = self._checkpoint_manager.latest_checkpoint
         if latest_checkpoint is None:
             misc.print_warning(
                 "Could not find previous checkpoint. Creating new one!"
             )
         else:
-            self._step_offset = int(latest_checkpoint.split("-")[-1])
-            self.saver.restore(sess=self.sess, save_path=latest_checkpoint)
+            self._logger.info(
+                f"[Model] Loading checkpoint: {latest_checkpoint}"
+            )
+            status = self._checkpoint.restore(latest_checkpoint)
+            if is_training:
+                status.assert_consumed()
+            else:
+                status.expect_partial()
+
+    def predict(
+        self, x_ic78, x_deepcore, transformed=False, is_training=False
+    ):
+        """Reconstruct events.
+
+        Parameters
+        ----------
+        x_ic78 : float, list or numpy.ndarray
+            The input data for the main IceCube array.
+        x_deepcore : float, list or numpy.ndarray
+            The input data for the DeepCore array.
+        transformed : bool, optional
+            If true, the normalized and transformed values are returned.
+        is_training : bool, optional
+            True if model is in training mode, false if in inference mode.
+
+        Returns
+        -------
+        np.ndarray, np.ndarray
+            The prediction and estimated uncertainties
+        """
+        data_batch_dict = {
+            "x_ic78": x_ic78,
+            "x_deepcore": x_deepcore,
+            "x_ic78_trafo": self.data_transformer.transform(
+                x_ic78, data_type="ic78"
+            ),
+            "x_deepcore_trafo": self.data_transformer.transform(
+                x_deepcore, data_type="deepcore"
+            ),
+        }
+        result_tensors = self(data_batch_dict, is_training=is_training)
+
+        if transformed:
+            return_values = (
+                result_tensors["y_pred_trafo"].numpy(),
+                result_tensors["y_unc_pred_trafo"].numpy(),
+            )
+        else:
+            # transform back
+            y_pred = self.data_transformer.inverse_transform(
+                result_tensors["y_pred_trafo"], data_type="label"
+            ).numpy()
+            y_unc = self.data_transformer.inverse_transform(
+                result_tensors["y_unc_pred_trafo"],
+                data_type="label",
+                bias_correction=False,
+            ).numpy()
+            return_values = (y_pred, y_unc)
+
+        return return_values
 
     def predict_batched(
         self, x_ic78, x_deepcore, max_size, transformed=False, *args, **kwargs
@@ -726,89 +898,6 @@ class NNModel(object):
 
         return y_pred, y_unc
 
-    def predict(self, x_ic78, x_deepcore, transformed=False, *args, **kwargs):
-        """Reconstruct events.
-
-        Parameters
-        ----------
-        x_ic78 : float, list or numpy.ndarray
-            The input data for the main IceCube array.
-        x_deepcore : float, list or numpy.ndarray
-            The input data for the DeepCore array.
-        transformed : bool, optional
-            If true, the normalized and transformed values are returned.
-        *args
-            Variable length argument list.
-        **kwargs
-            Arbitrary keyword arguments.
-
-        Returns
-        -------
-        np.ndarray, np.ndarray
-            The prediction and estimated uncertainties
-        """
-        feed_dict = {
-            self.shared_objects["x_ic78"]: x_ic78,
-            self.shared_objects["x_deepcore"]: x_deepcore,
-        }
-
-        # Fill in keep rates for dropout
-        for keep_prob in self.shared_objects["keep_prob_list"]:
-            feed_dict[keep_prob] = 1.0
-
-        if transformed:
-            vars_to_run = [
-                self.shared_objects["y_pred_trafo"],
-                self.shared_objects["y_unc_trafo"],
-            ]
-        else:
-            vars_to_run = [
-                self.shared_objects["y_pred"],
-                self.shared_objects["y_unc"],
-            ]
-
-        y_pred, y_unc = self.sess.run(vars_to_run, feed_dict=feed_dict)
-
-        return y_pred, y_unc
-
-    def _feed_placeholders(self, data_generator, is_validation):
-        """Feed placeholder variables with a batch from the data_generator
-
-        Parameters
-        ----------
-        data_generator : generator object
-            A python generator object which generates batches of input data.
-        is_validation : bool
-            Description
-
-        Returns
-        -------
-        dict
-            The feed dictionary for the tf.session.run call.
-        """
-        x_ic78, x_deepcore, labels, misc_data = next(data_generator)
-
-        feed_dict = {
-            self.shared_objects["x_ic78"]: x_ic78,
-            self.shared_objects["x_deepcore"]: x_deepcore,
-            self.shared_objects["y_true"]: labels,
-        }
-        if self.data_handler.misc_shape is not None:
-            feed_dict[self.shared_objects["x_misc"]] = misc_data
-
-        # Fill in keep rates for dropout
-        if is_validation:
-            for keep_prob in self.shared_objects["keep_prob_list"]:
-                feed_dict[keep_prob] = 1.0
-        else:
-            for keep_prob, prob in zip(
-                self.shared_objects["keep_prob_list"],
-                self.config["keep_probability_list"],
-            ):
-                feed_dict[keep_prob] = prob
-
-        return feed_dict
-
     def fit(
         self,
         num_training_iterations,
@@ -846,12 +935,6 @@ class NNModel(object):
                 "Model must be compiled prior to call of fit method"
             )
 
-        # training operations to run
-        train_ops = {
-            "optimizer_{:03d}".format(i): opt
-            for i, opt in enumerate(self.shared_objects["optimizer_ops"])
-        }
-
         # add parameters and op if label weights are to be updated
         if self.config["label_update_weights"]:
 
@@ -859,24 +942,18 @@ class NNModel(object):
             label_weight_mean = np.zeros(self.data_handler.label_shape)
             label_weight_M2 = np.zeros(self.data_handler.label_shape)
 
-            train_ops["mse_values_trafo"] = self.shared_objects[
-                "mse_values_trafo"
-            ]
-
-        # add op if tukey scaling is to be applied
-        if self.config["label_scale_tukey"]:
-            train_ops["y_diff_trafo"] = self.shared_objects["y_diff_trafo"]
-
         # ----------------
         # training loop
         # ----------------
         start_time = timeit.default_timer()
-        for i in range(num_training_iterations):
+        t_validation = start_time
+        num_training_steps = 0
+        for step_i in range(self.step.numpy(), num_training_iterations):
 
-            feed_dict = self._feed_placeholders(
-                train_data_generator, is_validation=False
+            # perform a training step
+            train_result = self.perform_training_step(
+                data_batch=next(train_data_generator),
             )
-            train_result = self.sess.run(train_ops, feed_dict=feed_dict)
 
             # -------------------------------------
             # calculate variables for tukey scaling
@@ -887,22 +964,13 @@ class NNModel(object):
                 )
 
                 # assign new label weight updates
-                feed_dict_assign = {
-                    self.shared_objects["new_median_abs_dev_values"]: np.clip(
-                        batch_median_abs_dev, 1e-6, float("inf")
-                    )
-                }
-
-                self.sess.run(
-                    self.shared_objects["assign_new_median_abs_dev_values"],
-                    feed_dict=feed_dict_assign,
-                )
+                self._update_tukey_vars(batch_median_abs_dev)
 
             # --------------------------------------------
             # calculate online variables for label weights
             # --------------------------------------------
             if self.config["label_update_weights"]:
-                mse_values_trafo = train_result["mse_values_trafo"]
+                mse_values_trafo = train_result["mse_values_trafo"].numpy()
                 mse_values_trafo[~self.shared_objects["non_zero_mask"]] = 1.0
 
                 if np.isfinite(mse_values_trafo).all():
@@ -926,7 +994,7 @@ class NNModel(object):
                     raise ValueError("FOUND NANS!")
 
                 # every n steps: update label_weights
-                if i % self.config["validation_frequency"] == 0:
+                if step_i % self.config["validation_frequency"] == 0:
                     new_weights = 1.0 / (
                         np.sqrt(np.abs(label_weight_mean) + 1e-6) + 1e-3
                     )
@@ -934,15 +1002,9 @@ class NNModel(object):
                     new_weights *= self.shared_objects["label_weight_config"]
 
                     # assign new label weight updates
-                    feed_dict_assign = {
-                        self.shared_objects[
-                            "new_label_weight_values"
-                        ]: new_weights
-                    }
-
-                    self.sess.run(
-                        self.shared_objects["assign_new_label_weights"],
-                        feed_dict=feed_dict_assign,
+                    self._update_label_weights(
+                        new_weights,
+                        summary_writer=self._train_writer,
                     )
 
                     # reset values
@@ -953,48 +1015,57 @@ class NNModel(object):
             # ----------------
             # validate performance
             # ----------------
-            if i % self.config["validation_frequency"] == 0:
+            if step_i % self.config["validation_frequency"] == 0:
+                delta_t = timeit.default_timer() - t_validation
+                t_step = delta_t / self.config["validation_frequency"]
+                t_total = timeit.default_timer() - start_time
+                t_validation = timeit.default_timer()
 
-                updated_weights = self.sess.run(
+                updated_weights = np.array(
                     self.shared_objects["label_weights"]
                 )
 
-                eval_dict = {
-                    "merged_summary": self._merged_summary,
-                    "weights": self.shared_objects["label_weights_benchmark"],
-                    "rmse_trafo": self.shared_objects["rmse_values_trafo"],
-                    "y_pred": self.shared_objects["y_pred"],
-                    "y_unc": self.shared_objects["y_unc"],
-                    "y_pred_trafo": self.shared_objects["y_pred_trafo"],
-                    "y_unc_trafo": self.shared_objects["y_unc_trafo"],
-                }
-                result_msg = ""
-                for k, loss in sorted(
-                    self.shared_objects["label_loss_dict"].items()
-                ):
-                    if k[:9] == "loss_sum_":
-                        eval_dict[k] = loss
-                        result_msg += k + ": {" + k + ":2.3f} "
-
-                # -------------------------------------
-                # Test performance on training data
-                # -------------------------------------
-                feed_dict_train = self._feed_placeholders(
-                    train_data_generator, is_validation=True
-                )
-                results_train = self.sess.run(
-                    eval_dict, feed_dict=feed_dict_train
+                # ----------------
+                # Test performance
+                # ----------------
+                #  x_ic78, x_deepcore, labels, misc_data
+                batch_train = next(train_data_generator)
+                results_train = self.get_loss(
+                    data_batch=batch_train,
+                    is_training=True,
+                    summary_writer=self._train_writer,
                 )
 
-                # -------------------------------------
-                # Test performance on validation data
-                # -------------------------------------
-                feed_dict_val = self._feed_placeholders(
-                    val_data_generator, is_validation=True
+                #  x_ic78, x_deepcore, labels, misc_data
+                batch_val = next(val_data_generator)
+                results_val = self.get_loss(
+                    data_batch=batch_val,
+                    is_training=False,
+                    summary_writer=self._val_writer,
                 )
-                results_val = self.sess.run(eval_dict, feed_dict=feed_dict_val)
-                y_true_train = feed_dict_train[self.shared_objects["y_true"]]
-                y_true_val = feed_dict_val[self.shared_objects["y_true"]]
+
+                # write to file
+                self._train_writer.flush()
+                self._val_writer.flush()
+
+                # -----------------
+                # Print out results
+                # -----------------
+                def get_result_msg(loss_dict):
+                    result_msg = ""
+                    for name, loss in sorted(loss_dict.items()):
+                        if name[:9] == "loss_sum_":
+                            result_msg += f"{name}: {loss.numpy():2.3f} "
+                    return result_msg
+
+                result_msg_train = get_result_msg(
+                    results_train["label_loss_dict"]
+                )
+                result_msg_val = get_result_msg(results_val["label_loss_dict"])
+
+                y_true_train = batch_train[2]
+                y_true_val = batch_val[2]
+
                 y_true_trafo_train = self.data_transformer.transform(
                     y_true_train, data_type="label"
                 )
@@ -1002,20 +1073,12 @@ class NNModel(object):
                     y_true_val, data_type="label"
                 )
 
-                self._train_writer.add_summary(
-                    results_train["merged_summary"], i
-                )
-                self._val_writer.add_summary(results_val["merged_summary"], i)
-                msg = "Step: {:08d}, Runtime: {:2.2f}s, Benchmark: {:3.3f}"
                 print(
-                    msg.format(
-                        i,
-                        timeit.default_timer() - start_time,
-                        np.sum(updated_weights),
-                    )
+                    f"Step: {step_i:08d}, Runtime: {t_total:.1f}s, Per-Step: {t_step:1.3f}s, "
+                    f"Benchmark: {np.sum(updated_weights):3.3f}"
                 )
-                print("\t[Train]      " + result_msg.format(**results_train))
-                print("\t[Validation] " + result_msg.format(**results_val))
+                print("\t[Train]      " + result_msg_train)
+                print("\t[Validation] " + result_msg_val)
 
                 # print info for each label
                 for name, index in sorted(
@@ -1025,18 +1088,22 @@ class NNModel(object):
 
                         unc_pull_train = np.std(
                             (
-                                results_train["y_pred_trafo"][:, index]
+                                results_train["y_pred_trafo"].numpy()[:, index]
                                 - y_true_trafo_train[:, index]
                             )
-                            / results_train["y_unc_trafo"][:, index],
+                            / results_train["y_unc_pred_trafo"].numpy()[
+                                :, index
+                            ],
                             ddof=1,
                         )
                         unc_pull_val = np.std(
                             (
-                                results_val["y_pred_trafo"][:, index]
+                                results_val["y_pred_trafo"].numpy()[:, index]
                                 - y_true_trafo_val[:, index]
                             )
-                            / results_val["y_unc_trafo"][:, index],
+                            / results_val["y_unc_pred_trafo"].numpy()[
+                                :, index
+                            ],
                             ddof=1,
                         )
 
@@ -1047,8 +1114,12 @@ class NNModel(object):
                         print(
                             msg.format(
                                 weight=updated_weights[index],
-                                train=results_train["rmse_trafo"][index],
-                                val=results_val["rmse_trafo"][index],
+                                train=results_train[
+                                    "rmse_values_trafo"
+                                ].numpy()[index],
+                                val=results_val["rmse_values_trafo"].numpy()[
+                                    index
+                                ],
                                 name=name,
                                 mean_train=np.mean(y_true_train[:, index]),
                                 mean_val=np.mean(y_true_val[:, index]),
@@ -1058,15 +1129,13 @@ class NNModel(object):
                         )
 
                 # Call user defined evaluation method
-                if self.config["evaluation_file"] is not None:
-                    class_string = "dnn_reco.modules.evaluation.{}.{}".format(
-                        self.config["evaluation_file"],
-                        self.config["evaluation_name"],
+                if self.config["evaluation_class"] is not None:
+                    eval_func = misc.load_class(
+                        self.config["evaluation_class"]
                     )
-                    eval_func = misc.load_class(class_string)
                     eval_func(
-                        feed_dict_train=feed_dict_train,
-                        feed_dict_val=feed_dict_val,
+                        batch_train=batch_train,
+                        batch_val=batch_val,
                         results_train=results_train,
                         results_val=results_val,
                         config=self.config,
@@ -1078,15 +1147,16 @@ class NNModel(object):
             # ----------------
             # save models
             # ----------------
-            if i % self.config["save_frequency"] == 0:
-                if self.config["model_save_model"]:
-                    self._save_training_config(i)
-                    self.saver.save(
-                        sess=self.sess,
-                        global_step=self._step_offset + i,
-                        save_path=self.config["model_checkpoint_path"],
-                    )
-            # ----------------
+            if num_training_steps % self.config["save_frequency"] == 0:
+                if self.config["model_save_model"] and num_training_steps > 0:
+                    self._save_training_config(num_training_steps)
+                    self._checkpoint_manager.save(self.step)
+
+            # ----------------------
+            # increment step counter
+            # ----------------------
+            self.step.assign_add(1)
+            num_training_steps += 1
 
     def _save_training_config(self, iteration):
         """Save Training config and iterations to file.
@@ -1094,14 +1164,15 @@ class NNModel(object):
         Parameters
         ----------
         iteration : int
-            The current training iteration.
+            The current training iteration of this specific
+            execution of the training loop. note
 
         Raises
         ------
         ValueError
             Description
         """
-        if iteration == 0:
+        if iteration <= self.config["save_frequency"]:
             if not self.config["model_restore_model"]:
                 # Delete old training config files and create a new and empty
                 # training_steps.txt, since we are training a new model
@@ -1116,7 +1187,7 @@ class NNModel(object):
                 if files:
                     misc.print_warning(
                         "Please confirm the deletion of the "
-                        "previous trainin configs:"
+                        "previous training configs:"
                     )
                 for file in files:
                     if click.confirm(
@@ -1132,40 +1203,36 @@ class NNModel(object):
             training_config = dict(self.config)
             del training_config["np_float_precision"]
             del training_config["tf_float_precision"]
+            training_config = yaml.convert_nested_list_wrapper(training_config)
 
             with open(self._training_config_file, "w") as yaml_file:
-                yaml_obj = yaml.YAML(typ="full")
-                yaml_obj.default_flow_style = False
-                yaml_obj.dump(
-                    training_config,
-                    yaml_file,
-                )
+                yaml.yaml_dumper.dump(training_config, yaml_file)
 
         # update number of training iterations in training_steps.yaml
         self._training_iterations_dict[self._training_step] = iteration
         with open(self._training_steps_file, "w") as yaml_file:
-            yaml_obj = yaml.YAML(typ="full")
-            yaml_obj.default_flow_style = False
-            yaml_obj.dump(
-                self._training_iterations_dict,
-                yaml_file,
+            yaml.yaml_dumper.dump(
+                dict(self._training_iterations_dict), yaml_file
             )
 
-    def count_parameters(self, var_list=None):
-        """Count number of trainable parameters
-
-        Parameters
-        ----------
-        var_list : list of tf.Tensors, optional
-            A list of tensorflow tensors for which to calculate the number of
-            trainable parameters. If None, then all trainable parameters
-            available will be counted.
+    def _count_number_of_variables(self):
+        """Counts number of model variables
 
         Returns
         -------
         int
-            Number of trainable parameters
+            The number of trainable variables of the model.
+        int
+            The total number of variables of the model.
+            This includes the non-trainable ones.
         """
-        if var_list is None:
-            var_list = tf.compat.v1.trainable_variables()
-        return np.sum([np.prod(x.get_shape().as_list()) for x in var_list])
+        num_trainable = np.sum(
+            [
+                np.prod(x.get_shape().as_list())
+                for x in self.trainable_variables
+            ]
+        )
+        num_total = np.sum(
+            [np.prod(x.get_shape().as_list()) for x in self.variables]
+        )
+        return num_trainable, num_total

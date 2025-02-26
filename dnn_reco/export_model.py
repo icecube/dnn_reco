@@ -1,17 +1,15 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import division, print_function
 import os
 import shutil
 import glob
 import click
-import ruamel.yaml as yaml
-import tensorflow as tf
+import logging
 
-from dnn_reco.setup_manager import SetupManager
+from dnn_reco import misc
+from dnn_reco.settings.yaml import yaml_loader, yaml_dumper
+from dnn_reco.settings.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
-from dnn_reco.model import NNModel
 
 
 @click.command()
@@ -20,25 +18,44 @@ from dnn_reco.model import NNModel
     "--output_folder",
     "-o",
     default=None,
+    type=click.Path(),
     help="folder to which the model will be exported",
 )
 @click.option(
     "--data_settings",
     "-s",
     default=None,
+    type=click.Path(exists=True),
     help="Config file used to create training data",
 )
 @click.option(
     "--logs/--no-logs", default=True, help="Export tensorflow log files."
 )
-def main(config_files, output_folder, data_settings, logs):
+@click.option(
+    "--log_level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING"]),
+    default="INFO",
+)
+def main(config_files, output_folder, data_settings, logs, log_level):
     """Script to export dnn reco model.
 
     Parameters
     ----------
     config_files : list of strings
         List of yaml config files.
+    output_folder : str
+        Path to model output directory to which the exported model will be
+        written to.
+    data_settings : str
+        Path to config file that was used to create the training data,
+        or alternatively a config file that contains the data settings.
+    logs : bool
+        Export tensorflow log files.
+    log_level : str
+        Log level for logging.
     """
+    # set up logging
+    logging.basicConfig(level=log_level)
 
     # Check paths and define output names
     if not os.path.isdir(output_folder):
@@ -80,27 +97,27 @@ def main(config_files, output_folder, data_settings, logs):
     # load trafo model from file
     data_transformer.load_trafo_model(config["trafo_model_path"])
 
-    with tf.Graph().as_default():
-        # create NN model
-        model = NNModel(
-            is_training=True,
-            config=config,
-            data_handler=data_handler,
-            data_transformer=data_transformer,
-        )
+    # create NN model
+    ModelClass = misc.load_class(config["model_class"])
+    model = ModelClass(
+        config=config,
+        data_handler=data_handler,
+        data_transformer=data_transformer,
+        **config["model_kwargs"]
+    )
 
-        # compile model: define loss function and optimizer
-        model.compile()
+    # compile model: define loss function and optimizer
+    model.compile()
 
     # -------------------------
     # Export latest checkpoints
     # -------------------------
-    checkpoint_dir = os.path.dirname(config["model_checkpoint_path"])
-    latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
+    latest_checkpoint = model._checkpoint_manager.latest_checkpoint
+    checkpoint_dir = os.path.dirname(latest_checkpoint)
     if latest_checkpoint is None:
         raise ValueError("Could not find a checkpoint. Aborting export!")
     else:
-        for ending in [".index", ".meta", ".data-00000-of-00001"]:
+        for ending in [".index", ".data-00000-of-00001"]:
             shutil.copy2(src=latest_checkpoint + ending, dst=output_folder)
         shutil.copy2(
             src=os.path.join(checkpoint_dir, "checkpoint"), dst=output_folder
@@ -110,7 +127,9 @@ def main(config_files, output_folder, data_settings, logs):
     # read and export data settings
     # -----------------------------
     export_data_settings(
-        data_settings=data_settings, output_folder=output_folder
+        data_settings=data_settings,
+        output_folder=output_folder,
+        config=config,
     )
 
     # -----------------------------
@@ -170,17 +189,13 @@ def main(config_files, output_folder, data_settings, logs):
         "num_misc": data_handler.num_misc,
     }
     with open(os.path.join(output_folder, "config_meta_data.yaml"), "w") as f:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            meta_data,
-            f,
-        )
+        yaml_dumper.dump(meta_data, f)
 
     # ------------------------------------
     # Export package versions and git hash
     # ------------------------------------
     version_control = {
+        "dnn_reco_version": config["dnn_reco_version"],
         "git_short_sha": config["git_short_sha"],
         "git_sha": config["git_sha"],
         "git_origin": config["git_origin"],
@@ -188,12 +203,7 @@ def main(config_files, output_folder, data_settings, logs):
         "pip_installed_packages": config["pip_installed_packages"],
     }
     with open(os.path.join(output_folder, "version_control.yaml"), "w") as f:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            version_control,
-            f,
-        )
+        yaml_dumper.dump(version_control, f)
 
     # -------------------------------
     # Export tensorflow training logs
@@ -210,7 +220,12 @@ def main(config_files, output_folder, data_settings, logs):
     print("{!r}\n".format(output_folder))
 
 
-def export_data_settings(data_settings, output_folder):
+# ---------------------
+# Collect Data Settings
+# ---------------------
+
+
+def export_data_settings(data_settings, output_folder, config):
     """Read and export data settings.
 
     Parameters
@@ -220,18 +235,11 @@ def export_data_settings(data_settings, output_folder):
     output_folder : str
         Path to model output directory to which the exported model will be
         written to.
+    config : dict
+        Configuration of the NN model.
     """
-    try:
-        with open(data_settings, "r") as stream:
-            data_config = yaml.YAML(typ="safe", pure=True).load(stream)
-    except Exception as e:
-        print(e)
-        print("Falling back to modified SafeLoader")
-        with open(data_settings, "r") as stream:
-            yaml.SafeLoader.add_constructor(
-                "tag:yaml.org,2002:python/unicode", lambda _, node: node.value
-            )
-            data_config = dict(yaml.YAML(typ="safe", pure=True).load(stream))
+    with open(data_settings, "r") as stream:
+        data_config = yaml_loader.load(stream)
 
     for k in [
         "pulse_time_quantiles",
@@ -245,6 +253,115 @@ def export_data_settings(data_settings, output_folder):
         if data_config[k] is not None:
             data_config[k] = list(data_config[k])
 
+    try:
+        data_settings = ic3_processing_scripts(data_config, config)
+    except Exception as e:
+        print(e)
+        print("Falling back to SVN processing scripts")
+        try:
+            data_settings = svn_processing_scripts(data_config)
+        except Exception as e:
+            print(e)
+            print("Could not extract data settings. Aborting export!")
+            raise e
+
+    if "is_str_dom_format" not in data_settings:
+        data_settings["is_str_dom_format"] = False
+
+    print("\n=========================")
+    print("= Found Data Settings:  =")
+    print("=========================")
+    for key, value in data_settings.items():
+        print("{}: {}".format(key, value))
+    misc.print_warning(
+        "Please check if the extracted data settings are correct!"
+    )
+
+    with open(
+        os.path.join(output_folder, "config_data_settings.yaml"), "w"
+    ) as f:
+        yaml_dumper.dump(data_settings, f)
+
+
+# ----------------------------------------
+# Extract settings from processing scripts
+# ----------------------------------------
+
+
+def ic3_processing_scripts(data_config, config):
+    """Extract settings from IC3 processing scripts.
+
+    Note that there is some ambiguity if multiple instances of
+    CreateDNNData are used in the processing script. It will
+    be attempted to find the correct one based on the specified
+    output keys.
+    """
+    data_settings = {}
+
+    # find CreateDNNData instance based on output keys
+    dnn_data_configs = []
+    for step_config in data_config["processing_steps"]:
+        for segment_cfg in step_config["tray_segments"]:
+            if segment_cfg["ModuleClass"] == "ic3_data.segments.CreateDNNData":
+
+                # check correct output names
+                if "OutputKey" in segment_cfg["ModuleKwargs"]:
+                    base = segment_cfg["ModuleKwargs"]["OutputKey"]
+                else:
+                    base = "dnn_data"
+
+                if (
+                    config["data_handler_bin_values_name"]
+                    == base + "_bin_values"
+                    and config["data_handler_bin_indices_name"]
+                    == base + "_bin_indices"
+                    and config["data_handler_time_offset_name"]
+                    == base + "_global_time_offset"
+                ):
+                    dnn_data_configs.append(segment_cfg["ModuleKwargs"])
+
+    if len(dnn_data_configs) != 1:
+        raise ValueError(
+            "Expected to find exactly one CreateDNNData instance with "
+            f"matching output keys, but found {dnn_data_configs}"
+        )
+
+    cfg = dnn_data_configs[0]
+
+    # now extract settings
+    data_settings["num_bins"] = cfg["NumDataBins"]
+    data_settings["relative_time_method"] = cfg["RelativeTimeMethod"]
+    data_settings["data_format"] = cfg["DataFormat"]
+    data_settings["pulse_key"] = cfg.get("PulseKey", None)
+    data_settings["dom_exclusions"] = cfg.get("DOMExclusions", None)
+    data_settings["partial_exclusion"] = cfg.get("PartialExclusion", None)
+    data_settings["time_bins"] = cfg.get("TimeBins", None)
+    data_settings["time_quantiles"] = cfg.get("TimeQuantiles", None)
+    data_settings["autoencoder_settings"] = cfg.get(
+        "AutoencoderSettings", None
+    )
+    data_settings["autoencoder_name"] = cfg.get("AutoencoderEncoderName", None)
+    data_settings["cascade_key"] = cfg.get("CascadeKey", "MCCascade")
+    data_settings["output_key"] = cfg.get("OutputKey", "dnn_data")
+
+    # collect mutable objects
+    allowed_pulse_keys = []
+    allowed_cascade_keys = []
+    if data_settings["pulse_key"] is not None:
+        allowed_pulse_keys.append(data_settings["pulse_key"])
+    if data_settings["cascade_key"] is not None:
+        allowed_cascade_keys.append(data_settings["cascade_key"])
+
+    if len(allowed_pulse_keys) > 0:
+        data_settings["allowed_pulse_keys"] = allowed_pulse_keys
+    if len(allowed_cascade_keys) > 0:
+        data_settings["allowed_cascade_keys"] = allowed_cascade_keys
+
+    return data_settings
+
+
+def svn_processing_scripts(data_config):
+    """Extract settings from old SVN processing scripts."""
     data_settings = {}
     data_settings["num_bins"] = data_config["num_data_bins"]
     data_settings["relative_time_method"] = data_config["relative_time_method"]
@@ -293,21 +410,7 @@ def export_data_settings(data_settings, output_folder):
     if len(allowed_cascade_keys) > 0:
         data_settings["allowed_cascade_keys"] = allowed_cascade_keys
 
-    print("\n=========================")
-    print("= Found Data Settings:  =")
-    print("=========================")
-    for key, value in data_settings.items():
-        print("{}: {}".format(key, value))
-
-    with open(
-        os.path.join(output_folder, "config_data_settings.yaml"), "w"
-    ) as f:
-        yaml_obj = yaml.YAML(typ="full")
-        yaml_obj.default_flow_style = False
-        yaml_obj.dump(
-            data_settings,
-            f,
-        )
+    return data_settings
 
 
 if __name__ == "__main__":

@@ -2,16 +2,8 @@ import tensorflow as tf
 
 from dnn_reco import misc
 
-try:
-    # Note: this is only available in TF version >2
-    LearningRateSchedule = tf.optimizers.schedules.LearningRateSchedule
-except ImportError:
-    LearningRateSchedule = (
-        tf.compat.v2.optimizers.schedules.LearningRateSchedule
-    )
 
-
-class MultiLearningRateScheduler(LearningRateSchedule):
+class MultiLearningRateScheduler(tf.optimizers.schedules.LearningRateSchedule):
     """A LearningRateSchedule that combines multiple schedulers"""
 
     def __init__(self, boundaries, scheduler_settings, name=None):
@@ -66,7 +58,6 @@ class MultiLearningRateScheduler(LearningRateSchedule):
         self.schedulers = schedulers
         self.name = name
 
-    @tf.function
     def __call__(self, step):
 
         step = tf.convert_to_tensor(step)
@@ -94,7 +85,10 @@ class MultiLearningRateScheduler(LearningRateSchedule):
 
             pred_fn_pairs.append(
                 (
-                    step > low and step <= high,
+                    tf.math.logical_and(
+                        tf.math.greater(step, low),
+                        tf.math.less_equal(step, high),
+                    ),
                     lambda: scheduler(step - low),
                 )
             )

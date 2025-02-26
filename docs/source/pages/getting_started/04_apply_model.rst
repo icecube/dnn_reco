@@ -13,7 +13,7 @@ Consult ``--help`` for additional options. We will export our model by running:
 
 .. code-block:: bash
 
-    python export_model.py $CONFIG_DIR/getting_started.yaml -s $DNN_HOME/training_data/processing/datasets/11883/clsim-base-4.0.5.0.99_eff/output/summaryV2_clipped/create_training_data_01.yaml_0000 -o $DNN_HOME/exported_models/getting_started_model
+    python export_model.py $CONFIG_DIR/getting_started.yaml -s $DNN_HOME/training_data/processing/NuGen/22644/level2_dev/processing_steps_0000/create_training_data_step_0000.yaml -o $DNN_HOME/exported_models/getting_started_model
 
 This should complete with the message:
 
@@ -32,12 +32,12 @@ following:
 
     import os
     import click
+    import h5py
 
-    from I3Tray import I3Tray
     from icecube import icetray, dataio, hdfwriter
-    from icecube.weighting import get_weighted_primary
 
     from ic3_labels.labels.modules import MCLabelsCascades
+    from ic3_processing.modules.labels.primary import add_weighted_primary
     from dnn_reco.ic3.segments import ApplyDNNRecos
 
 
@@ -59,6 +59,11 @@ following:
         help="Parent directory of exported models.",
     )
     @click.option(
+        "--exclusions",
+        default=["SaturationWindows", "BadDomsList", "CalibrationErrata"],
+        help="DOM exclusions to apply",
+    )
+    @click.option(
         "-g",
         "--gcd_file",
         default="/cvmfs/icecube.opensciencegrid.org/data/GCD/GeoCalibDetectorStatus_2012.56063_V1.i3.gz",
@@ -69,7 +74,9 @@ following:
     )
     @click.option("--i3/--no-i3", default=True)
     @click.option("--hdf5/--no-hdf5", default=True)
-    def main(input_file_pattern, outfile, model_names, models_dir, gcd_file, num_cpus, i3, hdf5):
+    def main(
+        input_file_pattern, outfile, model_names, models_dir, exclusions, gcd_file, num_cpus, i3, hdf5
+    ):
 
         # create output directory if necessary
         base_path = os.path.dirname(outfile)
@@ -87,7 +94,7 @@ following:
             "OnlineL2_PoleL2MPEFit_TruncatedEnergy_AllBINS_Muon",
         ]
 
-        tray = I3Tray()
+        tray = icetray.I3Tray()
 
         # read in files
         file_name_list = [str(gcd_file)]
@@ -95,7 +102,7 @@ following:
         tray.AddModule("I3Reader", "reader", Filenamelist=file_name_list)
 
         # Add labels
-        tray.AddModule(get_weighted_primary, "getWeightedPrimary", If=lambda f: not f.Has("MCPrimary"))
+        tray.Add(add_weighted_primary, "add_weighted_primary", If=lambda f: not f.Has("MCPrimary"))
         tray.AddModule(
             MCLabelsCascades,
             "MCLabelsCascades",
@@ -106,7 +113,7 @@ following:
         )
 
         # collect model and output names
-        if isinstance(model_names, (str, unicode)):
+        if isinstance(model_names, str):
             model_names = [str(model_names)]
         output_names = ["DeepLearningReco_{}".format(m) for m in model_names]
 
@@ -121,6 +128,8 @@ following:
             ApplyDNNRecos,
             "ApplyDNNRecos",
             pulse_key="InIceDSTPulses",
+            dom_exclusions=["SaturationWindows", "BadDomsList", "CalibrationErrata"],
+            partial_exclusion=True,
             model_names=model_names,
             output_keys=output_names,
             models_dir=models_dir,
@@ -140,7 +149,6 @@ following:
                 Keys=HDF_keys,
                 SubEventStreams=["InIceSplit"],
             )
-        tray.AddModule("TrashCan", "YesWeCan")
         tray.Execute()
 
 
@@ -164,7 +172,7 @@ which we have not used in our training set with the following:
 
 .. code-block:: bash
 
-    python $DNN_HOME/apply_dnn_reco.py /data/sim/IceCube/2012/filtered/level2/neutrino-generator/11883/01000-01999/clsim-base-4.0.5.0.99_eff/Level2_IC86.2012_nugen_numu.011883.001011.clsim-base-4.0.5.0.99_eff.i3.bz2 -o $DNN_HOME/output/dnn_reco_output
+    python $DNN_HOME/apply_dnn_reco.py /data/sim/IceCube/2023/filtered/level2/neutrino-generator/22644/0001000-0001999/Level2_NuMu_NuGenCCNC.022644.001000.i3.zst -o $DNN_HOME/output/dnn_reco_output
 
 This will create an hdf5 and an i3 file with the specified file names:
 ``$DNN_HOME/output/dnn_reco_output.hdf5`` and
@@ -175,15 +183,10 @@ This will create an hdf5 and an i3 file with the specified file names:
     If performance is an issue, then you should consider using a GPU.
 
 
-..
-    As we previously did for the creation of the training data, we will use
-    the processing framework from link to svn sandbox.
-
-    Modify the configuration file (link) to use the correct model
-    add: model_dir, model_names
-    and set GPU to 0.=?
-
-    Then we create the job files
-
-    and run them
-    (no need to run dagman for just one file, we can simply execute the )
+.. note::
+    The provided script is a simple example to get you started.
+    For larger scale applications, you can also use the same processing
+    scripts (ic3-processing) that were used to create the training data.
+    For this you would simply modify the configuration file to include the
+    ApplyDNNRecos segment and run the processing scripts as described in
+    :ref:`Create Training Data<create_training_data>`.

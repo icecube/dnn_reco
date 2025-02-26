@@ -37,7 +37,6 @@ All filter functions must have the following parameters and return values:
         shape: [batch_size]
 """
 
-from __future__ import division, print_function
 import numpy as np
 
 

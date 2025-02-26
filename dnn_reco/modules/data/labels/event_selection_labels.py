@@ -27,7 +27,6 @@ All label functions must have the following parameters and return values:
         The names of the labels
 """
 
-from __future__ import division, print_function
 import pandas as pd
 import numpy as np
 

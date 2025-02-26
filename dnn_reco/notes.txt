@@ -1,10 +1,76 @@
+--------------
+Config changes
+--------------
+tf_random_seed -> random_seed in model_kwargs
+add_prediction_to_unc_input = True (for general_model_IC86, False for general_model_IC86_opt4)
+method_list = "convolution" for DC convs, "hex_convolution" for IC
+model gets its own dtype argument for float precision
 
----------------------------------------
-Steps to migrate to tensorflow 2
----------------------------------------
-- fix line breaks and linting
-- fix tf.summary logic
-- transition from tf.compat.* symbols to more idomatic tensorflow 2 logic
+keep_probability_list -> now part of model_kwargs:
+    keep_prob_dom: 0.95,
+    keep_prob_conv: 1.0,
+    keep_prob_flat: 1.0,
+    keep_prob_fc: 1.0,
+
+Change to full class/function import string:
+    'model_file' : 'general_IC86_models'
+    'model_name' : 'general_model_IC86_opt4'
+    --> model_class: 'dnn_reco.modules.models.general_IC86_cnn.GeneralIC86CNN'
+
+    'data_handler_label_file': 'default_labels'
+    'data_handler_label_name': 'simple_label_loader'
+    --> data_handler_label_class: dnn_reco.modules.data.labels.default_labels.simple_label_loader
+
+    'data_handler_misc_file': 'default_misc'
+    'data_handler_misc_name': 'general_misc_loader'
+    --> data_handler_misc_class: dnn_reco.modules.data.misc.default_misc.general_misc_loader
+
+    'data_handler_filter_file': 'default_filter'
+    'data_handler_filter_name': 'general_filter'
+    --> data_handler_filter_class: dnn_reco.modules.data.filter.default_filter.general_filter
+
+    'event_weight_file': 'event_weights'
+    'event_weight_name': 'clipped_astroness_weights
+    --> event_weight_class: dnn_reco.modules.data.event_weights.event_weights.clipped_astroness_weights
+
+    'evaluation_file': default_evaluation
+    'evaluation_name': eval_direction
+    --> evaluation_class: dnn_reco.modules.evaluation.default_evaluation.eval_direction
+
+    'loss_file': 'default_loss',
+    'loss_name': 'mse_and_cross_entropy',
+    --> 'loss_class': 'dnn_reco.modules.loss.default_loss.mse_and_cross_entropy',
+
+    'loss_file': 'default_loss',
+    'loss_name': 'gaussian_likelihood',
+    --> 'loss_class': 'dnn_reco.modules.loss.default_loss.gaussian_likelihood',
+
+    'model_checkpoint_path' : "../checkpoints/nn_model/\
+                              {model_file}__\
+                              {model_name}/\
+                              {unique_name}/model"
+     --> 'model_checkpoint_path' : "../checkpoints/nn_model/{unique_name}/model"
+
+     'log_path' : "../logs/\
+                {unique_name}/\
+                {model_file}__\
+                {model_name}"
+    --> 'log_path' : "../logs/{unique_name}"
+
+Lower-case:
+    conv_upper_DeepCore_settings -> conv_upper_deepcore_settings
+    conv_lower_DeepCore_settings -> conv_lower_deepcore_settings
+    conv_IC78_settings -> conv_ic78_settings
+
+explicitly required:
+    in model_optimizer_dict:
+        clip_gradients_value
+        remove_nan_gradients
+
+New:
+    'model_checkpoint_manager_kwargs': {
+        'max_to_keep': 3,
+    }
 
 ----------------
 Additional ToDos
