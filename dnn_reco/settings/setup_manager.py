@@ -229,6 +229,26 @@ class SetupManager:
         config["tf_float_precision"] = getattr(tf, config["float_precision"])
         config["np_float_precision"] = getattr(np, config["float_precision"])
 
+        # check for version mismatch of dnn-reco (only major version)
+        if "pip_installed_packages" in config:
+            for pkg_name, version in config["pip_installed_packages"]:
+                if pkg_name == "dnn-reco":
+                    restore_version = version
+                    break
+            for pkg_name, version in version_control.installed_packages:
+                if pkg_name == "dnn-reco":
+                    this_version = version
+                    break
+
+            restore_major = int(restore_version.split(".")[0])
+            this_major = int(this_version.split(".")[0])
+            if this_major != restore_major:
+                raise ValueError(
+                    "Version mismatch of dnn-reco. The model was created with "
+                    f"version {restore_version}, but version is {this_version} "
+                    "is currently being used."
+                )
+
         # get git repo information
         config["git_short_sha"] = str(version_control.short_sha)
         config["git_sha"] = str(version_control.sha)

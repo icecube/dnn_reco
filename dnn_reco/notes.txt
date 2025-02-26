@@ -72,12 +72,6 @@ New:
         'max_to_keep': 3,
     }
 
-
----------------------------------------
-Steps to migrate to tensorflow 2
----------------------------------------
-- update manual unittests to v2 model
-
 ----------------
 Additional ToDos
 ----------------
