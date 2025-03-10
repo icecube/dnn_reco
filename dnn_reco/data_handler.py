@@ -696,7 +696,10 @@ class DataHandler(object):
                             nan_fill_value=nan_fill_value,
                         )
 
-                        if icecube_data is not None:
+                        if (
+                            icecube_data is not None
+                            and len(icecube_data[0]) > 0
+                        ):
 
                             # if specified, only sample N events from file
                             if max_events_per_file is not None:
