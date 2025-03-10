@@ -90,7 +90,8 @@
 'num_repetitions' : 3
 #'DOM_init_values' : [[[[[0., -0.020098502, -0.014917467, 0.057788417, 0.03707111, 0., 0.]]]]]
 'batch_size' : 32
-'data_handler_num_splits' : 5
+'data_handler_max_events_per_file':
+'data_handler_max_file_chunk_size': 1000
 
 'log_path' : "../logs/{unique_name}"
 

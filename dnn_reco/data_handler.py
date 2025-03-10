@@ -491,7 +491,8 @@ class DataHandler(object):
         num_add_files=0,
         num_repetitions=1,
         init_values=0.0,
-        num_splits=None,
+        max_events_per_file=None,
+        max_file_chunk_size=None,
         nan_fill_value=None,
         verbose=False,
         *args,
@@ -560,11 +561,13 @@ class DataHandler(object):
         init_values : float, optional
             The x_ic78 array will be initialized with these values via:
             np.zeros_like(x_ic78) * np.array(init_values)
-        num_splits : int, optional
-            If num_splits is given, the loaded file will be divided into
-            num_splits chunks of about equal size. This can be useful when
-            the input files contain a lot of events, since the multiprocessing
-            queue can not handle elements of arbitrary size.
+        max_events_per_file : int, optional
+            Maximum number of events to load from each file.
+            If None, all events will be loaded.
+        max_file_chunk_size : int, optional
+            Maximum chunk size for elements added to the file list queue.
+            If reading in a file with more events, the file will be split into
+            chunks of this size before being added to the queue.
         nan_fill_value : float, optional
             Fill value for nan values in loaded data.
             Entries with nan values will be replaced by this value.
@@ -695,7 +698,35 @@ class DataHandler(object):
 
                         if icecube_data is not None:
 
-                            if num_splits is None:
+                            # if specified, only sample N events from file
+                            if max_events_per_file is not None:
+                                shuffled_indices = (
+                                    local_random_state.permutation(
+                                        icecube_data[0].shape[0]
+                                    )
+                                )
+                                _icecube_data = [
+                                    icecube_data[0][
+                                        shuffled_indices[:max_events_per_file]
+                                    ],
+                                    icecube_data[1][
+                                        shuffled_indices[:max_events_per_file]
+                                    ],
+                                    icecube_data[2][
+                                        shuffled_indices[:max_events_per_file]
+                                    ],
+                                ]
+                                if self.misc_data_exists:
+                                    _icecube_data.append(
+                                        icecube_data[3][
+                                            shuffled_indices[
+                                                :max_events_per_file
+                                            ]
+                                        ]
+                                    )
+                                icecube_data = _icecube_data
+
+                            if max_file_chunk_size is None:
 
                                 # put batch in queue
                                 data_batch_queue.put(icecube_data)
@@ -704,9 +735,10 @@ class DataHandler(object):
                                 # split data into several smaller chunks
                                 # (Multiprocessing queue can only handle
                                 #  a certain size)
+                                num_events = icecube_data[0].shape[0]
                                 split_indices_list = np.array_split(
-                                    np.arange(icecube_data[0].shape[0]),
-                                    num_splits,
+                                    np.arange(num_events),
+                                    np.ceil(num_events / max_file_chunk_size),
                                 )
 
                                 for split_indices in split_indices_list:
