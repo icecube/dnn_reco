@@ -147,7 +147,8 @@ class SetupManager:
         "DOM_init_values": 0.0,
         "trafo_norm_constant": 1e-6,
         "data_handler_nan_fill_value": None,
-        "data_handler_num_splits": None,
+        "data_handler_max_events_per_file": None,
+        "data_handler_max_file_chunk_size": None,
     }
 
     def __init__(self, config_files, num_threads=None):

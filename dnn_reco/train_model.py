@@ -60,7 +60,8 @@ def main(config_files, log_level, num_threads):
         num_jobs=config["num_jobs"],
         num_add_files=config["num_add_files"],
         num_repetitions=config["num_repetitions"],
-        num_splits=config["data_handler_num_splits"],
+        max_events_per_file=config["data_handler_max_events_per_file"],
+        max_file_chunk_size=config["data_handler_max_file_chunk_size"],
         init_values=config["DOM_init_values"],
         nan_fill_value=config["data_handler_nan_fill_value"],
     )
@@ -75,7 +76,8 @@ def main(config_files, log_level, num_threads):
         num_jobs=1,
         num_add_files=1,
         num_repetitions=1,
-        num_splits=config["data_handler_num_splits"],
+        max_events_per_file=config["data_handler_max_events_per_file"],
+        max_file_chunk_size=config["data_handler_max_file_chunk_size"],
         init_values=config["DOM_init_values"],
         nan_fill_value=config["data_handler_nan_fill_value"],
     )
