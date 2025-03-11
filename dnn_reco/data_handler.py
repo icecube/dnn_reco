@@ -729,16 +729,18 @@ class DataHandler(object):
                                     )
                                 icecube_data = _icecube_data
 
-                            if max_file_chunk_size is None:
+                            num_events = icecube_data[0].shape[0]
+                            if (
+                                max_file_chunk_size is None
+                                or max_file_chunk_size >= num_events
+                            ):
 
                                 # put batch in queue
                                 data_batch_queue.put(icecube_data)
                             else:
-
                                 # split data into several smaller chunks
                                 # (Multiprocessing queue can only handle
                                 #  a certain size)
-                                num_events = icecube_data[0].shape[0]
                                 split_indices_list = np.array_split(
                                     np.arange(num_events),
                                     np.ceil(num_events / max_file_chunk_size),
