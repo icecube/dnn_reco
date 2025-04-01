@@ -24,6 +24,7 @@ def ApplyDNNRecos(
     batch_size=1,
     num_cpus=1,
     verbose=False,
+    If=lambda _:True
 ):
     """Apply DNN reco
 
@@ -107,8 +108,11 @@ def ApplyDNNRecos(
         "DNNContainerHandler_" + name,
         DNNDataContainer=container,
         Verbose=verbose,
+        If=If
     )
-
+    
+    
+    
     for model_name, output_key in zip(model_names, output_keys):
         tray.AddModule(
             DeepLearningReco,
@@ -119,4 +123,6 @@ def ApplyDNNRecos(
             MeasureTime=measure_time,
             ParallelismThreads=num_cpus,
             IgnoreMisconfiguredSettingsList=ignore_misconfigured_settings_list,
+            If=If,
         )
+    

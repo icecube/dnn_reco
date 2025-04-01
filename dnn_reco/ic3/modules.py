@@ -329,6 +329,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 # that we can perform the prediction
                 self._process_frame_buffer()
 
+
     def Finish(self):
         """Run prediciton on last incomplete batch of events.
 
@@ -365,7 +366,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
                 # increase the batch event index
                 self._batch_event_index += 1
-
+            print('frame',fr)
             self.PushFrame(fr)
 
     def _perform_prediction(self, size):
