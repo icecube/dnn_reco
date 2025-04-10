@@ -382,7 +382,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 # increase the batch event index
                 self._batch_event_index += 1
             counter.counterA+=1
-            #print(">",counter.counterA,counter.counterB,fr.Stop,self.If(fr))#,fr["I3EventHeader"].run_id,fr["I3EventHeader"].event_id)
+            #print(">",counter.counterA,fr.Stop,self.If(fr))#,fr["I3EventHeader"].run_id,fr["I3EventHeader"].event_id)
             self.PushFrame(fr)
 
     def _perform_prediction(self, size):
