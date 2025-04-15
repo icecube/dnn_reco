@@ -111,8 +111,6 @@ def ApplyDNNRecos(
         If=If
     )
     
-    
-    
     for model_name, output_key in zip(model_names, output_keys):
         tray.AddModule(
             DeepLearningReco,
