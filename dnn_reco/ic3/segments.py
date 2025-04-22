@@ -103,15 +103,6 @@ def ApplyDNNRecos(
         ignore_misconfigured_settings_list=ignore_misconfigured_settings_list,
     )
 
-    def printFrame(fr,s="+"):
-        counter.counterB+=1
-        print(s,counter.counterB,fr.Stop,fr["I3EventHeader"].run_id,fr["I3EventHeader"].event_id)
-    """
-    tray.AddModule(printFrame,s="&",Streams = [icetray.I3Frame.Geometry,
-                          icetray.I3Frame.Calibration,
-                          icetray.I3Frame.DAQ,
-                          icetray.I3Frame.Physics])
-    """
     tray.AddModule(
         DNNContainerHandler,
         "DNNContainerHandler_" + name,
@@ -119,12 +110,6 @@ def ApplyDNNRecos(
         Verbose=verbose,
         If=If
     )
-    """
-    tray.AddModule(printFrame,s="#",Streams = [icetray.I3Frame.Geometry,
-                          icetray.I3Frame.Calibration,
-                          icetray.I3Frame.DAQ,
-                          icetray.I3Frame.Physics])
-    """
     
     for model_name, output_key in zip(model_names, output_keys):
         tray.AddModule(
@@ -137,9 +122,4 @@ def ApplyDNNRecos(
             ParallelismThreads=num_cpus,
             IgnoreMisconfiguredSettingsList=ignore_misconfigured_settings_list,
         )
-    """
-    tray.Add(printFrame,s="-",Streams = [icetray.I3Frame.Geometry,
-                          icetray.I3Frame.Calibration,
-                          icetray.I3Frame.DAQ,
-                          icetray.I3Frame.Physics])
-    """
+    

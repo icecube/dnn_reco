@@ -17,7 +17,7 @@ from dnn_reco.model import NNModel
 import dnn_reco.ic3.counter as counter
 
 
-class DeepLearningReco(icetray.I3ConditionalModule):
+class DeepLearningReco(icetray.I3PacketModule):
     """Module to apply dnn reco.
 
     Attributes
@@ -39,7 +39,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
 
     def __init__(self, context):
         """Initialize DeepLearningReco Module"""
-        icetray.I3ConditionalModule.__init__(self, context)
+        icetray.I3PacketModule.__init__(self, context, icetray.I3Frame.DAQ)
         self.AddParameter("ModelPath", "Path to DNN model", None)
         self.AddParameter(
             "DNNDataContainer",
@@ -79,7 +79,12 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             "[# CPUs]",
             None,
         )
-        self.If=lambda f:"DNNCascades_Failed_A_Step" not in f
+        self.AddParameter(
+            "MaxBufferSize",
+            "Maximum number of frame packets to accumulate before"
+            " forcing an inference call.",
+            100,
+        )
 
     def Configure(self):
         """Configure DeepLearningReco module.
@@ -96,6 +101,7 @@ class DeepLearningReco(icetray.I3ConditionalModule):
         self._output_key = self.GetParameter("OutputBaseName")
         self._measure_time = self.GetParameter("MeasureTime")
         self._parallelism_threads = self.GetParameter("ParallelismThreads")
+        self._max_buffer_size = self.GetParameter("MaxBufferSize")
         self._ignore_list = self.GetParameter(
             "IgnoreMisconfiguredSettingsList"
         )
@@ -304,7 +310,11 @@ class DeepLearningReco(icetray.I3ConditionalModule):
                 if bin
             ]
 
-    def Process(self):
+        # Grab the If directly so we can use it
+        self._if = self.configuration["If"]
+        self.configuration["If"] = lambda _: True
+
+    def FramePacket(self, frames):
         """Process incoming frames.
 
         Pop frames and put them in the frame buffer.
@@ -317,32 +327,26 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             self._runtime_prediction, self._runtime_preprocess_batch
         and the current event index self._batch_event_index
         """
-        frame = self.PopFrame()
-        # put frame on buffer
-        #Check if we want to process this frame
-        shouldProcess=self.If(frame)
-        if(shouldProcess):
+        for frame in frames:
+            # put frame on buffer
             self._frame_buffer.append(frame)
-            self._ignored_frames.append(False)
-
-        else: 
-            self._ignored_frame_buffer.append(frame)
-            self._ignored_frames.append(True)
-        # check if the current frame is a physics frame
-        if (frame.Stop == icetray.I3Frame.Physics) and shouldProcess:
-
-            self._pframe_counter += 1
-
-            # check if we have a full batch of events
-            if self._pframe_counter == self._container.batch_size:
-
-                # we have now accumulated a full batch of events so
-                # that we can perform the prediction
-                self._process_frame_buffer()
+            
+            # check if the current frame is a physics frame
+            if (frame.Stop == icetray.I3Frame.Physics) and self._if(frame):
+                
+                self._pframe_counter += 1
+                
+        # check if we have a full batch of events
+        if ((self._pframe_counter == self._container.batch_size)
+            or (len(self._frame_buffer) >=  self._max_buffer_size)):
+            
+            # we have now accumulated a full batch of events so
+            # that we can perform the prediction
+            self._process_frame_buffer()
 
 
     def Finish(self):
-        """Run prediciton on last incomplete batch of events.
+        """Run prediction on last incomplete batch of events.
 
         If there are still frames left in the frame buffer there is an
         incomplete batch of events, that still needs to be passed through.
@@ -374,15 +378,12 @@ class DeepLearningReco(icetray.I3ConditionalModule):
             else:
                 fr = self._frame_buffer.popleft()
 
-            if (fr.Stop == icetray.I3Frame.Physics) and (not next_frame_ignored):
-
+            if (fr.Stop == icetray.I3Frame.Physics) and (self._if(fr)):
                 # write results at current batch index to frame
                 self._write_to_frame(fr, self._batch_event_index)
 
                 # increase the batch event index
                 self._batch_event_index += 1
-            counter.counterA+=1
-            #print(">",counter.counterA,fr.Stop,self.If(fr))#,fr["I3EventHeader"].run_id,fr["I3EventHeader"].event_id)
             self.PushFrame(fr)
 
     def _perform_prediction(self, size):
