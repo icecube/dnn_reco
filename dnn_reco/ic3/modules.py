@@ -14,7 +14,6 @@ from dnn_reco.setup_manager import SetupManager
 from dnn_reco.data_handler import DataHandler
 from dnn_reco.data_trafo import DataTransformer
 from dnn_reco.model import NNModel
-import dnn_reco.ic3.counter as counter
 
 
 class DeepLearningReco(icetray.I3PacketModule):
@@ -216,9 +215,6 @@ class DeepLearningReco(icetray.I3PacketModule):
 
         # create variables and frame buffer for batching
         self._frame_buffer = deque()
-        self._ignored_frame_buffer = deque()
-        self._ignored_frames = deque()
-
         self._pframe_counter = 0
         self._batch_event_index = 0
 
@@ -365,19 +361,13 @@ class DeepLearningReco(icetray.I3PacketModule):
         pushes all of the frames in the order they came in.
         """
         self._perform_prediction(size=self._pframe_counter)
-
         # reset counters and indices
         self._batch_event_index = 0
         self._pframe_counter = 0
 
         # push frames
-        while self._ignored_frames:
-            next_frame_ignored=self._ignored_frames.popleft()
-            if(next_frame_ignored):
-                fr = self._ignored_frame_buffer.popleft()
-            else:
-                fr = self._frame_buffer.popleft()
-
+        while self._frame_buffer:
+            fr = self._frame_buffer.popleft()
             if (fr.Stop == icetray.I3Frame.Physics) and (self._if(fr)):
                 # write results at current batch index to frame
                 self._write_to_frame(fr, self._batch_event_index)
@@ -401,8 +391,7 @@ class DeepLearningReco(icetray.I3PacketModule):
             self.y_pred_batch, self.y_unc_batch = self.model.predict(
                 x_ic78=self._container.x_ic78[:size],
                 x_deepcore=self._container.x_deepcore[:size],
-            )
-
+            )            
             # Fix time offset
             if self.data_handler.relative_time_keys:
                 global_time_offset = self._container.global_time_offset_batch[
