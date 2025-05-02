@@ -108,9 +108,8 @@ def ApplyDNNRecos(
         "DNNContainerHandler_" + name,
         DNNDataContainer=container,
         Verbose=verbose,
-        If=lambda f: If(f) or not (f.Stop == icetray.I3Frame.Physics)
+        If=If
     )
-
     for model_name, output_key in zip(model_names, output_keys):
         tray.AddModule(
             DeepLearningReco,
@@ -121,7 +120,7 @@ def ApplyDNNRecos(
             MeasureTime=measure_time,
             ParallelismThreads=num_cpus,
             IgnoreMisconfiguredSettingsList=ignore_misconfigured_settings_list,
-            If=If
+            condition=If
         )
 
     

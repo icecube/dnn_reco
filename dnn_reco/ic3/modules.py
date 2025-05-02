@@ -84,6 +84,11 @@ class DeepLearningReco(icetray.I3PacketModule):
             " forcing an inference call.",
             100,
         )
+        self.AddParameter(
+            "condition",
+            "If replacement frame by frame",
+            None,
+        )
 
     def Configure(self):
         """Configure DeepLearningReco module.
@@ -307,8 +312,9 @@ class DeepLearningReco(icetray.I3PacketModule):
             ]
 
         # Grab the If directly so we can use it
-        self._if = self.configuration["If"]
-        self.configuration["If"] = lambda _: True
+        self._if = self.GetParameter('condition')
+        if self._if is None:
+            self._if=lambda f:True
 
     def FramePacket(self, frames):
         """Process incoming frames.
@@ -332,13 +338,13 @@ class DeepLearningReco(icetray.I3PacketModule):
                 
                 self._pframe_counter += 1
                 
-        # check if we have a full batch of events
-        if ((self._pframe_counter == self._container.batch_size)
-            or (len(self._frame_buffer) >=  self._max_buffer_size)):
-            
-            # we have now accumulated a full batch of events so
-            # that we can perform the prediction
-            self._process_frame_buffer()
+            # check if we have a full batch of events
+            if ((self._pframe_counter == self._container.batch_size)
+                or (len(self._frame_buffer) >=  self._max_buffer_size)):
+                
+                # we have now accumulated a full batch of events so
+                # that we can perform the prediction
+                self._process_frame_buffer()
 
 
     def Finish(self):
@@ -350,6 +356,7 @@ class DeepLearningReco(icetray.I3PacketModule):
         write the results to the physics frame. All frames in the frame buffer
         will be pushed.
         """
+        self.FlushQueue()
         if self._frame_buffer:
 
             # there is an incomplete batch of events that we need to complete
@@ -368,10 +375,10 @@ class DeepLearningReco(icetray.I3PacketModule):
         # push frames
         while self._frame_buffer:
             fr = self._frame_buffer.popleft()
+
             if (fr.Stop == icetray.I3Frame.Physics) and (self._if(fr)):
                 # write results at current batch index to frame
                 self._write_to_frame(fr, self._batch_event_index)
-
                 # increase the batch event index
                 self._batch_event_index += 1
             self.PushFrame(fr)
