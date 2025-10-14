@@ -111,6 +111,9 @@ def ApplyDNNRecos(
         If=If
     )
     for model_name, output_key in zip(model_names, output_keys):
+        shouldAdvanceContainer=False
+        if(model_name==model_names[-1]):
+            shouldAdvanceContainer=True
         tray.AddModule(
             DeepLearningReco,
             "DeepLearningReco_" + model_name + name,
@@ -120,7 +123,9 @@ def ApplyDNNRecos(
             MeasureTime=measure_time,
             ParallelismThreads=num_cpus,
             IgnoreMisconfiguredSettingsList=ignore_misconfigured_settings_list,
-            condition=If
+            condition=If,
+            MaxBufferSize=batch_size,
+            shouldAdvanceContainer=shouldAdvanceContainer
         )
 
     

@@ -82,12 +82,17 @@ class DeepLearningReco(icetray.I3PacketModule):
             "MaxBufferSize",
             "Maximum number of frame packets to accumulate before"
             " forcing an inference call.",
-            100,
+            128,
         )
         self.AddParameter(
             "condition",
             "If replacement frame by frame",
             None,
+        )
+        self.AddParameter(
+            "shouldAdvanceContainer",
+            "Whether to allow the container to build up a new set of thiss",
+            False,
         )
 
     def Configure(self):
@@ -315,6 +320,7 @@ class DeepLearningReco(icetray.I3PacketModule):
         self._if = self.GetParameter('condition')
         if self._if is None:
             self._if=lambda f:True
+        self._shouldAdvanceContainer = self.GetParameter('shouldAdvanceContainer')
 
     def FramePacket(self, frames):
         """Process incoming frames.
@@ -335,17 +341,14 @@ class DeepLearningReco(icetray.I3PacketModule):
             
             # check if the current frame is a physics frame
             if (frame.Stop == icetray.I3Frame.Physics) and self._if(frame):
-                
                 self._pframe_counter += 1
-                
-            # check if we have a full batch of events
-            if ((self._pframe_counter == self._container.batch_size)
-                or (len(self._frame_buffer) >=  self._max_buffer_size)):
-                
-                # we have now accumulated a full batch of events so
-                # that we can perform the prediction
-                self._process_frame_buffer()
-
+            
+        # check if we have a full batch of events (or anywhere close)
+        if ((self._pframe_counter >= self._container.batch_size//2)
+            or (len(self._frame_buffer) >=  self._max_buffer_size)):
+            # we have now accumulated a full batch of events so
+            # that we can perform the prediction
+            self._process_frame_buffer()
 
     def Finish(self):
         """Run prediction on last incomplete batch of events.
@@ -358,7 +361,6 @@ class DeepLearningReco(icetray.I3PacketModule):
         """
         self.FlushQueue()
         if self._frame_buffer:
-
             # there is an incomplete batch of events that we need to complete
             self._process_frame_buffer()
 
@@ -415,6 +417,9 @@ class DeepLearningReco(icetray.I3PacketModule):
             self.y_pred_batch = None
             self.y_unc_batch = None
             self._runtime_prediction = None
+        #Tell the container we have processed
+        if(self._shouldAdvanceContainer):
+            self._container.ProcessedCurrentBatch=True
 
     def _write_to_frame(self, frame, batch_event_index):
         """Writes the prediction results of the given batch event index to
