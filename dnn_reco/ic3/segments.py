@@ -114,9 +114,21 @@ def ApplyDNNRecos(
         shouldAdvanceContainer=False
         if(model_name==model_names[-1]):
             shouldAdvanceContainer=True
+
+
+        #The first module will use the DAQ sentinel, the remaining ones will simply ingest the entirety of the previous
+        #outbox in a single loop using a custom sentinel to break the chunks explicitly to match the first 
+        #since that is necessary for the container/ML module format to work
+        sentinel=None
+        if(model_name==model_names[0]):
+            sentinel=icetray.I3Frame.DAQ
+        else:
+            sentinel=icetray.I3Frame.Stream("k")
+
         tray.AddModule(
             DeepLearningReco,
             "DeepLearningReco_" + model_name + name,
+            sentinel=sentinel,
             ModelPath=os.path.join(models_dir, model_name),
             DNNDataContainer=container,
             OutputBaseName=output_key,
@@ -127,5 +139,5 @@ def ApplyDNNRecos(
             MaxBufferSize=batch_size,
             shouldAdvanceContainer=shouldAdvanceContainer
         )
-
+       
     

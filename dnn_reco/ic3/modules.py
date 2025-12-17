@@ -39,6 +39,12 @@ class DeepLearningReco(icetray.I3PacketModule):
     def __init__(self, context):
         """Initialize DeepLearningReco Module"""
         icetray.I3PacketModule.__init__(self, context, icetray.I3Frame.DAQ)
+        
+        self.AddParameter(
+            "sentinel",
+            "sentinel for deciding when to process",
+            icetray.I3Frame.Physics,
+        )
         self.AddParameter("ModelPath", "Path to DNN model", None)
         self.AddParameter(
             "DNNDataContainer",
@@ -91,7 +97,7 @@ class DeepLearningReco(icetray.I3PacketModule):
         )
         self.AddParameter(
             "shouldAdvanceContainer",
-            "Whether to allow the container to build up a new set of thiss",
+            "Whether to allow the container to build up a new set after running",
             False,
         )
 
@@ -105,6 +111,11 @@ class DeepLearningReco(icetray.I3PacketModule):
         ValueError
             If settings do not match the expected settings by the nn model.
         """
+        self.sentinel = self.GetParameter("sentinel")
+        if(self.sentinel!=icetray.I3Frame.DAQ):
+            #P and Q should already be added by default because PacketFrame initialized with sentinel stream=Q
+            self.packet_types.append(self.sentinel)
+            
         self._model_path = self.GetParameter("ModelPath")
         self._container = self.GetParameter("DNNDataContainer")
         self._output_key = self.GetParameter("OutputBaseName")
@@ -334,22 +345,23 @@ class DeepLearningReco(icetray.I3PacketModule):
             self.y_pred_batch, self.y_unc_batch
             self._runtime_prediction, self._runtime_preprocess_batch
         and the current event index self._batch_event_index
-        """
+        """    
         for frame in frames:
             # put frame on buffer
-            self._frame_buffer.append(frame)
-            
-            # check if the current frame is a physics frame
-            if (frame.Stop == icetray.I3Frame.Physics) and self._if(frame):
-                self._pframe_counter += 1
-            
-        # check if we have a full batch of events (or anywhere close)
+            if(frame.Stop!=icetray.I3Frame.Stream('k')):
+                self._frame_buffer.append(frame)
+                
+                # check if the current frame is a physics frame
+                if (frame.Stop == icetray.I3Frame.Physics) and self._if(frame):
+                    self._pframe_counter += 1
+                
+        # check if we have a full batch of events (or anywhere close because we can't have a big packet go over the limit)
         if ((self._pframe_counter >= self._container.batch_size//2)
             or (len(self._frame_buffer) >=  self._max_buffer_size)):
             # we have now accumulated a full batch of events so
-            # that we can perform the prediction
+            # that we can perform the prediction  
             self._process_frame_buffer()
-
+    
     def Finish(self):
         """Run prediction on last incomplete batch of events.
 
@@ -370,6 +382,7 @@ class DeepLearningReco(icetray.I3PacketModule):
         pushes all of the frames in the order they came in.
         """
         self._perform_prediction(size=self._pframe_counter)
+
         # reset counters and indices
         self._batch_event_index = 0
         self._pframe_counter = 0
@@ -384,6 +397,11 @@ class DeepLearningReco(icetray.I3PacketModule):
                 # increase the batch event index
                 self._batch_event_index += 1
             self.PushFrame(fr)
+         #Tell the container we have processed
+        if(self._shouldAdvanceContainer):
+            self._container.ProcessedCurrentBatch=True
+        else:
+            self.PushFrame(icetray.I3Frame('k')) #push a placeholder frame as sentinel
 
     def _perform_prediction(self, size):
         """Perform the prediction for a batch of events.
@@ -417,10 +435,7 @@ class DeepLearningReco(icetray.I3PacketModule):
             self.y_pred_batch = None
             self.y_unc_batch = None
             self._runtime_prediction = None
-        #Tell the container we have processed
-        if(self._shouldAdvanceContainer):
-            self._container.ProcessedCurrentBatch=True
-
+       
     def _write_to_frame(self, frame, batch_event_index):
         """Writes the prediction results of the given batch event index to
         the frame.
@@ -494,7 +509,6 @@ class DeepLearningReco(icetray.I3PacketModule):
             particle.dir = dataclasses.I3Direction(
                 particle.dir.x, particle.dir.y, particle.dir.z
             )
-
             frame[self._output_key + "_I3Particle"] = particle
 
         # write time measurement to frame
@@ -507,3 +521,4 @@ class DeepLearningReco(icetray.I3PacketModule):
 
         # write to frame
         frame[self._output_key] = dataclasses.I3MapStringDouble(results)
+        
